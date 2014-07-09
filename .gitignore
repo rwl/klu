@@ -1,4 +1,9 @@
-/target/*
+out/
+packages
+pubspec.lock
+
+.idea/
+klu.iml
+
+.project
 /.settings/
-/.project
-/.classpath
