@@ -78,7 +78,7 @@ int dfs(int j, int k, List<int> Pinv, List<int> Llen, int Llen_offset,
     {
       /* first time that j has been visited */
       Flag [j] = k ;
-      PRINTF ("[ start dfs at %d : new %d\n", j, jnew) ;
+      PRINTF ("[ start dfs at $j : new $jnew\n") ;
       /* set Ap_pos [head] to one past the last entry in col j to scan */
       Ap_pos [head] =
         (Lpend [jnew] == EMPTY) ?  Llen [Llen_offset + jnew] : Lpend [jnew] ;
@@ -90,7 +90,7 @@ int dfs(int j, int k, List<int> Pinv, List<int> Llen, int Llen_offset,
     int Li_offset = Lip [Lip_offset + jnew] ;
     for (pos = --Ap_pos [head] ; pos >= 0 ; --pos)
     {
-      i = Li [Li_offset + pos] as int ;
+      i = Li [Li_offset + pos].toInt() ;
       if (Flag [i] != k)
       {
         /* node i is not yet visited */
@@ -112,7 +112,7 @@ int dfs(int j, int k, List<int> Pinv, List<int> Llen, int Llen_offset,
           /* Flag as visited and store directly into L,
            * and continue with current node j. */
           Flag [i] = k ;
-          Lik [Lik_offset + l_length] = i ;
+          Lik [Lik_offset + l_length] = i.toDouble() ;
           l_length++ ;
         }
       }
@@ -124,7 +124,7 @@ int dfs(int j, int k, List<int> Pinv, List<int> Llen, int Llen_offset,
        * recursive stack and push j onto output stack */
       head-- ;
       Stack[--top] = j ;
-      PRINTF ("  end   dfs at %d ] head : %d\n", j, head) ;
+      PRINTF ("  end   dfs at $j ] head : $head\n") ;
     }
   }
 
@@ -183,7 +183,7 @@ int lsolve_symbolic(int n, int k, List<int> Ap, List<int> Ai,
     if (i < 0) continue ;   /* skip entry outside the block */
 
     /* (i,k) is an entry in the block.  start a DFS at node i */
-    PRINTF ("\n ===== DFS at node %d in b, inew: %d\n", i, Pinv [i]) ;
+    PRINTF ("\n ===== DFS at node $i in b, inew: ${Pinv [i]}\n") ;
     if (Flag [i] != k)
     {
       if (Pinv [i] >= 0)
@@ -196,7 +196,7 @@ int lsolve_symbolic(int n, int k, List<int> Ap, List<int> Ai,
       {
         /* i is not pivotal, and not flagged. Flag and put in L */
         Flag [i] = k ;
-        Lik [Lik_offset + l_length[0]] = i ;
+        Lik [Lik_offset + l_length[0]] = i.toDouble() ;
         l_length[0]++;
       }
     }
@@ -334,7 +334,7 @@ void lsolve_numeric(List<int> Pinv, List<double> LU, List<int> Stack,
     for (p = 0 ; p < len[0] ; p++)
     {
       //MULT_SUB (X [Li [p]], Lx [p], xj) ;
-      X [Li [Li_offset[0] + p] as int] -= Lx [Lx_offset[0] + p] * xj ;
+      X [Li [Li_offset[0] + p].toInt()] -= Lx [Lx_offset[0] + p] * xj ;
     }
   }
 }
@@ -384,12 +384,12 @@ int lpivot(int diagrow, List<int> p_pivrow, List<double> p_pivot,
     }
     for (firstrow = p_firstrow[0] ; firstrow < n ; firstrow++)
     {
-      PRINTF ("check %d\n", firstrow) ;
+      PRINTF ("check $firstrow\n") ;
       if (Pinv [firstrow] < 0)
       {
         /* found the lowest-numbered non-pivotal row.  Pick it. */
         pivrow = firstrow ;
-        PRINTF ("Got pivotal row: %d\n", pivrow) ;
+        PRINTF ("Got pivotal row: $pivrow\n") ;
         break ;
       }
     }
@@ -397,18 +397,18 @@ int lpivot(int diagrow, List<int> p_pivrow, List<double> p_pivot,
     pivot = 0.0 ; //CLEAR (pivot) ;
     p_pivrow[0] = pivrow ;
     p_pivot[0] = pivot ;
-    p_abs_pivot[0] = 0 ;
+    p_abs_pivot[0] = 0.0 ;
     p_firstrow[0] = firstrow ;
     return (FALSE) ;
   }
 
   pdiag = EMPTY ;
   ppivrow = EMPTY ;
-  abs_pivot = EMPTY ;
+  abs_pivot = EMPTY.toDouble() ;
   i = Llen [Llen_offset + k] - 1 ;
   Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset,
       Li_offset, Lx_offset, k, len) ;
-  last_row_index = Li [Li_offset[0] + i] as int ;
+  last_row_index = Li [Li_offset[0] + i].toInt() ;
 
   /* decrement the length by 1 */
   Llen [Llen_offset + k] = i ;
@@ -419,7 +419,7 @@ int lpivot(int diagrow, List<int> p_pivrow, List<double> p_pivot,
   for (p = 0 ; p < len[0] ; p++)
   {
     /* gather the entry from X and store in L */
-    i = Li [Li_offset[0] + p] as int ;
+    i = Li [Li_offset[0] + p].toInt() ;
     x = X [i] ;
     CLEAR (X, i) ;
 
@@ -472,10 +472,10 @@ int lpivot(int diagrow, List<int> p_pivrow, List<double> p_pivot,
 
   if (ppivrow != EMPTY)
   {
-    pivrow = Li [Li_offset[0] + ppivrow] as int ;
+    pivrow = Li [Li_offset[0] + ppivrow].toInt() ;
     pivot  = Lx [Lx_offset[0] + ppivrow] ;
     /* overwrite the ppivrow values with last index values */
-    Li [Li_offset[0] + ppivrow] = last_row_index ;
+    Li [Li_offset[0] + ppivrow] = last_row_index.toDouble() ;
     Lx [Lx_offset[0] + ppivrow] = X [last_row_index] ;
   }
   else
@@ -540,10 +540,9 @@ void prune(List<int> Lpend, List<int> Pinv, int k, int pivrow,
       Ui_offset, Ux_offset, k, ulen) ;
   for (p = 0 ; p < ulen[0] ; p++)
   {
-    j = Ui [Ui_offset[0] + p] as int ;
+    j = Ui [Ui_offset[0] + p].toInt() ;
     ASSERT (j < k) ;
-    PRINTF ("%d is pruned: %d. Lpend[j] %d Lip[j+1] %d\n",
-      j, Lpend [j] != EMPTY ? 1 : 0, Lpend [j], Lip [Lip_offset + j+1]) ;
+    PRINTF ("$j is pruned: ${Lpend [j] != EMPTY ? 1 : 0}. Lpend[j] ${Lpend [j]} Lip[j+1] ${Lip [Lip_offset + j+1]}\n") ;
     if (Lpend [j] == EMPTY)
     {
       /* scan column j of L for the pivot row */
@@ -556,13 +555,12 @@ void prune(List<int> Lpend, List<int> Pinv, int k, int pivrow,
           /* found it!  This column can be pruned */
           if (!NDEBUG)
           {
-            PRINTF ("==== PRUNE: col j %d of L\n", j) ;
+            PRINTF ("==== PRUNE: col j $j of L\n") ;
             {
               int p3 ;
               for (p3 = 0 ; p3 < Llen [Llen_offset + j] ; p3++)
               {
-                PRINTF ("before: %d  pivotal: %d\n", Li [Li_offset[0] + p3] as int,
-                    Pinv [Li [Li_offset[0] + p3] as int] >= 0 ? 1 : 0) ;
+                PRINTF ("before: ${Li [Li_offset[0] + p3].toInt()}  pivotal: ${Pinv [Li [Li_offset[0] + p3].toInt()] >= 0 ? 1 : 0}\n") ;
               }
             }
           }
@@ -573,7 +571,7 @@ void prune(List<int> Lpend, List<int> Pinv, int k, int pivrow,
           ptail = Llen [Llen_offset + j] ;
           while (phead < ptail)
           {
-            i = Li [Li_offset[0] + phead] as int ;
+            i = Li [Li_offset[0] + phead].toInt() ;
             if (Pinv [i] >= 0)
             {
               /* leave at the head */
@@ -584,7 +582,7 @@ void prune(List<int> Lpend, List<int> Pinv, int k, int pivrow,
               /* swap with the tail */
               ptail-- ;
               Li [Li_offset[0] + phead] = Li [Li_offset[0] + ptail] ;
-              Li [Li_offset[0] + ptail] = i ;
+              Li [Li_offset[0] + ptail] = i.toDouble() ;
               x = Lx [Lx_offset[0] + phead] ;
               Lx [Lx_offset[0] + phead] = Lx [Lx_offset[0] + ptail] ;
               Lx [Lx_offset[0] + ptail] = x ;
@@ -605,8 +603,7 @@ void prune(List<int> Lpend, List<int> Pinv, int k, int pivrow,
             for (p3 = 0 ; p3 < Llen [Llen_offset + j] ; p3++)
             {
               if (p3 == Lpend [j]) PRINTF (("----\n")) ;
-              PRINTF ("after: %d  pivotal: %d\n", Li [Li_offset[0] + p3] as int,
-                    Pinv [Li [Li_offset[0] + p3] as int] >= 0 ? 1 : 0) ;
+              PRINTF ("after: ${Li [Li_offset[0] + p3].toInt()}  pivotal: ${Pinv [Li [Li_offset[0] + p3].toInt()] >= 0 ? 1 : 0}\n") ;
             }
           }
 
@@ -652,7 +649,7 @@ void prune(List<int> Lpend, List<int> Pinv, int k, int pivrow,
  * @return final size of LU on output
  */
 int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
-    List<int> Q, int lusize, List<int> Pinv, List<int> P, List<double>[] p_LU,
+    List<int> Q, int lusize, List<int> Pinv, List<int> P, List<List<double>> p_LU,
     List<double> Udiag, int Udiag_offset, List<int> Llen, int Llen_offset,
     List<int> Ulen, int Ulen_offset, List<int> Lip, int Lip_offset,
     List<int> Uip, int Uip_offset,
@@ -667,8 +664,8 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
   /*List<int>*/List<double> Li, Ui ;
   List<double> LU ;          /* LU factors (pattern and values) */
   int k, p, i, j, kbar, diagrow, lup, top, scale;
-  List<int> len = new int[1] ;
-  List<int> firstrow = new int[1] ;
+  List<int> len = new List<int>(1) ;
+  List<int> firstrow = new List<int>(1) ;
   List<int> pivrow = [0] ;
   int newlusize;
   List<int> Ui_offset = new List<int>(1) ;
@@ -690,7 +687,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
   /* get initial Li, Lx, Ui, and Ux */
   /* ---------------------------------------------------------------------- */
 
-  PRINTF ("input: lusize %d \n", lusize) ;
+  PRINTF ("input: lusize $lusize \n") ;
   ASSERT (lusize > 0) ;
   LU = p_LU [0] ;
 
@@ -731,7 +728,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
   {
     for (k = 0 ; k < n ; k++)
     {
-      PRINTF ("Initial P [%d] = %d\n", k, P [k]) ;
+      PRINTF ("Initial P [$k] = ${P [k]}\n") ;
     }
   }
 
@@ -742,7 +739,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
   for (k = 0 ; k < n ; k++)
   {
 
-    PRINTF ("\n\n==================================== k: %d\n", k) ;
+    PRINTF ("\n\n==================================== k: $k\n") ;
 
     /* ------------------------------------------------------------------ */
     /* determine if LU factors have grown too big */
@@ -751,25 +748,24 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
     /* (n - k) entries for L and k entries for U */
     //nunits = DUNITS (Integer, n - k) + DUNITS (Integer, k) +
     //	DUNITS (Double, n - k) + DUNITS (Double, k) ;
-    nunits = (n - k) + (k) + (n - k) + (k) ;
+    nunits = ((n - k) + (k) + (n - k) + (k)).toDouble() ;
 
     /* LU can grow by at most 'nunits' entries if the column is dense */
-    PRINTF ("lup %d lusize %g lup+nunits: %g\n", lup, (double) lusize,
-      lup+nunits) ;
-    xsize = ((double) lup) + nunits ;
-    if (xsize > (double) lusize)
+    PRINTF ("lup $lup lusize $lusize lup+nunits: ${lup+nunits}\n") ;
+    xsize = lup + nunits ;
+    if (xsize > lusize)
     {
       /* check here how much to grow */
-      xsize = (memgrow * ((double) lusize) + 4*n + 1) ;
+      xsize = memgrow * lusize + 4*n + 1 ;
       if (INT_OVERFLOW (xsize))
       {
         PRINTF ("Matrix is too large (int overflow)\n") ;
         Common.status = KLU_TOO_LARGE ;
         return (lusize) ;
       }
-      newlusize = (int) (memgrow * lusize + 2*n + 1) ;
+      newlusize = (memgrow * lusize + 2*n + 1).toInt() ;
       /* Future work: retry mechanism in case of malloc failure */
-      LU = klu_realloc_dbl (newlusize, lusize, LU, Common) ;
+      LU = realloc_dbl (newlusize, lusize, LU, Common) ;
       Common.nrealloc++ ;
       p_LU [0] = LU ;
       if (Common.status == KLU_OUT_OF_MEMORY)
@@ -778,7 +774,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
         return (lusize) ;
       }
       lusize = newlusize ;
-      PRINTF ("inc LU to %d done\n", lusize) ;
+      PRINTF ("inc LU to $lusize done\n") ;
     }
 
     /* ------------------------------------------------------------------ */
@@ -810,8 +806,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
       PRINTF ("--- in U:\n") ;
       for (p = top ; p < n ; p++)
       {
-        PRINTF ("pattern of X for U: %d : %d pivot row: %d\n",
-          p, Stack [p], Pinv [Stack [p]]) ;
+        PRINTF ("pattern of X for U: $p : ${Stack [p]} pivot row: ${Pinv [Stack [p]]}\n") ;
         ASSERT (Flag [Stack [p]] == k) ;
       }
       PRINTF ("--- in L:\n") ;
@@ -819,9 +814,8 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
       Li_offset[0] = Lip [Lip_offset + k] ;
       for (p = 0 ; p < Llen [Llen_offset + k] ; p++)
       {
-        PRINTF ("pattern of X in L: %d : %d pivot row: %d\n",
-          p, (int) Li [Li_offset[0] + p], Pinv [(int) Li [Li_offset[0] + p]]) ;
-        ASSERT (Flag [(int) Li [Li_offset[0] + p]] == k) ;
+        PRINTF ("pattern of X in L: $p : ${Li [Li_offset[0] + p]} pivot row: ${Pinv [Li [Li_offset[0] + p].toInt()]}\n") ;
+        ASSERT (Flag [Li [Li_offset[0] + p].toInt()] == k) ;
       }
       p = 0 ;
       for (i = 0 ; i < n ; i++)
@@ -849,15 +843,15 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
     {
       for (p = top ; p < n ; p++)
       {
-        PRINTF ("X for U %d : ",  Stack [p]) ;
+        PRINTF ("X for U ${Stack [p]} : ") ;
         PRINT_ENTRY (X [Stack [p]]) ;
       }
       Li = LU ;
       Li_offset[0] = Lip [Lip_offset + k] ;
       for (p = 0 ; p < Llen [Llen_offset + k] ; p++)
       {
-        PRINTF ("X for L %d : ", (int) Li [Li_offset[0] + p]) ;
-        PRINT_ENTRY (X [(int) Li [Li_offset[0] + p]]) ;
+        PRINTF ("X for L ${Li [Li_offset[0] + p].toInt()} : ") ;
+        PRINT_ENTRY (X [Li [Li_offset[0] + p].toInt()]) ;
       }
     }
 
@@ -867,8 +861,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
 
     /* determine what the "diagonal" is */
     diagrow = P [k] ;   /* might already be pivotal */
-    PRINTF ("k %d, diagrow = %d, UNFLIP (diagrow) = %d\n",
-      k, diagrow, UNFLIP (diagrow)) ;
+    PRINTF ("k $k, diagrow = $diagrow, UNFLIP (diagrow) = ${UNFLIP (diagrow)}\n") ;
 
     /* find a pivot and scale the pivot column */
     if (lpivot (diagrow, pivrow, pivot, abs_pivot, tol, X, LU, Lip, Lip_offset,
@@ -890,7 +883,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
 
     /* we now have a valid pivot row, even if the column has NaN's or
      * has no entries on or below the diagonal at all. */
-    PRINTF ("\nk %d : Pivot row %d : ", k, pivrow[0]) ;
+    PRINTF ("\nk $k : Pivot row ${pivrow[0]} : ") ;
     PRINT_ENTRY (pivot[0]) ;
     ASSERT (pivrow[0] >= 0 && pivrow[0] < n) ;
     ASSERT (Pinv [pivrow[0]] < 0) ;
@@ -915,10 +908,11 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
     Ui = Ux = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset,
         Ui_offset, Ux_offset, k, len) ;
 
-    for (p = top, i = 0 ; p < n ; p++, i++)
+    p = top;
+    for (i = 0 ; p < n ; p++, i++)
     {
       j = Stack [p] ;
-      Ui [Ui_offset[0] + i] = Pinv [j] ;
+      Ui [Ui_offset[0] + i] = Pinv [j].toDouble() ;
       Ux [Ux_offset[0] + i] = X [j] ;
       //CLEAR (X [j]) ;
       X [j] = 0.0 ;
@@ -943,8 +937,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
     {
       /* an off-diagonal pivot has been chosen */
       Common.noffdiag++ ;
-      PRINTF (">>>>>>>>>>>>>>>>> pivrow %d k %d off-diagonal\n",
-            pivrow[0], k) ;
+      PRINTF (">>>>>>>>>>>>>>>>> pivrow ${pivrow[0]} k $k off-diagonal\n") ;
       if (Pinv [diagrow] < 0)
       {
         /* the former diagonal row index, diagrow, has not yet been
@@ -966,7 +959,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
           Ui_offset, Ux_offset, k, len) ;
       for (p = 0 ; p < len[0] ; p++)
       {
-        PRINTF ("Column %d of U: %d : ", k, (int) Ui [Ui_offset[0] + p]) ;
+        PRINTF ("Column %k of U: ${Ui [Ui_offset[0] + p].toInt()} : ") ;
         PRINT_ENTRY (Ux [Ux_offset[0] + p]) ;
       }
 
@@ -974,7 +967,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
           Li_offset, Lx_offset, k, len) ;
       for (p = 0 ; p < len[0] ; p++)
       {
-        PRINTF ("Column %d of L: %d : ", k, (int) Li [Li_offset[0] + p]) ;
+        PRINTF ("Column $k of L: ${Li [Li_offset[0] + p].toInt()} : ") ;
         PRINT_ENTRY (Lx [Lx_offset[0] + p]) ;
       }
     }
@@ -1000,7 +993,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
     Li_offset[0] = Lip [Lip_offset + p] ;
     for (i = 0 ; i < Llen [Llen_offset + p] ; i++)
     {
-      Li [Li_offset[0] + i] = Pinv [(int) Li [Li_offset[0] + i]] ;
+      Li [Li_offset[0] + i] = Pinv [Li [Li_offset[0] + i].toInt()].toDouble() ;
     }
   }
 
@@ -1008,7 +1001,7 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
   {
     for (i = 0 ; i < n ; i++)
     {
-      PRINTF ("P [%d] = %d   Pinv [%d] = %d\n", i, P [i], i, Pinv [i]) ;
+      PRINTF ("P [$i] = ${P [i]}   Pinv [$i] = ${Pinv [i]}\n") ;
     }
     for (i = 0 ; i < n ; i++)
     {
@@ -1024,10 +1017,10 @@ int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
   /* ---------------------------------------------------------------------- */
 
   newlusize = lup ;
-  ASSERT ((int) newlusize <= lusize) ;
+  ASSERT (newlusize <= lusize) ;
 
   /* this cannot fail, since the block is descreasing in size */
-  LU = klu_realloc_dbl (newlusize, lusize, LU, Common) ;
+  LU = realloc_dbl (newlusize, lusize, LU, Common) ;
   p_LU [0] = LU ;
   return (newlusize) ;
 }

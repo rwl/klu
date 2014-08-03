@@ -106,7 +106,7 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic,
       /* no scaling */
       for (i = 0 ; i < n ; i++)
       {
-        Rs [i] = 1 ;
+        Rs [i] = 1.0 ;
       }
     }
   }
@@ -164,7 +164,7 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic,
         /* singleton block */
         Lp [k1] = nz ;
         Li [nz] = k1 ;
-        Lx [nz] = 1 ;
+        Lx [nz] = 1.0 ;
         nz++ ;
       }
       else
@@ -180,14 +180,14 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic,
           Lp [k1+kk] = nz ;
           /* add the unit diagonal entry */
           Li [nz] = k1 + kk ;
-          Lx [nz] = 1 ;
+          Lx [nz] = 1.0 ;
           nz++ ;
           Li2 = Lx2 = GET_POINTER (LU, Lip, Lip_offset,
               Llen, Llen_offset,
               Li2_offset, Lx2_offset, kk, len) ;
           for (p = 0 ; p < len[0] ; p++)
           {
-            Li [nz] = k1 + Li2 [Li2_offset[0] + p] as int ;
+            Li [nz] = k1 + Li2 [Li2_offset[0] + p].toInt() ;
             Lx [nz] = Lx2 [Lx2_offset[0] + p] ; //REAL (Lx2 [p]) ;
             nz++ ;
           }
@@ -234,7 +234,7 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic,
           Ui2 = Ux2 = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui2_offset, Ux2_offset, kk, len) ;
           for (p = 0 ; p < len[0] ; p++)
           {
-            Ui [nz] = k1 + Ui2 [Ui2_offset[0] + p] as int ;
+            Ui [nz] = k1 + Ui2 [Ui2_offset[0] + p].toInt() ;
             Ux [nz] = Ux2 [Ux2_offset[0] + p] ; //REAL (Ux2 [p]) ;
             nz++ ;
           }

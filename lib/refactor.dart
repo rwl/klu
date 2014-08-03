@@ -90,7 +90,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
   Common.numerical_rank = EMPTY ;
   Common.singular_col = EMPTY ;
 
-  Az = Ax as List<double> ;
+  Az = new List<double>.from(Ax) ;
 
   /* ---------------------------------------------------------------------- */
   /* get the contents of the Symbolic object */
@@ -119,7 +119,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
     /* factorization was not scaled, but refactorization is scaled */
     if (Numeric.Rs == null)
     {
-      Numeric.Rs = klu_malloc_dbl (n, Common) ;
+      Numeric.Rs = malloc_dbl (n, Common) ;
       if (Common.status < KLU_OK)
       {
         Common.status = KLU_OUT_OF_MEMORY ;
@@ -199,7 +199,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
 
         oldcol = Q [k1] ;
         pend = Ap [oldcol+1] ;
-        s = 0 ; //CLEAR (s) ;
+        s = 0.0 ; //CLEAR (s) ;
         for (p = Ap [oldcol] ; p < pend ; p++)
         {
           newrow = Pinv [Ai [p]] - k1 ;
@@ -268,7 +268,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
               Ui_offset, Ux_offset, k, ulen) ;
           for (up = 0 ; up < ulen[0] ; up++)
           {
-            j = Ui [Ui_offset[0] + up] as int ;
+            j = Ui [Ui_offset[0] + up].toInt() ;
             ujk = X [j] ;
             /* X [j] = 0 ; */
             CLEAR (X, j) ;
@@ -278,7 +278,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
             for (p = 0 ; p < llen[0] ; p++)
             {
               //MULT_SUB (X [Li [p]], Lx [p], ujk) ;
-              X [Li [Li_offset[0] + p] as int] -= Lx [Lx_offset[0] + p] * ujk ;
+              X [Li [Li_offset[0] + p].toInt()] -= Lx [Lx_offset[0] + p] * ujk ;
             }
           }
           /* get the diagonal entry of U */
@@ -307,7 +307,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
               Li_offset, Lx_offset, k, llen) ;
           for (p = 0 ; p < llen[0] ; p++)
           {
-            i = Li [Li_offset[0] + p] as int ;
+            i = Li [Li_offset[0] + p].toInt() ;
             //DIV (Lx [p], X [i], ukk) ;
             Lx [Lx_offset[0] + p] = X [i] / ukk ;
             CLEAR (X, i) ;
@@ -345,7 +345,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
 
         oldcol = Q [k1] ;
         pend = Ap [oldcol+1] ;
-        s = 0 ; //CLEAR (s) ;
+        s = 0.0 ; //CLEAR (s) ;
         for (p = Ap [oldcol] ; p < pend ; p++)
         {
           oldrow = Ai [p] ;
@@ -420,7 +420,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
               Ui_offset, Ux_offset, k, ulen) ;
           for (up = 0 ; up < ulen[0] ; up++)
           {
-            j = Ui [Ui_offset[0] + up] as int ;
+            j = Ui [Ui_offset[0] + up].toInt() ;
             ujk = X [j] ;
             /* X [j] = 0 ; */
             CLEAR (X, j) ;
@@ -430,7 +430,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
             for (p = 0 ; p < llen[0] ; p++)
             {
               //MULT_SUB (X [Li [p]], Lx [p], ujk) ;
-              X [Li [Li_offset[0] + p] as int] -= Lx [Lx_offset[0] + p] * ujk ;
+              X [Li [Li_offset[0] + p].toInt()] -= Lx [Lx_offset[0] + p] * ujk ;
             }
           }
           /* get the diagonal entry of U */
@@ -459,7 +459,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
               Li_offset, Lx_offset, k, llen) ;
           for (p = 0 ; p < llen[0] ; p++)
           {
-            i = Li [Li_offset[0] + p] as int ;
+            i = Li [Li_offset[0] + p].toInt() ;
             //DIV (Lx [p], X [i], ukk) ;
             Lx [Lx_offset[0] + p] = X [i] / ukk ;
             CLEAR (X, i) ;
@@ -492,19 +492,17 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
     ASSERT (Offp [n] == poff) ;
     ASSERT (Symbolic.nzoff == poff) ;
     PRINTF (("\n------------------- Off diagonal entries, new:\n")) ;
-    if (!NDEBUG) ASSERT (klu_valid (n, Offp, Offi, Offx)) ;
+    if (!NDEBUG) ASSERT_INT (_valid (n, Offp, Offi, Offx)) ;
     if (Common.status == KLU_OK)
     {
-      PRINTF ("\n ########### KLU_BTF_REFACTOR done, nblocks %d\n",
-          nblocks);
+      PRINTF ("\n ########### KLU_BTF_REFACTOR done, nblocks $nblocks\n");
       for (block = 0 ; block < nblocks ; block++)
       {
         k1 = R [block] ;
         k2 = R [block+1] ;
         nk = k2 - k1 ;
         PRINTF (
-          "\n================KLU_refactor output: k1 %d k2 %d nk %d\n",
-          k1, k2, nk) ;
+          "\n================KLU_refactor output: k1 $k1 k2 $k2 nk $nk\n") ;
         if (nk == 1)
         {
           PRINTF ("singleton  ") ;
@@ -516,15 +514,15 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
           int Lip_offset = k1 ;
           Llen = Numeric.Llen ;
           int Llen_offset = k1 ;
-          LU = Numeric.LUbx [block] as List<double> ;
-          PRINTF ("\n---- L block %d\n", block) ;
-          if (!NDEBUG) ASSERT (klu_valid_LU (nk, TRUE, Lip, Lip_offset, Llen, Llen_offset, LU)) ;
+          LU = Numeric.LUbx [block];// as List<double> ;
+          PRINTF ("\n---- L block $block\n") ;
+          if (!NDEBUG) ASSERT (_valid_LU (nk, TRUE, Lip, Lip_offset, Llen, Llen_offset, LU)) ;
           Uip = Numeric.Uip ;
           int Uip_offset = k1 ;
           Ulen = Numeric.Ulen ;
           int Ulen_offset = k1 ;
-          PRINTF ("\n---- U block %d\n", block) ;
-          if (!NDEBUG) ASSERT (klu_valid_LU (nk, FALSE, Uip, Uip_offset, Ulen, Ulen_offset, LU)) ;
+          PRINTF ("\n---- U block $block\n") ;
+          if (!NDEBUG) ASSERT (_valid_LU (nk, FALSE, Uip, Uip_offset, Ulen, Ulen_offset, LU)) ;
         }
       }
     }

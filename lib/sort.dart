@@ -42,7 +42,7 @@ import static edu.ufl.cise.klu.tdouble.Dklu_memory.klu_malloc_dbl;*/
 /**
  * Sort L or U using a double-transpose.
  */
-void sort(int n, List<int> Xip, int Xip_offset, List<int> Xlen, int Xlen_offset,
+void _sort(int n, List<int> Xip, int Xip_offset, List<int> Xlen, int Xlen_offset,
     List<double> LU, List<int> Tp, List<int> Tj, List<double> Tx, List<int> W)
 {
   /*List<int>*/List<double> Xi ;
@@ -52,7 +52,7 @@ void sort(int n, List<int> Xip, int Xip_offset, List<int> Xlen, int Xlen_offset,
   List<int> Xi_offset = new List<int>(1) ;
   List<int> Xx_offset = new List<int>(1) ;
 
-  ASSERT (klu_valid_LU (n, FALSE, Xip, Xip_offset, Xlen, Xlen_offset, LU)) ;
+  ASSERT (_valid_LU (n, FALSE, Xip, Xip_offset, Xlen, Xlen_offset, LU)) ;
 
   /* count the number of entries in each row of L or U */
   for (i = 0 ; i < n ; i++)
@@ -64,7 +64,7 @@ void sort(int n, List<int> Xip, int Xip_offset, List<int> Xlen, int Xlen_offset,
     Xi = Xx = GET_POINTER (LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len) ;
     for (p = 0 ; p < len[0] ; p++)
     {
-      W [Xi [Xi_offset[0] + p] as int]++ ;
+      W [Xi [Xi_offset[0] + p].toInt()]++ ;
     }
   }
 
@@ -87,7 +87,7 @@ void sort(int n, List<int> Xip, int Xip_offset, List<int> Xlen, int Xlen_offset,
     Xi = Xx = GET_POINTER (LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len) ;
     for (p = 0 ; p < len[0] ; p++)
     {
-      tp = W [Xi [Xi_offset[0] + p] as int]++ ;
+      tp = W [Xi [Xi_offset[0] + p].toInt()]++ ;
       Tj [tp] = j ;
       Tx [tp] = Xx [Xx_offset[0] + p] ;
     }
@@ -106,12 +106,12 @@ void sort(int n, List<int> Xip, int Xip_offset, List<int> Xlen, int Xlen_offset,
       j = Tj [p] ;
       Xi = Xx = GET_POINTER (LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len) ;
       xlen = W [j]++ ;
-      Xi [Xi_offset[0] + xlen] = i ;
+      Xi [Xi_offset[0] + xlen] = i.toDouble() ;
       Xx [Xx_offset[0] + xlen] = Tx [p] ;
     }
   }
 
-  ASSERT (klu_valid_LU (n, FALSE, Xip, Xip_offset, Xlen, Xlen_offset, LU)) ;
+  ASSERT (_valid_LU (n, FALSE, Xip, Xip_offset, Xlen, Xlen_offset, LU)) ;
 }
 
 
@@ -138,16 +138,16 @@ int sort(KLU_symbolic Symbolic, KLU_numeric Numeric,
   Llen = Numeric.Llen ;
   Uip  = Numeric.Uip ;
   Ulen = Numeric.Ulen ;
-  LUbx = Numeric.LUbx as List<List<double>> ;
+  LUbx = new List<List<double>>.from(Numeric.LUbx) ;
 
-  m1 = (maxblock as int) + 1 ;
+  m1 = (maxblock.toInt()) + 1 ;
 
   /* allocate workspace */
   nz = MAX (Numeric.max_lnz_block, Numeric.max_unz_block) ;
-  W  = klu_malloc_int (maxblock, Common) ;
-  Tp = klu_malloc_int (m1, Common) ;
-  Ti = klu_malloc_int (nz, Common) ;
-  Tx = klu_malloc_dbl (nz, Common) ;
+  W  = malloc_int (maxblock, Common) ;
+  Tp = malloc_int (m1, Common) ;
+  Ti = malloc_int (nz, Common) ;
+  Tx = malloc_dbl (nz, Common) ;
 
   PRINTF ("\n======================= Start sort:\n") ;
 
@@ -160,9 +160,9 @@ int sort(KLU_symbolic Symbolic, KLU_numeric Numeric,
       nk = R [block+1] - k1 ;
       if (nk > 1)
       {
-        PRINTF ("\n-------------------block: %d nk %d\n", block, nk) ;
-        sort (nk, Lip, k1, Llen, k1, LUbx [block], Tp, Ti, Tx, W) ;
-        sort (nk, Uip, k1, Ulen, k1, LUbx [block], Tp, Ti, Tx, W) ;
+        PRINTF ("\n-------------------block: $block nk $nk\n") ;
+        _sort (nk, Lip, k1, Llen, k1, LUbx [block], Tp, Ti, Tx, W) ;
+        _sort (nk, Uip, k1, Ulen, k1, LUbx [block], Tp, Ti, Tx, W) ;
       }
     }
   }

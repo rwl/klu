@@ -30,18 +30,14 @@ part of edu.ufl.cise.klu.common;
  *
  *      if (KLU_VERSION >= KLU_VERSION_CODE (1,2)) ...
  */
-class KLU_version
+
+final String KLU_DATE = "Jan 20, 2012" ;
+int KLU_VERSION_CODE (int main, int sub)
 {
-
-	static String KLU_DATE = "Jan 20, 2012" ;
-	static int KLU_VERSION_CODE (int main, int sub)
-	{
-		return main * 1000 + sub ;
-	}
-	static int KLU_MAIN_VERSION = 1 ;
-	static int KLU_SUB_VERSION = 1 ;
-	static int KLU_SUBSUB_VERSION = 4 ;
-	static int KLU_VERSION = KLU_VERSION_CODE (KLU_MAIN_VERSION,
-			KLU_SUB_VERSION) ;
-
+	return main * 1000 + sub ;
 }
+final int KLU_MAIN_VERSION = 1 ;
+final int KLU_SUB_VERSION = 1 ;
+final int KLU_SUBSUB_VERSION = 4 ;
+final int KLU_VERSION = KLU_VERSION_CODE (KLU_MAIN_VERSION,
+		KLU_SUB_VERSION) ;

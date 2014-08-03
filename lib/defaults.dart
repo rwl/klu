@@ -45,9 +45,9 @@ int defaults(KLU_common Common)
   Common.tol = 0.001 ;       /* pivot tolerance for diagonal */
   Common.memgrow = 1.2 ;     /* realloc size ratio increase for LU factors */
   Common.initmem_amd = 1.2 ; /* init. mem with AMD:  c*nnz(L) + n */
-  Common.initmem = 10 ;      /* init. mem otherwise: c*nnz(A) + n */
+  Common.initmem = 10.0 ;      /* init. mem otherwise: c*nnz(A) + n */
   Common.btf = TRUE ;        /* use BTF pre-ordering, or not */
-  Common.maxwork = 0 ;       /* no limit to work done by btf_order */
+  Common.maxwork = 0.0 ;       /* no limit to work done by btf_order */
   Common.ordering = 0 ;      /* 0: AMD, 1: COLAMD, 2: user-provided P and Q,
                               * 3: user-provided function */
   Common.scale = 2 ;         /* scale: -1: none, and do not check for errors
@@ -72,11 +72,11 @@ int defaults(KLU_common Common)
   Common.structural_rank = EMPTY ;
   Common.numerical_rank = EMPTY ;
   Common.noffdiag = EMPTY ;
-  Common.flops = EMPTY ;
-  Common.rcond = EMPTY ;
-  Common.condest = EMPTY ;
-  Common.rgrowth = EMPTY ;
-  Common.work = 0 ;          /* work done by btf_order */
+  Common.flops = EMPTY_D ;
+  Common.rcond = EMPTY_D ;
+  Common.condest = EMPTY_D ;
+  Common.rgrowth = EMPTY_D ;
+  Common.work = 0.0 ;          /* work done by btf_order */
 
   Common.memusage = 0 ;
   Common.mempeak = 0 ;

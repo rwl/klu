@@ -86,11 +86,11 @@ int analyze_worker(int n, List<int> Ap, List<int> Ai, int nblocks,
     List<double> Lnz, List<int> Pblk, List<int> Cp, List<int> Ci, int Cilen,
     List<int> Pinv, KLU_symbolic Symbolic, KLU_common Common)
 {
-  List<double> amd_Info = new List<double>(AMD_INFO);
+  List<num> amd_Info = new List<num>(amd.AMD_INFO);
   double lnz, lnz1, flops, flops1 ;
   int k1, k2, nk, k, block, oldcol, pend, newcol, result, pc, p, newrow,
     maxnz, nzoff, ok, err = KLU_INVALID ;
-  List<int> cstats = new List<int>(COLAMD_STATS);
+  List<int> cstats = new List<int>(colamd.COLAMD_STATS);
 
   /* ---------------------------------------------------------------------- */
   /* initializations */
@@ -115,10 +115,10 @@ int analyze_worker(int n, List<int> Ap, List<int> Ai, int nblocks,
     for (k = 0 ; k < n ; k++) ASSERT (Pinv [k] != EMPTY) ;
   }
   nzoff = 0 ;
-  lnz = 0 ;
+  lnz = 0.0 ;
   maxnz = 0 ;
-  flops = 0 ;
-  Symbolic.symmetry = EMPTY ;        /* only computed by AMD */
+  flops = 0.0 ;
+  Symbolic.symmetry = EMPTY_D ;        /* only computed by AMD */
 
   /* ---------------------------------------------------------------------- */
   /* order each block */
@@ -134,13 +134,13 @@ int analyze_worker(int n, List<int> Ap, List<int> Ai, int nblocks,
     k1 = R [block] ;
     k2 = R [block+1] ;
     nk = k2 - k1 ;
-    PRINTF ("BLOCK %d, k1 %d k2-1 %d nk %d\n", block, k1, k2-1, nk) ;
+    PRINTF ("BLOCK $block, k1 $k1 k2-1 ${k2-1} nk $nk\n") ;
 
     /* ------------------------------------------------------------------ */
     /* construct the kth block, C */
     /* ------------------------------------------------------------------ */
 
-    Lnz [block] = EMPTY ;
+    Lnz [block] = EMPTY_D ;
     pc = 0 ;
     for (k = k1 ; k < k2 ; k++)
     {
@@ -166,7 +166,7 @@ int analyze_worker(int n, List<int> Ap, List<int> Ai, int nblocks,
     }
     Cp [nk] = pc ;
     maxnz = MAX (maxnz, pc) ;
-    if (!NDEBUG) ASSERT (klu_valid (nk, Cp, Ci, null)) ;
+    if (!NDEBUG) ASSERT_INT (_valid (nk, Cp, Ci, null)) ;
 
     /* ------------------------------------------------------------------ */
     /* order the block C */
@@ -195,24 +195,24 @@ int analyze_worker(int n, List<int> Ap, List<int> Ai, int nblocks,
       /* order the block with AMD (C+C') */
       /* -------------------------------------------------------------- */
 
-      result = amd_order (nk, Cp, Ci, Pblk, null, amd_Info) ;
-      ok = (result >= AMD_OK) ? 1 : 0;
-      if (result == AMD_OUT_OF_MEMORY)
+      result = amd.order (nk, Cp, Ci, Pblk, null, amd_Info) ;
+      ok = (result >= amd.AMD_OK) ? 1 : 0;
+      if (result == amd.AMD_OUT_OF_MEMORY)
       {
         err = KLU_OUT_OF_MEMORY ;
       }
 
       /* account for memory usage in AMD */
       Common.mempeak = MAX (Common.mempeak,
-        Common.memusage + amd_Info [AMD_MEMORY] as int) ;
+        Common.memusage + amd_Info [amd.AMD_MEMORY].toInt()) ;
 
       /* get the ordering statistics from AMD */
-      lnz1 = (int) (amd_Info [AMD_LNZ]) + nk ;
-      flops1 = 2 * amd_Info [AMD_NMULTSUBS_LU] + amd_Info [AMD_NDIV] ;
+      lnz1 = (amd_Info [amd.AMD_LNZ]) + nk ;
+      flops1 = 2 * amd_Info [amd.AMD_NMULTSUBS_LU] + amd_Info [amd.AMD_NDIV] ;
       if (pc == maxnz)
       {
         /* get the symmetry of the biggest block */
-        Symbolic.symmetry = amd_Info [AMD_SYMMETRY] ;
+        Symbolic.symmetry = amd_Info [amd.AMD_SYMMETRY] ;
       }
 
     }
@@ -227,9 +227,9 @@ int analyze_worker(int n, List<int> Ap, List<int> Ai, int nblocks,
        * COLAMD "cannot" fail since the matrix has already been checked,
        * and Ci allocated. */
 
-      ok = colamd (nk, nk, Cilen, Ci, Cp, null, cstats) ;
-      lnz1 = EMPTY ;
-      flops1 = EMPTY ;
+      ok = colamd.colamd (nk, nk, Cilen, Ci, Cp, null, cstats) ;
+      lnz1 = EMPTY_D ;
+      flops1 = EMPTY_D ;
 
       /* copy the permutation from Cp to Pblk */
       for (k = 0 ; k < nk ; k++)
@@ -246,7 +246,7 @@ int analyze_worker(int n, List<int> Ap, List<int> Ai, int nblocks,
       /* -------------------------------------------------------------- */
 
       lnz1 = Common.user_order.order(nk, Cp, Ci, Pblk, Common) ;
-      flops1 = EMPTY ;
+      flops1 = EMPTY_D ;
       ok = (lnz1 != 0) ? 1 : 0 ;
     }
 
@@ -282,7 +282,7 @@ int analyze_worker(int n, List<int> Ap, List<int> Ai, int nblocks,
     }
   }
 
-  PRINTF ("nzoff %d  Ap[n] %d\n", nzoff, Ap [n]) ;
+  PRINTF ("nzoff $nzoff  Ap[n] ${Ap [n]}\n") ;
   ASSERT (nzoff >= 0 && nzoff <= Ap [n]) ;
 
   /* return estimates of # of nonzeros in L including diagonal */
@@ -332,7 +332,7 @@ KLU_symbolic order_and_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Com
   if (ordering == 1)
   {
     /* COLAMD */
-    Cilen = COLAMD_recommended (nz, n, n) ;
+    Cilen = colamd.COLAMD_recommended (nz, n, n) ;
   }
   else if (ordering == 0 || (ordering == 3 && Common.user_order != null))
   {
@@ -358,8 +358,8 @@ KLU_symbolic order_and_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Com
   /* allocate workspace for BTF permutation */
   /* ---------------------------------------------------------------------- */
 
-  Pbtf = klu_malloc_int (n, Common) ;
-  Qbtf = klu_malloc_int (n, Common) ;
+  Pbtf = malloc_int (n, Common) ;
+  Qbtf = malloc_int (n, Common) ;
   if (Common.status < KLU_OK)
   {
     //KLU_free (Pbtf, n, sizeof (int), Common) ;
@@ -385,7 +385,7 @@ KLU_symbolic order_and_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Com
   /* find the block triangular form (if requested) */
   /* ---------------------------------------------------------------------- */
 
-  Common.work = 0 ;
+  Common.work = 0.0 ;
 
   if (do_btf != 0)
   {
@@ -402,7 +402,7 @@ KLU_symbolic order_and_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Com
       return (null) ;
     }
 
-    nblocks = btf_order (n, Ap, Ai, Common.maxwork, work, Pbtf, Qbtf, R,
+    nblocks = btf.order (n, Ap, Ai, Common.maxwork, work, Pbtf, Qbtf, R,
         structural_rank) ;
     Symbolic.structural_rank = structural_rank[0] ;
     Common.structural_rank = Symbolic.structural_rank ;
@@ -415,7 +415,7 @@ KLU_symbolic order_and_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Com
     {
       for (k = 0 ; k < n ; k++)
       {
-        Qbtf [k] = BTF_UNFLIP (Qbtf [k]) ;
+        Qbtf [k] = btf.BTF_UNFLIP (Qbtf [k]) ;
       }
     }
 
@@ -426,7 +426,7 @@ KLU_symbolic order_and_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Com
       k1 = R [block] ;
       k2 = R [block+1] ;
       nk = k2 - k1 ;
-      PRINTF ("block %d size %d\n", block, nk) ;
+      PRINTF ("block $block size $nk\n") ;
       maxblock = MAX (maxblock, nk) ;
     }
   }
@@ -446,17 +446,17 @@ KLU_symbolic order_and_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Com
 
   Symbolic.nblocks = nblocks ;
 
-  PRINTF ("maxblock size %d\n", maxblock) ;
+  PRINTF ("maxblock size $maxblock\n") ;
   Symbolic.maxblock = maxblock ;
 
   /* ---------------------------------------------------------------------- */
   /* allocate more workspace, for analyze_worker */
   /* ---------------------------------------------------------------------- */
 
-  Pblk = klu_malloc_int (maxblock, Common) ;
-  Cp   = klu_malloc_int (maxblock + 1, Common) ;
-  Ci   = klu_malloc_int (MAX (Cilen, nz+1), Common) ;
-  Pinv = klu_malloc_int (n, Common) ;
+  Pblk = malloc_int (maxblock, Common) ;
+  Cp   = malloc_int (maxblock + 1, Common) ;
+  Ci   = malloc_int (MAX (Cilen, nz+1), Common) ;
+  Pinv = malloc_int (n, Common) ;
 
   /* ---------------------------------------------------------------------- */
   /* order each block of the BTF ordering, and a fill-reducing ordering */
@@ -504,7 +504,7 @@ KLU_symbolic order_and_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Com
  * @param Common
  * @return null if error, or a valid KLU_symbolic object if successful
  */
-KLU_symbolic klu_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Common)
+KLU_symbolic analyze(int n, List<int> Ap, List<int> Ai, KLU_common Common)
 {
   /* ---------------------------------------------------------------------- */
   /* get the control parameters for BTF and ordering method */
@@ -524,7 +524,7 @@ KLU_symbolic klu_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Common)
   if (Common.ordering == 2)
   {
     /* natural ordering */
-    return (klu_analyze_given (n, Ap, Ai, null, null, Common)) ;
+    return (analyze_given (n, Ap, Ai, null, null, Common)) ;
   }
   else
   {

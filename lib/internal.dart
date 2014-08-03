@@ -29,9 +29,9 @@ part of edu.ufl.cise.klu.tdouble;
 /**
  * enable debugging and assertions
  */
-boolean NDEBUG = true ;
+bool NDEBUG = true ;
 
-void ASSERT (boolean a)
+void ASSERT (bool a)
 {
   if (!NDEBUG)
   {
@@ -39,7 +39,7 @@ void ASSERT (boolean a)
   }
 }
 
-void ASSERT (int a)
+void ASSERT_INT (int a)
 {
   ASSERT (a != 0) ;
 }
@@ -48,26 +48,25 @@ void ASSERT (int a)
  * @return true if an integer (stored in double x) would overflow (or if
  * x is NaN)
  */
-boolean INT_OVERFLOW (double x)
+bool INT_OVERFLOW (double x)
 {
-  return ((!(x * (1.0+1e-8) <= INT_MAX as double))
-            || SCALAR_IS_NAN (x)) ;
+  return ((!(x * (1.0+1e-8) <= INT_MAX)) || SCALAR_IS_NAN (x)) ;
 }
 
 final int TRUE = 1 ;
 final int FALSE = 0 ;
 
-int MAX (int a, int b)
+num MAX (num a, num b)
 {
   return a > b ?  a : b ;
 }
 
-int MIN (int a, int b)
+num MIN (num a, num b)
 {
   return a < b ?  a : b ;
 }
 
-double MAX (double a, double b)
+/*double MAX (double a, double b)
 {
   return a > b ?  a : b ;
 }
@@ -80,30 +79,31 @@ double MIN (double a, double b)
 long MAX (long a, long b)
 {
   return a > b ?  a : b ;
-}
+}*/
 
 /* FLIP is a "negation about -1", and is used to mark an integer i that is
  * normally non-negative.  FLIP (EMPTY) is EMPTY.  FLIP of a number > EMPTY
  * is negative, and FLIP of a number < EMTPY is positive.  FLIP (FLIP (i)) = i
  * for all integers i.  UNFLIP (i) is >= EMPTY. */
-final int EMPTY = -1 ;
+const int EMPTY = -1 ;
+const double EMPTY_D = -1.0;
 
-int FLIP (int i)
+num FLIP (num i)
 {
   return -i - 2 ;
 }
 
-double FLIP (double i)
+/*double FLIP (double i)
 {
   return -i - 2 ;
-}
+}*/
 
-int UNFLIP (int i)
+num UNFLIP (num i)
 {
   return (i < EMPTY) ? FLIP (i) : i ;
 }
 
-double UNFLIP (double i)
+/*double UNFLIP (double i)
 {
   return (i < EMPTY) ? FLIP (i) : i ;
-}
+}*/

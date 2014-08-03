@@ -52,13 +52,13 @@ part of edu.ufl.cise.klu.tdouble;
  * @param Common
  * @return true if successful, false otherwise
  */
-int scale(int scale, int n, List<int> Ap, List<int> Ai,
+int klu_scale(int scale, int n, List<int> Ap, List<int> Ai,
     List<double> Ax, List<double> Rs, List<int> W, KLU_common Common)
 {
   double a ;
   List<double> Az ;
   int row, col, p, pend ;
-  boolean check_duplicates ;
+  bool check_duplicates ;
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
@@ -77,7 +77,7 @@ int scale(int scale, int n, List<int> Ap, List<int> Ai,
     return (TRUE) ;
   }
 
-  Az = Ax as List<double> ;
+  Az = new List<double>.from(Ax) ;
 
   if (n <= 0 || Ap == null || Ai == null || Az == null ||
     (scale > 0 && Rs == null))
@@ -111,7 +111,7 @@ int scale(int scale, int n, List<int> Ap, List<int> Ai,
     /* initialize row sum or row max */
     for (row = 0 ; row < n ; row++)
     {
-      Rs [row] = 0 ;
+      Rs [row] = 0.0 ;
     }
   }
 
@@ -169,11 +169,11 @@ int scale(int scale, int n, List<int> Ap, List<int> Ai,
     for (row = 0 ; row < n ; row++)
     {
       /* matrix is singular */
-      PRINTF ("Rs [%d] = %g\n", row, Rs [row]) ;
+      PRINTF ("Rs [$row] = ${Rs [row]}\n") ;
 
       if (Rs [row] == 0.0)
       {
-        PRINTF ("Row %d of A is all zero\n", row) ;
+        PRINTF ("Row $row of A is all zero\n") ;
         Rs [row] = 1.0 ;
       }
     }

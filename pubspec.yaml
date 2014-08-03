@@ -1,10 +1,11 @@
 name: klu
 version: 0.0.1
-author: Timothy A. Davis
+author: Richard Lincoln <r.w.lincoln@gmail.com>
 description: A sparse LU factorization algorithm suited to circuit simulation.
 homepage: http://www.cise.ufl.edu/research/sparse/klu/
 dependencies:
   amd: any
   btf: any
   colamd: any
-  csparsej: any
+  csparse: any
+  unittest: any

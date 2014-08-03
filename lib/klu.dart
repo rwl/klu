@@ -27,9 +27,9 @@ library edu.ufl.cise.klu.tdouble;
 //import edu.ufl.cise.klu.common.KLU_common;
 import './common/common.dart';
 
-import 'package:btf/btf.dart';
-import 'package:colamd/colamd.dart';
-import 'package:amd/amd.dart';
+import 'package:btf/btf.dart' as btf;
+import 'package:colamd/colamd.dart' as colamd;
+import 'package:amd/amd.dart' as amd;
 
 //import static edu.ufl.cise.klu.tdouble.Dklu_memory.klu_malloc_dbl;
 //import static edu.ufl.cise.klu.tdouble.Dklu_kernel.klu_kernel;
@@ -137,15 +137,15 @@ part 'version.dart';
  */
 int kernel_factor(int n, List<int> Ap, List<int> Ai,
 		List<double> Ax, List<int> Q, double Lsize,
-		List<double>[] p_LU, int block,
+		List<List<double>> p_LU, int block,
 		List<double> Udiag, int Udiag_offset, List<int> Llen, int Llen_offset,
 		List<int> Ulen, int Ulen_offset, List<int> Lip, int Lip_offset,
-		List<int> Uip, int Uip_offset, int P[], List<int> lnz, List<int> unz,
+		List<int> Uip, int Uip_offset, List<int> P, List<int> lnz, List<int> unz,
 		List<double> X, List<int> Work, int k1, List<int> PSinv, List<double> Rs,
 		List<int> Offp, List<int> Offi, List<double> Offx, KLU_common Common)
 {
 	double maxlnz, dunits ;
-	List<double>[] LU = new double[1][] ;
+	List<List<double>> LU = new List<List<double>>(1);//[] ;
 	List<int> Pinv, Lpend, Stack, Flag, Ap_pos ;
 	int lsize, usize, anz, ok ;
 	int lusize ;
@@ -162,11 +162,11 @@ int kernel_factor(int n, List<int> Ap, List<int> Ai,
 	{
 		Lsize = -Lsize ;
 		Lsize = MAX (Lsize, 1.0) ;
-		lsize = (int) (Lsize * anz + n) ;
+		lsize = (Lsize * anz + n).toInt() ;
 	}
 	else
 	{
-		lsize = (int) Lsize ;
+		lsize = Lsize.toInt() ;
 	}
 
 	usize = lsize ;
@@ -174,13 +174,12 @@ int kernel_factor(int n, List<int> Ap, List<int> Ai,
 	lsize  = MAX (n+1, lsize) ;
 	usize  = MAX (n+1, usize) ;
 
-	maxlnz = (((double) n) * ((double) n) + ((double) n)) / 2. ;
-	maxlnz = MIN (maxlnz, ((double) INT_MAX)) ;
-	lsize  = MIN ((int) maxlnz, lsize) ;
-	usize  = MIN ((int) maxlnz, usize) ;
+	maxlnz = ((n) * (n) + (n)) / 2.0 ;
+	maxlnz = MIN (maxlnz, (INT_MAX)) ;
+	lsize  = MIN (maxlnz.toInt(), lsize) ;
+	usize  = MIN (maxlnz.toInt(), usize) ;
 
-	PRINTF ("Welcome to klu: n %d anz %d k1 %d lsize %d usize %d maxlnz %g\n",
-		n, anz, k1, lsize, usize, maxlnz) ;
+	PRINTF ("Welcome to klu: n $n anz $anz k1 $k1 lsize $lsize usize $usize maxlnz $maxlnz\n") ;
 
 	/* ---------------------------------------------------------------------- */
 	/* allocate workspace and outputs */
@@ -193,26 +192,26 @@ int kernel_factor(int n, List<int> Ap, List<int> Ai,
 	//W = Work ;
 	//Pinv = W ;      //W += n ;
 	//int Pinv_offset = n ;
-	Pinv = new int[n] ;
+	Pinv = new List<int>(n) ;
 	//Stack = W ;     //W += n ;
 	//int Stack_offset = 2*n ;
-	Stack = new int[n] ;
+	Stack = new List<int>(n) ;
 	//Flag = W ;      //W += n ;
 	//int Flag_offset = 3*n ;
-	Flag = new int[n] ;
+	Flag = new List<int>(n) ;
 	//Lpend = W ;     //W += n ;
 	//int Lpend_offset = 4*n ;
-	Lpend = new int[n] ;
+	Lpend = new List<int>(n) ;
 	//Ap_pos = W ;    //W += n ;
 	//int Ap_pos_offset = 5*n ;
-	Ap_pos = new int[n] ;
+	Ap_pos = new List<int>(n) ;
 
 	//dunits = DUNITS (Integer, lsize) + DUNITS (Double, lsize) +
 	//		 DUNITS (Integer, usize) + DUNITS (Double, usize) ;
-	dunits = lsize + lsize + usize + usize ;
-	lusize = (int) dunits ;
+	dunits = (lsize + lsize + usize + usize).toDouble() ;
+	lusize = dunits.toInt() ;
 	ok = INT_OVERFLOW (dunits) ? FALSE : TRUE ;
-	LU [0] = ok != 0 ? klu_malloc_dbl (lusize, Common) : null ;
+	LU [0] = ok != 0 ? malloc_dbl (lusize, Common) : null ;
 	if (LU [0] == null)
 	{
 		/* out of memory, or problem too large */
@@ -226,7 +225,7 @@ int kernel_factor(int n, List<int> Ap, List<int> Ai,
 	/* ---------------------------------------------------------------------- */
 
 	/* with pruning, and non-recursive depth-first-search */
-	lusize = klu_kernel (n, Ap, Ai, Ax, Q, lusize,
+	lusize = kernel (n, Ap, Ai, Ax, Q, lusize,
 			Pinv, P, LU, Udiag, Udiag_offset, Llen, Llen_offset,
 			Ulen, Ulen_offset, Lip, Lip_offset, Uip, Uip_offset,
 			lnz, unz, X, Stack, Flag, Ap_pos, Lpend,
@@ -243,7 +242,7 @@ int kernel_factor(int n, List<int> Ap, List<int> Ai,
 		lusize = 0 ;
 	}
 	p_LU [block] = LU [0] ;
-	PRINTF (" in klu noffdiag %d\n", Common.noffdiag) ;
+	PRINTF (" in klu noffdiag ${Common.noffdiag}\n") ;
 	return (lusize) ;
 }
 
@@ -260,18 +259,18 @@ int kernel_factor(int n, List<int> Ap, List<int> Ai,
  * @param nrhs
  * @param X right-hand-side on input, solution to Lx=b on output
  */
-void klu_lsolve(int n, List<int> Lip, int Lip_offset,
+void lsolve(int n, List<int> Lip, int Lip_offset,
 		List<int> Llen, int Llen_offset, List<double> LU, int nrhs,
 		List<double> X, int X_offset)
 {
-	List<double> x = new double[4] ;
+	List<double> x = new List<double>(4) ;
 	double lik ;
 	/*List<int>*/List<double> Li ;
 	List<double> Lx ;
 	int k, p, i ;
-	List<int> len = new int[1] ;
-	List<int> Li_offset = new int[1] ;
-	List<int> Lx_offset = new int[1] ;
+	List<int> len = new List<int>(1) ;
+	List<int> Li_offset = new List<int>(1) ;
+	List<int> Lx_offset = new List<int>(1) ;
 
 	switch (nrhs)
 	{
@@ -285,7 +284,7 @@ void klu_lsolve(int n, List<int> Lip, int Lip_offset,
 				for (p = 0 ; p < len[0] ; p++)
 				{
 					//MULT_SUB (X [Li [p]], Lx [p], x [0]) ;
-					X [X_offset + (int) Li [Li_offset[0] + p]] -= Lx [Lx_offset[0] + p] * x [0] ;
+					X [X_offset + (Li [Li_offset[0] + p]).toInt()] -= Lx [Lx_offset[0] + p] * x [0] ;
 				}
 			}
 			break ;
@@ -299,7 +298,7 @@ void klu_lsolve(int n, List<int> Lip, int Lip_offset,
 				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Li [Li_offset[0] + p] ;
+					i = (Li [Li_offset[0] + p]).toInt() ;
 					lik = Lx [Lx_offset[0] + p] ;
 					//MULT_SUB (X [2*i], lik, x [0]) ;
 					X [X_offset + 2*i] -= lik * x [0] ;
@@ -319,7 +318,7 @@ void klu_lsolve(int n, List<int> Lip, int Lip_offset,
 				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Li [Li_offset[0] + p] ;
+					i = (Li [Li_offset[0] + p]).toInt() ;
 					lik = Lx [Lx_offset[0] + p] ;
 					//MULT_SUB (X [3*i], lik, x [0]) ;
 					X [X_offset + 3*i] -= lik * x [0] ;
@@ -342,7 +341,7 @@ void klu_lsolve(int n, List<int> Lip, int Lip_offset,
 				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Li [Li_offset[0] + p] ;
+					i = (Li [Li_offset[0] + p]).toInt() ;
 					lik = Lx [Lx_offset[0] + p] ;
 					//MULT_SUB (X [4*i], lik, x [0]) ;
 					X [X_offset + 4*i] -= lik * x [0] ;
@@ -373,19 +372,19 @@ void klu_lsolve(int n, List<int> Lip, int Lip_offset,
  * @param nrhs
  * @param X right-hand-side on input, solution to Ux=b on output
  */
-void klu_usolve(int n, List<int> Uip, int Uip_offset,
+void usolve(int n, List<int> Uip, int Uip_offset,
 		List<int> Ulen, int Ulen_offset, List<double> LU,
 		List<double> Udiag, int Udiag_offset, int nrhs,
 		List<double> X, int X_offset)
 {
-	List<double> x = new double[4] ;
+	List<double> x = new List<double>(4) ;
 	double uik, ukk ;
 	/*List<int>*/List<double> Ui ;
 	List<double> Ux ;
 	int k, p, i ;
-	List<int> len = new int[1] ;
-	List<int> Ui_offset = new int[1] ;
-	List<int> Ux_offset = new int[1] ;
+	List<int> len = new List<int>(1) ;
+	List<int> Ui_offset = new List<int>(1) ;
+	List<int> Ux_offset = new List<int>(1) ;
 
 	switch (nrhs)
 	{
@@ -402,7 +401,7 @@ void klu_usolve(int n, List<int> Uip, int Uip_offset,
 				for (p = 0 ; p < len[0] ; p++)
 				{
 					//MULT_SUB (X [Ui [p]], Ux [p], x [0]) ;
-					X [X_offset + (int) Ui [Ui_offset[0] + p]] -= Ux [Ux_offset[0] + p] * x [0] ;
+					X [X_offset + (Ui [Ui_offset[0] + p]).toInt()] -= Ux [Ux_offset[0] + p] * x [0] ;
 
 				}
 			}
@@ -425,7 +424,7 @@ void klu_usolve(int n, List<int> Uip, int Uip_offset,
 				X [X_offset + 2*k + 1] = x [1] ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Ui [Ui_offset[0] + p] ;
+					i = Ui [Ui_offset[0] + p].toInt() ;
 					uik = Ux [Ux_offset[0] + p] ;
 					//MULT_SUB (X [2*i], uik, x [0]) ;
 					X [X_offset + 2*i    ] -= uik * x [0] ;
@@ -456,7 +455,7 @@ void klu_usolve(int n, List<int> Uip, int Uip_offset,
 				X [3*k + 2] = x [2] ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Ui [Ui_offset[0] + p] ;
+					i = Ui [Ui_offset[0] + p].toInt() ;
 					uik = Ux [Ux_offset[0] + p] ;
 					//MULT_SUB (X [3*i], uik, x [0]) ;
 					X [X_offset + 3*i] -= uik * x [0] ;
@@ -492,7 +491,7 @@ void klu_usolve(int n, List<int> Uip, int Uip_offset,
 				X [X_offset + 4*k + 3] = x [3] ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Ui [Ui_offset[0] + p] ;
+					i = Ui [Ui_offset[0] + p].toInt() ;
 					uik = Ux [Ux_offset[0] + p] ;
 
 					//MULT_SUB (X [4*i], uik, x [0]) ;
@@ -524,17 +523,17 @@ void klu_usolve(int n, List<int> Uip, int Uip_offset,
  * @param nrhs
  * @param X right-hand-side on input, solution to L'x=b on output
  */
-void klu_ltsolve(int n, List<int> Lip, int Lip_offset, List<int> Llen, int Llen_offset,
+void ltsolve(int n, List<int> Lip, int Lip_offset, List<int> Llen, int Llen_offset,
 		List<double> LU, int nrhs, List<double> X, int X_offset)
 {
-	List<double> x = new double[4] ;
+	List<double> x = new List<double>(4) ;
 	double lik ;
 	/*List<int>*/List<double> Li ;
 	List<double> Lx ;
 	int k, p, i ;
-	List<int> len = new int[1] ;
-	List<int> Li_offset = new int [1] ;
-	List<int> Lx_offset = new int [1] ;
+	List<int> len = new List<int>(1) ;
+	List<int> Li_offset = new List<int>(1) ;
+	List<int> Lx_offset = new List<int>(1) ;
 
 	switch (nrhs)
 	{
@@ -549,7 +548,7 @@ void klu_ltsolve(int n, List<int> Lip, int Lip_offset, List<int> Llen, int Llen_
 				{
 					{
 						//MULT_SUB (x [0], Lx [p], X [Li [p]]) ;
-						x [0] -= Lx [Lx_offset[0] + p] * X [X_offset + (int) Li [Li_offset[0] + p]] ;
+						x [0] -= Lx [Lx_offset[0] + p] * X [X_offset + Li [Li_offset[0] + p].toInt()] ;
 					}
 				}
 				X [X_offset + k] = x [0] ;
@@ -565,7 +564,7 @@ void klu_ltsolve(int n, List<int> Lip, int Lip_offset, List<int> Llen, int Llen_
 				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Li [Li_offset[0] + p] ;
+					i = Li [Li_offset[0] + p].toInt() ;
 					{
 						lik = Lx [Lx_offset[0] + p] ;
 					}
@@ -589,7 +588,7 @@ void klu_ltsolve(int n, List<int> Lip, int Lip_offset, List<int> Llen, int Llen_
 				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Li [Li_offset[0] + p] ;
+					i = Li [Li_offset[0] + p].toInt() ;
 					{
 						lik = Lx [Lx_offset[0] + p] ;
 					}
@@ -617,7 +616,7 @@ void klu_ltsolve(int n, List<int> Lip, int Lip_offset, List<int> Llen, int Llen_
 				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Li [Li_offset[0] + p] ;
+					i = Li [Li_offset[0] + p].toInt() ;
 					{
 						lik = Lx [Lx_offset[0] + p] ;
 					}
@@ -653,19 +652,19 @@ void klu_ltsolve(int n, List<int> Lip, int Lip_offset, List<int> Llen, int Llen_
  * @param nrhs
  * @param X right-hand-side on input, solution to Ux=b on output
  */
-void klu_utsolve(int n, List<int> Uip, int Uip_offset,
+void utsolve(int n, List<int> Uip, int Uip_offset,
 		List<int> Ulen, int Ulen_offset, List<double> LU,
 		List<double> Udiag, int Udiag_offset, int nrhs,
 		List<double> X, int X_offset)
 {
-	List<double> x = new double[4] ;
+	List<double> x = new List<double>(4) ;
 	double uik, ukk ;
 	int k, p, i ;
 	/*List<int>*/List<double> Ui ;
 	List<double> Ux ;
-	List<int> len = new int[1] ;
-	List<int> Ui_offset = new int [1] ;
-	List<int> Ux_offset = new int [1] ;
+	List<int> len = new List<int>(1) ;
+	List<int> Ui_offset = new List<int>(1) ;
+	List<int> Ux_offset = new List<int>(1) ;
 
 	switch (nrhs)
 	{
@@ -680,7 +679,7 @@ void klu_utsolve(int n, List<int> Uip, int Uip_offset,
 				{
 					{
 						//MULT_SUB (x [0], Ux [p], X [Ui [p]]) ;
-						x [0] -= Ux [Ux_offset[0] + p] * X [X_offset + (int) Ui [Ui_offset[0] + p]] ;
+						x [0] -= Ux [Ux_offset[0] + p] * X [X_offset + Ui [Ui_offset[0] + p].toInt()] ;
 					}
 				}
 				{
@@ -700,7 +699,7 @@ void klu_utsolve(int n, List<int> Uip, int Uip_offset,
 				x [1] = X [X_offset + 2*k + 1] ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Ui [Ui_offset[0] + p] ;
+					i = Ui [Ui_offset[0] + p].toInt() ;
 					{
 						uik = Ux [Ux_offset[0] + p] ;
 					}
@@ -729,7 +728,7 @@ void klu_utsolve(int n, List<int> Uip, int Uip_offset,
 				x [2] = X [X_offset + 3*k + 2] ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Ui [Ui_offset[0] + p] ;
+					i = Ui [Ui_offset[0] + p].toInt() ;
 					{
 						uik = Ux [Ux_offset[0] + p] ;
 					}
@@ -763,7 +762,7 @@ void klu_utsolve(int n, List<int> Uip, int Uip_offset,
 				x [3] = X [X_offset + 4*k + 3] ;
 				for (p = 0 ; p < len[0] ; p++)
 				{
-					i = (int) Ui [Ui_offset[0] + p] ;
+					i = Ui [Ui_offset[0] + p].toInt() ;
 					{
 						uik = Ux [Ux_offset[0] + p] ;
 					}

@@ -35,7 +35,7 @@ part of edu.ufl.cise.klu.tdouble;
 /*public static */final int KLU_TOO_LARGE = -4;
 
 /** enable diagnostic printing */
-/*public static */boolean NPRINT = true ;
+/*public static */bool NPRINT = true ;
 
 final int INT_MAX = 0x7fffffff ;
 
@@ -88,22 +88,22 @@ List<double> GET_POINTER(List<double> LU,
   return LU ;
 }
 
-boolean SCALAR_IS_NAN (double x)
+bool SCALAR_IS_NAN (double x)
 {
   return x != x ;
 }
 
-boolean SCALAR_IS_ZERO (double x)
+bool SCALAR_IS_ZERO (double x)
 {
   return x == 0.0 ;
 }
 
-boolean SCALAR_IS_NONZERO (double x)
+bool SCALAR_IS_NONZERO (double x)
 {
   return x != 0.0 ;
 }
 
-boolean SCALAR_IS_LTZERO (double x)
+bool SCALAR_IS_LTZERO (double x)
 {
   return x < 0.0 ;
 }
@@ -114,10 +114,10 @@ double SCALAR_ABS (double x)
   return SCALAR_IS_LTZERO (x) ? -x : x ;
 }
 
-void PRINTF(String format, Object args)
+void PRINTF(String format)//, Object args)
 {
   if (!NPRINT) {
-    System.out.printf(format, args) ;
+    print(format);//, args) ;
   }
 }
 
@@ -127,7 +127,7 @@ void PRINT_SCALAR (double a)
 
     if (SCALAR_IS_NONZERO (a))
     {
-      PRINTF (" (%g)", a) ;
+      PRINTF (" ($a)") ;
     }
     else
     {
@@ -189,7 +189,7 @@ int SPLIT (double s)
 /**
  * @return True if a is NaN
  */
-boolean IS_NAN (double a)
+bool IS_NAN (double a)
 {
   return SCALAR_IS_NAN (a) ;
 }
@@ -197,7 +197,7 @@ boolean IS_NAN (double a)
 /**
  * @return True if a == 0
  */
-boolean IS_ZERO (double a)
+bool IS_ZERO (double a)
 {
   return SCALAR_IS_ZERO (a) ;
 }
@@ -205,7 +205,7 @@ boolean IS_ZERO (double a)
 /**
  * @return True if a != 0
  */
-boolean IS_NONZERO (double a)
+bool IS_NONZERO (double a)
 {
   return SCALAR_IS_NONZERO (a) ;
 }
@@ -344,7 +344,7 @@ void PRINT_ENTRY (double a)
 
 double ABS (double a)
 {
-  return Math.abs (a) ;
+  return a.abs() ;
 }
 
 void CLEAR(List<double> A, int i)

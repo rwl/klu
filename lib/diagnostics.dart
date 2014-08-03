@@ -84,7 +84,7 @@ int rgrowth(List<int> Ap, List<int> Ai, List<double> Ax,
   if (Numeric == null)
   {
     /* treat this as a singular matrix */
-    Common.rgrowth = 0 ;
+    Common.rgrowth = 0.0 ;
     Common.status = KLU_SINGULAR ;
     return (TRUE) ;
   }
@@ -94,11 +94,11 @@ int rgrowth(List<int> Ap, List<int> Ai, List<double> Ax,
   /* compute the reciprocal pivot growth */
   /* ---------------------------------------------------------------------- */
 
-  Aentry = Ax as List<double>;
+  Aentry = Ax;// as List<double>;
   Pinv = Numeric.Pinv ;
   Rs = Numeric.Rs ;
   Q = Symbolic.Q ;
-  Common.rgrowth = 1 ;
+  Common.rgrowth = 1.0 ;
 
   for (i = 0 ; i < Symbolic.nblocks ; i++)
   {
@@ -116,11 +116,11 @@ int rgrowth(List<int> Ap, List<int> Ai, List<double> Ax,
     int Ulen_offset = k1 ;
     Ukk = Numeric.Udiag ;
     int Ukk_offset = k1 ;
-    min_block_rgrowth = 1 ;
+    min_block_rgrowth = 1.0 ;
     for (j = 0 ; j < nk ; j++)
     {
-      max_ai = 0 ;
-      max_ui = 0 ;
+      max_ai = 0.0 ;
+      max_ui = 0.0 ;
       oldcol = Q[j + k1] ;
       pend = Ap [oldcol + 1] ;
       for (k = Ap [oldcol] ; k < pend ; k++)
@@ -223,7 +223,7 @@ int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
     Common.status = KLU_INVALID ;
     return (FALSE) ;
   }
-  abs_value = 0 ;
+  abs_value = 0.0 ;
   if (Numeric == null)
   {
     /* treat this as a singular matrix */
@@ -261,7 +261,7 @@ int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
   /* ---------------------------------------------------------------------- */
 
   anorm =  0.0 ;
-  Aentry = Ax as List<double> ;
+  Aentry = Ax;// as List<double> ;
   for (i = 0 ; i < n ; i++)
   {
     pend = Ap [i + 1] ;
@@ -295,7 +295,7 @@ int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
     CLEAR (S, S_offset + i) ;
     CLEAR (X, X_offset + i) ;
     //REAL (X [i]) = 1.0 / ((double) n) ;
-    X [X_offset + i] = 1.0 / (n as double);
+    X [X_offset + i] = 1.0 / n;
   }
   jmax = 0 ;
 
@@ -310,10 +310,10 @@ int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
         CLEAR (X, X_offset + j) ;
       }
       //REAL (X [jmax]) = 1 ;
-      X [X_offset + jmax] = 1 ;
+      X [X_offset + jmax] = 1.0 ;
     }
 
-    klu_solve (Symbolic, Numeric, n, 1, X as List<double>, X_offset, Common) ;
+    solve (Symbolic, Numeric, n, 1, X/* as List<double>*/, X_offset, Common) ;
     est_old = ainv_norm ;
     ainv_norm = 0.0 ;
 
@@ -329,7 +329,7 @@ int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
 
     for (j = 0 ; j < n ; j++)
     {
-      double s = (X [X_offset + j] >= 0) ? 1 : -1 ;
+      double s = (X [X_offset + j] >= 0) ? 1.0 : -1.0 ;
       if (s != S [S_offset + j])  // s != REAL (S [j])
       {
         S [S_offset + j] = s ;
@@ -348,11 +348,11 @@ int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
     }
 
     /* do a transpose solve */
-    klu_tsolve (Symbolic, Numeric, n, 1, X, X_offset, Common) ;
+    tsolve (Symbolic, Numeric, n, 1, X, X_offset, Common) ;
 
     /* jnew = the position of the largest entry in X */
     jnew = 0 ;
-    Xmax = 0 ;
+    Xmax = 0.0 ;
     for (j = 0 ; j < n ; j++)
     {
       //ABS (xj, X [j]) ;
@@ -382,16 +382,16 @@ int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
     if (j % 2 != 0)
     {
       //REAL (X [j]) = 1 + ((double) j) / ((double) (n-1)) ;
-      X [X_offset + j] = 1 + (j as double) / ((n-1) as double) ;
+      X [X_offset + j] = 1 + j / n-1 ;
     }
     else
     {
       //REAL (X [j]) = -1 - ((double) j) / ((double) (n-1)) ;
-      X [X_offset + j] = -1 - (j as double) / ((n-1) as double) ;
+      X [X_offset + j] = -1 - j / n-1 ;
     }
   }
 
-  klu_solve (Symbolic, Numeric, n, 1, X as List<double>, X_offset, Common) ;
+  solve (Symbolic, Numeric, n, 1, X/* as List<double>*/, X_offset, Common) ;
 
   est_new = 0.0 ;
   for (j = 0 ; j < n ; j++)
@@ -423,7 +423,7 @@ int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
 int flops(KLU_symbolic Symbolic, KLU_numeric Numeric,
     KLU_common Common)
 {
-  double flops = 0 ;
+  double flops = 0.0 ;
   List<int> R, Uip, Llen, Ulen ;
   /*List<int>*/List<double> Ui ;
   List<List<double>> LUbx ;
@@ -438,7 +438,7 @@ int flops(KLU_symbolic Symbolic, KLU_numeric Numeric,
   {
     return (FALSE) ;
   }
-  Common.flops = EMPTY ;
+  Common.flops = EMPTY_D ;
   if (Numeric == null || Symbolic == null)
   {
     Common.status = KLU_INVALID ;
@@ -457,7 +457,7 @@ int flops(KLU_symbolic Symbolic, KLU_numeric Numeric,
   /* get the contents of the Numeric object */
   /* ---------------------------------------------------------------------- */
 
-  LUbx = Numeric.LUbx as List<List<double>> ;
+  LUbx = Numeric.LUbx;// as List<List<double>> ;
 
   /* ---------------------------------------------------------------------- */
   /* compute the flop count */
@@ -484,7 +484,7 @@ int flops(KLU_symbolic Symbolic, KLU_numeric Numeric,
         ulen = Ulen [Ulen_offset + k] ;
         for (p = 0 ; p < ulen ; p++)
         {
-          flops += 2 * Llen [Llen_offset + Ui [Ui_offset[0] + p] as int] ;
+          flops += 2 * Llen [Llen_offset + Ui [Ui_offset[0] + p].toInt().toInt()] ;
         }
         /* gather and divide by pivot to get kth column of L */
         flops += Llen [Llen_offset + k] ;
@@ -508,7 +508,7 @@ int flops(KLU_symbolic Symbolic, KLU_numeric Numeric,
 int rcond(KLU_symbolic Symbolic, KLU_numeric Numeric,
     KLU_common Common)
 {
-  double ukk, umin = 0, umax = 0 ;
+  double ukk, umin = 0.0, umax = 0.0 ;
   List<double> Udiag ;
   int j, n ;
 
@@ -527,7 +527,7 @@ int rcond(KLU_symbolic Symbolic, KLU_numeric Numeric,
   }
   if (Numeric == null)
   {
-    Common.rcond = 0 ;
+    Common.rcond = 0.0 ;
     Common.status = KLU_SINGULAR ;
     return (TRUE) ;
   }
@@ -547,7 +547,7 @@ int rcond(KLU_symbolic Symbolic, KLU_numeric Numeric,
     if (SCALAR_IS_NAN (ukk) || SCALAR_IS_ZERO (ukk))
     {
       /* if NaN, or zero, the rcond is zero */
-      Common.rcond = 0 ;
+      Common.rcond = 0.0 ;
       Common.status = KLU_SINGULAR ;
       return (TRUE) ;
     }
@@ -569,7 +569,7 @@ int rcond(KLU_symbolic Symbolic, KLU_numeric Numeric,
   if (SCALAR_IS_NAN (Common.rcond) || SCALAR_IS_ZERO (Common.rcond))
   {
     /* this can occur if umin or umax are Inf or NaN */
-    Common.rcond = 0 ;
+    Common.rcond = 0.0 ;
     Common.status = KLU_SINGULAR ;
   }
   return (TRUE) ;

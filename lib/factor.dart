@@ -29,8 +29,8 @@ import edu.ufl.cise.klu.common.KLU_numeric;
 import edu.ufl.cise.klu.common.KLU_symbolic;
 
 import static edu.ufl.cise.klu.tdouble.Dklu_scale.klu_scale;
-import static edu.ufl.cise.klu.tdouble.Dklu_memory.klu_malloc_int;
-import static edu.ufl.cise.klu.tdouble.Dklu_memory.klu_malloc_dbl;
+import static edu.ufl.cise.klu.tdouble.Dklu_memory.malloc_int;
+import static edu.ufl.cise.klu.tdouble.Dklu_memory.malloc_dbl;
 import static edu.ufl.cise.klu.tdouble.Dklu_memory.klu_add_size_t;
 import static edu.ufl.cise.klu.tdouble.Dklu_dump.klu_valid_LU;
 import static edu.ufl.cise.klu.tdouble.Dklu_dump.klu_valid;
@@ -153,7 +153,7 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
   {
     if (scale > 0)
     {
-      for (k = 0 ; k < n ; k++) PRINTF ("Rs [%d] %g\n", k, Rs [k]) ;
+      for (k = 0 ; k < n ; k++) PRINTF ("Rs [$k] ${Rs [k]}\n") ;
     }
   }
 
@@ -171,7 +171,7 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
     k1 = R [block] ;
     k2 = R [block+1] ;
     nk = k2 - k1 ;
-    PRINTF ("FACTOR BLOCK %d, k1 %d k2-1 %d nk %d\n", block, k1,k2-1,nk) ;
+    PRINTF ("FACTOR BLOCK $block, k1 $k1 k2-1 ${k2-1} nk $nk\n") ;
 
     if (nk == 1)
     {
@@ -202,7 +202,7 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
           else
           {
             ASSERT (newrow == k1) ;
-            PRINTF ("singleton block %d", block) ;
+            PRINTF ("singleton block $block") ;
             PRINT_ENTRY (Ax [p]) ;
             s = Ax [p] ;
           }
@@ -229,7 +229,7 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
           else
           {
             ASSERT (newrow == k1) ;
-            PRINTF ("singleton block %d ", block) ;
+            PRINTF ("singleton block $block ") ;
             PRINT_ENTRY (Ax[p]) ;
             s = Ax [p] / Rs [oldrow] ;
             //SCALE_DIV_ASSIGN (s, Ax [p], Rs [oldrow]) ;
@@ -276,7 +276,7 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
       }
 
       /* allocates 1 arrays: LUbx [block] */
-      Numeric.LUsize [block] = klu_kernel_factor (
+      Numeric.LUsize [block] = kernel_factor (
           nk, Ap, Ai, Ax, Q,
           lsize, LUbx, block, Udiag, k1, Llen, k1,
           Ulen, k1, Lip, k1, Uip, k1, Pblock, lnz_block, unz_block,
@@ -290,10 +290,10 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
         return ;
       }
 
-      PRINTF ("\n----------------------- L %d:\n", block) ;
-      if (!NDEBUG) ASSERT (klu_valid_LU (nk, TRUE, Lip, k1, Llen, k1, LUbx [block])) ;
-      PRINTF ("\n----------------------- U %d:\n", block) ;
-      if (!NDEBUG) ASSERT (klu_valid_LU (nk, FALSE, Uip, k1, Ulen, k1, LUbx [block])) ;
+      PRINTF ("\n----------------------- L $block:\n") ;
+      if (!NDEBUG) ASSERT (_valid_LU (nk, TRUE, Lip, k1, Llen, k1, LUbx [block])) ;
+      PRINTF ("\n----------------------- U $block:\n") ;
+      if (!NDEBUG) ASSERT (_valid_LU (nk, FALSE, Uip, k1, Ulen, k1, LUbx [block])) ;
 
       /* -------------------------------------------------------------- */
       /* get statistics */
@@ -320,8 +320,7 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
         ASSERT (k + k1 < n) ;
         ASSERT (Pblock [k] + k1 < n) ;
         Pnum [k + k1] = P [Pblock [k] + k1] ;
-        PRINTF ("Pnum (%d + %d + 1 = %d) = %d + 1 = %d\n",
-          k, k1, k+k1+1, Pnum [k+k1], Pnum [k+k1]+1) ;
+        PRINTF ("Pnum ($k + $k1 + 1 = ${k+k1+1}) = ${Pnum [k+k1]} + 1 = ${Pnum [k+k1]+1}\n") ;
       }
 
       /* the local pivot row permutation Pblock is no longer needed */
@@ -329,7 +328,7 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
   }
   ASSERT (nzoff == Offp [n]) ;
   PRINTF ("\n------------------- Off diagonal entries:\n") ;
-  if (!NDEBUG) ASSERT (klu_valid (n, Offp, Offi, Offx)) ;
+  if (!NDEBUG) ASSERT_INT (_valid (n, Offp, Offi, Offx)) ;
 
   Numeric.lnz = lnz ;
   Numeric.unz = unz ;
@@ -369,7 +368,7 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
   }
 
   PRINTF ("\n------------------- Off diagonal entries, old:\n") ;
-  if (!NDEBUG) ASSERT (klu_valid (n, Offp, Offi, Offx)) ;
+  if (!NDEBUG) ASSERT_INT (_valid (n, Offp, Offi, Offx)) ;
 
   /* apply the pivot row permutations to the off-diagonal entries */
   for (p = 0 ; p < nzoff ; p++)
@@ -379,12 +378,11 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
   }
 
   PRINTF ("\n------------------- Off diagonal entries, new:\n") ;
-  if (!NDEBUG) ASSERT (klu_valid (n, Offp, Offi, Offx)) ;
+  if (!NDEBUG) ASSERT_INT (_valid (n, Offp, Offi, Offx)) ;
 
   if (!NDEBUG)
   {
-    PRINTF ("\n ############# KLU_BTF_FACTOR done, nblocks %d\n",
-        nblocks);
+    PRINTF ("\n ############# KLU_BTF_FACTOR done, nblocks $nblocks\n");
     double ss ;
     Udiag = Numeric.Udiag ;
     for (block = 0 ; block < nblocks && Common.status == KLU_OK ; block++)
@@ -392,7 +390,7 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
       k1 = R [block] ;
       k2 = R [block+1] ;
       nk = k2 - k1 ;
-      PRINTF ("\n======================KLU_factor output: k1 %d k2 %d nk %d\n",k1,k2,nk) ;
+      PRINTF ("\n======================KLU_factor output: k1 $k1 k2 $k2 nk $nk\n") ;
       if (nk == 1)
       {
         PRINTF ("singleton  ") ;
@@ -407,15 +405,15 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
         int Lip_offset = k1 ;
         Llen = Numeric.Llen ;
         int Llen_offset = k1 ;
-        LU = Numeric.LUbx [block] as List<double> ;
-        PRINTF ("\n---- L block %d\n", block);
-        if (!NDEBUG) ASSERT (klu_valid_LU (nk, TRUE, Lip, Lip_offset, Llen, Llen_offset, LU)) ;
+        LU = Numeric.LUbx [block];// as List<double> ;
+        PRINTF ("\n---- L block $block\n");
+        if (!NDEBUG) ASSERT (_valid_LU (nk, TRUE, Lip, Lip_offset, Llen, Llen_offset, LU)) ;
         Uip = Numeric.Uip ;
         int Uip_offset = k1 ;
         Ulen = Numeric.Ulen ;
         int Ulen_offset = k1 ;
-        PRINTF ("\n---- U block %d\n", block) ;
-        if (!NDEBUG) ASSERT (klu_valid_LU (nk, FALSE, Uip, Uip_offset, Ulen, Ulen_offset, LU)) ;
+        PRINTF ("\n---- U block $block\n") ;
+        if (!NDEBUG) ASSERT (_valid_LU (nk, FALSE, Uip, Uip_offset, Ulen, Ulen_offset, LU)) ;
       }
     }
   }
@@ -461,8 +459,7 @@ KLU_numeric factor(List<int> Ap, List<int> Ai, List<double> Ax,
   nzoff = Symbolic.nzoff ;
   nblocks = Symbolic.nblocks ;
   maxblock = Symbolic.maxblock ;
-  PRINTF ("KLU_factor:  n %d nzoff %d nblocks %d maxblock %d\n",
-    n, nzoff, nblocks, maxblock) ;
+  PRINTF ("KLU_factor:  n $n nzoff $nzoff nblocks $nblocks maxblock $maxblock\n") ;
 
   /* ---------------------------------------------------------------------- */
   /* get control parameters and make sure they are in the proper range */
@@ -495,17 +492,17 @@ KLU_numeric factor(List<int> Ap, List<int> Ai, List<double> Ax,
   Numeric.n = n ;
   Numeric.nblocks = nblocks ;
   Numeric.nzoff = nzoff ;
-  Numeric.Pnum = klu_malloc_int (n, Common) ;
-  Numeric.Offp = klu_malloc_int (n1, Common) ;
-  Numeric.Offi = klu_malloc_int (nzoff1, Common) ;
-  Numeric.Offx = klu_malloc_dbl (nzoff1, Common) ;
+  Numeric.Pnum = malloc_int (n, Common) ;
+  Numeric.Offp = malloc_int (n1, Common) ;
+  Numeric.Offi = malloc_int (nzoff1, Common) ;
+  Numeric.Offx = malloc_dbl (nzoff1, Common) ;
 
-  Numeric.Lip  = klu_malloc_int (n, Common) ;
-  Numeric.Uip  = klu_malloc_int (n, Common) ;
-  Numeric.Llen = klu_malloc_int (n, Common) ;
-  Numeric.Ulen = klu_malloc_int (n, Common) ;
+  Numeric.Lip  = malloc_int (n, Common) ;
+  Numeric.Uip  = malloc_int (n, Common) ;
+  Numeric.Llen = malloc_int (n, Common) ;
+  Numeric.Ulen = malloc_int (n, Common) ;
 
-  Numeric.LUsize = klu_malloc_int (nblocks, Common) ;
+  Numeric.LUsize = malloc_int (nblocks, Common) ;
 
   //Numeric.LUbx = klu_malloc (nblocks, sizeof (List<double>), Common) ;
   Numeric.LUbx = new List<List<double>>(nblocks) ;
@@ -517,11 +514,11 @@ KLU_numeric factor(List<int> Ap, List<int> Ai, List<double> Ax,
     }
   }
 
-  Numeric.Udiag = klu_malloc_dbl (n, Common) ;
+  Numeric.Udiag = malloc_dbl (n, Common) ;
 
   if (Common.scale > 0)
   {
-    Numeric.Rs = klu_malloc_dbl (n, Common) ;
+    Numeric.Rs = malloc_dbl (n, Common) ;
   }
   else
   {
@@ -529,7 +526,7 @@ KLU_numeric factor(List<int> Ap, List<int> Ai, List<double> Ax,
     Numeric.Rs = null ;
   }
 
-  Numeric.Pinv = klu_malloc_int (n, Common) ;
+  Numeric.Pinv = malloc_int (n, Common) ;
 
   /* allocate permanent workspace for factorization and solve.  Note that the
    * solver will use an Xwork of size 4n, whereas the factorization codes use
@@ -544,16 +541,16 @@ KLU_numeric factor(List<int> Ap, List<int> Ai, List<double> Ax,
   n3 = 3 * n ;
   //b6 = klu_mult_size_t (maxblock, 6 * sizeof (Int), ok) ;
   b6 = 6 * maxblock ;
-  Numeric.worksize = klu_add_size_t (s, MAX (n3, b6), ok) ;
+  Numeric.worksize = add_size_t (s, MAX (n3, b6), ok) ;
   try
   {
     if (ok[0] == 0) throw new OutOfMemoryError() ;
 
     //Numeric.Work = klu_malloc (Numeric.worksize, 1, Common) ;
-    Numeric.Work = new List<List<double>>(Numeric.worksize) ;
+    Numeric.Work = new List<double>.filled(Numeric.worksize, 0.0) ;
     Numeric.Xwork = Numeric.Work ;
     //Numeric.Iwork = (Int[]) ((List<double>) Numeric.Xwork + n) ;
-    Numeric.Iwork = new List<List<int>>(b6) ;
+    Numeric.Iwork = new List<int>.filled(b6, 0) ;
   }
   on OutOfMemoryError catch (e)
   {

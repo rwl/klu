@@ -94,7 +94,7 @@ KLU_symbolic alloc_symbolic(int n, List<int> Ap, List<int> Ai, KLU_common Common
       return (null) ;
     }
   }
-  P = klu_malloc_int (n, Common) ;
+  P = malloc_int (n, Common) ;
   if (Common.status < KLU_OK)
   {
     /* out of memory */
@@ -131,7 +131,7 @@ KLU_symbolic alloc_symbolic(int n, List<int> Ap, List<int> Ai, KLU_common Common
   try {
     //Symbolic = klu_malloc (KLU_symbolic.class, 1, Common) ;
     Symbolic = new KLU_symbolic();
-  } catch (OutOfMemoryError e) {
+  } on OutOfMemoryError catch (e) {
     /* out of memory */
     //klu_free (P, n, sizeof (int), Common) ;
     P = null;
@@ -139,9 +139,9 @@ KLU_symbolic alloc_symbolic(int n, List<int> Ap, List<int> Ai, KLU_common Common
     return (null) ;
   }
 
-  Q = klu_malloc_int(n, Common) ;
-  R = klu_malloc_int (n+1, Common) ;
-  Lnz = klu_malloc_dbl (n, Common) ;
+  Q = malloc_int(n, Common) ;
+  R = malloc_int (n+1, Common) ;
+  Lnz = malloc_dbl (n, Common) ;
 
   Symbolic.n = n ;
   Symbolic.nz = nz ;
@@ -240,11 +240,11 @@ KLU_symbolic analyze_given(int n, List<int> Ap, List<int> Ai,
     List<int> Pinv, Work, Bi ;
     int k1, k2, nk, oldcol ;
 
-    Work = klu_malloc_int (4*n, Common) ;
-    Pinv = klu_malloc_int (n, Common) ;
+    Work = malloc_int (4*n, Common) ;
+    Pinv = malloc_int (n, Common) ;
     if (Puser != null)
     {
-      Bi = klu_malloc_int (nz+1, Common) ;
+      Bi = malloc_int (nz+1, Common) ;
     }
     else
     {
@@ -290,7 +290,7 @@ KLU_symbolic analyze_given(int n, List<int> Ap, List<int> Ai,
     /* ------------------------------------------------------------------ */
 
     /* modifies Q, and determines P and R */
-    nblocks = btf_strongcomp (n, Ap, Bi, Q, P, R) ;
+    nblocks = btf.strongcomp (n, Ap, Bi, Q, P, R) ;
 
     /* ------------------------------------------------------------------ */
     /* P = P * Puser */
@@ -334,7 +334,7 @@ KLU_symbolic analyze_given(int n, List<int> Ap, List<int> Ai,
       k1 = R [block] ;
       k2 = R [block+1] ;
       nk = k2 - k1 ;
-      PRINTF ("BLOCK %d, k1 %d k2-1 %d nk %d\n", block, k1, k2-1, nk) ;
+      PRINTF ("BLOCK $block, k1 $k1 k2-1 $k2-1 nk $nk\n") ;
       maxblock = MAX (maxblock, nk) ;
 
       /* -------------------------------------------------------------- */
@@ -355,7 +355,7 @@ KLU_symbolic analyze_given(int n, List<int> Ap, List<int> Ai,
       }
 
       /* fill-in not estimated */
-      Lnz [block] = EMPTY ;
+      Lnz [block] = EMPTY_D ;
     }
 
     /* ------------------------------------------------------------------ */
@@ -385,7 +385,7 @@ KLU_symbolic analyze_given(int n, List<int> Ap, List<int> Ai,
     maxblock = n ;
     R [0] = 0 ;
     R [1] = n ;
-    Lnz [0] = EMPTY ;
+    Lnz [0] = EMPTY_D ;
 
     /* ------------------------------------------------------------------ */
     /* P = Puser, or identity if Puser is null */
@@ -403,8 +403,8 @@ KLU_symbolic analyze_given(int n, List<int> Ap, List<int> Ai,
 
   Symbolic.nblocks = nblocks ;
   Symbolic.maxblock = maxblock ;
-  Symbolic.lnz = EMPTY ;
-  Symbolic.unz = EMPTY ;
+  Symbolic.lnz = EMPTY_D ;
+  Symbolic.unz = EMPTY_D ;
   Symbolic.nzoff = nzoff ;
 
   return (Symbolic) ;

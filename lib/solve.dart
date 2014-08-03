@@ -109,7 +109,7 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric,
   Rs = Numeric.Rs ;
   X = Numeric.Xwork ;
 
-  if (!NDEBUG) ASSERT (klu_valid (n, Offp, Offi, Offx)) ;
+  if (!NDEBUG) ASSERT_INT (_valid (n, Offp, Offi, Offx)) ;
 
   /* ---------------------------------------------------------------------- */
   /* solve in chunks of 4 columns at a time */
@@ -254,7 +254,7 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric,
       k1 = R [block] ;
       k2 = R [block+1] ;
       nk = k2 - k1 ;
-      PRINTF ("solve %d, k1 %d k2-1 %d nk %d\n", block, k1,k2-1,nk) ;
+      PRINTF ("solve $block, k1 $k1 k2-1 ${k2-1} nk $nk\n") ;
 
       /* solve the block system */
       if (nk == 1)
@@ -299,9 +299,9 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric,
       }
       else
       {
-        klu_lsolve (nk, Lip, k1, Llen, k1,
+        lsolve (nk, Lip, k1, Llen, k1,
             LUbx [block], nr, X, nr*k1) ;
-        klu_usolve (nk, Uip, k1, Ulen, k1,
+        usolve (nk, Uip, k1, Ulen, k1,
             LUbx [block], Udiag, k1, nr, X, nr*k1) ;
       }
 

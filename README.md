@@ -1,16 +1,23 @@
-JKLU: A sparse LU factorization algorithm suited to circuit simulation.
-Copyright (C) 2006-2012, Timothy A. Davis.
+KLU
+===
+
+A sparse LU factorization algorithm suited to circuit simulation. A translation
+of [KLU](http://www.cise.ufl.edu/research/sparse/klu/) into Dart by
+Richard Lincoln.
+
+
+License and Copyright
+---------------------
+
+Copyright (C) 2006-2012, Timothy A. Davis.  
 Copyright (C) 2011-2012, Richard Lincoln.
-http://www.cise.ufl.edu/research/sparse/klu/
 
-------------------------------------------------------------------------------
-
-JKLU is free software; you can redistribute it and/or
+KLU is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
 version 2.1 of the License, or (at your option) any later version.
 
-JKLU is distributed in the hope that it will be useful,
+KLU is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.

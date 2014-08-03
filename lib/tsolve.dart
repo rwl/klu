@@ -109,7 +109,7 @@ int tsolve(KLU_symbolic Symbolic,
 
   Rs = Numeric.Rs ;
   X = Numeric.Xwork ;
-  if (!NDEBUG) ASSERT (klu_valid (n, Offp, Offi, Offx)) ;
+  if (!NDEBUG) ASSERT_INT (_valid (n, Offp, Offi, Offx)) ;
 
   /* ---------------------------------------------------------------------- */
   /* solve in chunks of 4 columns at a time */
@@ -188,7 +188,7 @@ int tsolve(KLU_symbolic Symbolic,
       k1 = R [block] ;
       k2 = R [block+1] ;
       nk = k2 - k1 ;
-      PRINTF ("tsolve %d, k1 %d k2-1 %d nk %d\n", block, k1,k2-1,nk) ;
+      PRINTF ("tsolve $block, k1 $k1 k2-1 ${k2-1} nk $nk\n") ;
 
       /* -------------------------------------------------------------- */
       /* block back-substitution for the off-diagonal-block entries */
@@ -345,9 +345,9 @@ int tsolve(KLU_symbolic Symbolic,
       }
       else
       {
-        klu_utsolve (nk, Uip, k1, Ulen, k1, LUbx [block],
+        utsolve (nk, Uip, k1, Ulen, k1, LUbx [block],
             Udiag, k1, nr, X, nr*k1) ;
-        klu_ltsolve (nk, Lip, k1, Llen, k1, LUbx [block], nr,
+        ltsolve (nk, Lip, k1, Llen, k1, LUbx [block], nr,
             X, nr*k1) ;
       }
     }

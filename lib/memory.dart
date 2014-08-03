@@ -34,20 +34,20 @@ part of edu.ufl.cise.klu.tdouble;
 /**
  * Safely compute a+b, and check for int overflow.
  */
-int klu_add_size_t(int a, int b, List<int> ok)
+int add_size_t(int a, int b, List<int> ok)
 {
-  (ok[0]) = (ok[0] != 0) && ((a + b) >= MAX (a,b)) ? 1 : 0;
-  return ((ok[0] != 0) ? (a + b) : ((int) -1)) ;
+  ok[0] = (ok[0] != 0) && ((a + b) >= MAX (a,b)) ? 1 : 0;
+  return ((ok[0] != 0) ? (a + b) : (-1)) ;
 }
 
-int klu_mult_size_t(int a, int k, List<int> ok)
+int mult_size_t(int a, int k, List<int> ok)
 {
   int i, s = 0 ;
   for (i = 0 ; i < k ; i++)
   {
-    s = klu_add_size_t (s, a, ok) ;
+    s = add_size_t (s, a, ok) ;
   }
-  return ((ok[0] != 0) ? s : ((int) -1)) ;
+  return ((ok[0] != 0) ? s : (-1)) ;
 }
 
 /**
@@ -66,9 +66,9 @@ int klu_mult_size_t(int a, int k, List<int> ok)
  * @param Common
  * @return
  */
-List<int> klu_malloc_int(int n, KLU_common Common)
+List<int> malloc_int(int n, KLU_common Common)
 {
-  Runtime runtime;
+  //Runtime runtime;
   List<int> p = null;
 
   if (n >= INT_MAX)
@@ -80,12 +80,12 @@ List<int> klu_malloc_int(int n, KLU_common Common)
   {
     try
     {
-      p = new List<int>(n);
-      runtime = Runtime.getRuntime ();
-      Common.memusage = runtime.totalMemory () - runtime.freeMemory ();
+      p = new List<int>.filled(n, 0);
+      //runtime = Runtime.getRuntime ();
+      //Common.memusage = runtime.totalMemory () - runtime.freeMemory ();
       Common.mempeak = MAX (Common.mempeak, Common.memusage) ;
     }
-    catch (OutOfMemoryError e)
+    on OutOfMemoryError catch (e)
     {
       /* failure: out of memory */
       Common.status = KLU_OUT_OF_MEMORY ;
@@ -95,9 +95,9 @@ List<int> klu_malloc_int(int n, KLU_common Common)
   return (p) ;
 }
 
-List<double> klu_malloc_dbl(int n, KLU_common Common)
+List<double> malloc_dbl(int n, KLU_common Common)
 {
-  Runtime runtime;
+  //Runtime runtime;
   List<double> p = null;
 
   if (n >= INT_MAX)
@@ -109,12 +109,12 @@ List<double> klu_malloc_dbl(int n, KLU_common Common)
   {
     try
     {
-      p = new List<double>(n);
-      runtime = Runtime.getRuntime ();
-      Common.memusage = runtime.totalMemory () - runtime.freeMemory ();
+      p = new List<double>.filled(n, 0.0);
+      //runtime = Runtime.getRuntime ();
+      //Common.memusage = runtime.totalMemory () - runtime.freeMemory ();
       Common.mempeak = MAX (Common.mempeak, Common.memusage) ;
     }
-    catch (OutOfMemoryError e)
+    on OutOfMemoryError catch (e)
     {
       /* failure: out of memory */
       Common.status = KLU_OUT_OF_MEMORY ;
@@ -144,7 +144,7 @@ List<double> klu_malloc_dbl(int n, KLU_common Common)
  * @param Common
  * @return pointer to reallocated block
  */
-List<double> klu_realloc_dbl (int nnew, int nold,
+List<double> realloc_dbl (int nnew, int nold,
     List<double> p, KLU_common Common)
 {
   List<double> pnew ;
@@ -158,7 +158,7 @@ List<double> klu_realloc_dbl (int nnew, int nold,
   else if (p == null)
   {
     /* A fresh object is being allocated. */
-    p = klu_malloc_dbl (nnew, Common) ;
+    p = malloc_dbl (nnew, Common) ;
   }
   else if (nnew >= INT_MAX)
   {
@@ -173,15 +173,16 @@ List<double> klu_realloc_dbl (int nnew, int nold,
     sold = MAX (1, nold) ;
     try
     {
-      pnew = new List<double>(snew) ;
-      System.arraycopy(p, 0, pnew, 0, MIN (snew, sold)) ;
-      Runtime runtime = Runtime.getRuntime();
-      Common.memusage = runtime.totalMemory() - runtime.freeMemory();
-      //Common.memusage += (snew - sold) ;
+      pnew = new List<double>.filled(snew, 0.0) ;
+      //System.arraycopy(p, 0, pnew, 0, MIN (snew, sold)) ;
+      for (int i = 0; i < MIN (snew, sold); i++) pnew[i] = p[i];
+      //Runtime runtime = Runtime.getRuntime();
+      //Common.memusage = runtime.totalMemory() - runtime.freeMemory();
+      // Common.memusage += (snew - sold) ;
       Common.mempeak = MAX (Common.mempeak, Common.memusage) ;
       p = pnew ;
     }
-    catch (OutOfMemoryError e)
+    on OutOfMemoryError catch (e)
     {
       /* Do not change p, since it still points to allocated memory */
       Common.status = KLU_OUT_OF_MEMORY ;

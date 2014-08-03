@@ -48,10 +48,10 @@ part of edu.ufl.cise.klu.tdouble;
 int _valid(int n, List<int> Ap, List<int> Ai, List<double> Ax)
 {
   int nz, j, p1, p2, i, p ;
-  PRINTF ("\ncolumn oriented matrix, n = %d\n", n) ;
+  PRINTF ("\ncolumn oriented matrix, n = $n\n") ;
   if (n <= 0)
   {
-    PRINTF ("n must be >= 0: %d\n", n) ;
+    PRINTF ("n must be >= 0: $n\n") ;
     return (FALSE) ;
   }
   nz = Ap [n] ;
@@ -65,21 +65,21 @@ int _valid(int n, List<int> Ap, List<int> Ai, List<double> Ax)
   {
     p1 = Ap [j] ;
     p2 = Ap [j+1] ;
-    PRINTF ("\nColumn: %d p1: %d p2: %d\n", j, p1, p2) ;
+    PRINTF ("\nColumn: $j p1: $p1 p2: $p2\n") ;
     if (p1 > p2)
     {
       /* column pointers must be ascending */
-      PRINTF ("column %d pointer bad\n", j) ;
+      PRINTF ("column $j pointer bad\n") ;
       return (FALSE) ;
     }
     for (p = p1 ; p < p2 ; p++)
     {
       i = Ai [p] ;
-      PRINTF ("row: %d", i) ;
+      PRINTF ("row: $i") ;
       if (i < 0 || i >= n)
       {
         /* row index out of range */
-        PRINTF ("index out of range, col %d row %d\n", j, i) ;
+        PRINTF ("index out of range, col $j row $i\n") ;
         return (FALSE) ;
       }
       if (Ax != null)
@@ -109,10 +109,10 @@ _valid_LU(int n, int flag_test_start_ptr,
   List<int> Xi_offset = new List<int>(1) ;
   List<int> Xx_offset = new List<int>(1) ;
 
-  PRINTF ("\ncolumn oriented matrix, n = %d\n", n) ;
+  PRINTF ("\ncolumn oriented matrix, n = $n\n") ;
   if (n <= 0)
   {
-    PRINTF ("n must be >= 0: %d\n", n) ;
+    PRINTF ("n must be >= 0: $n\n") ;
     return (FALSE) ;
   }
   if (flag_test_start_ptr != 0 && Xip [Xip_offset + 0] != 0)
@@ -126,23 +126,23 @@ _valid_LU(int n, int flag_test_start_ptr,
   {
     p1 = Xip [Xip_offset + j] ;
     p2 = Xip [Xip_offset + j+1] ;
-    PRINTF ("\nColumn: %d p1: %d p2: %d\n", j, p1, p2) ;
+    PRINTF ("\nColumn: $j p1: $p1 p2: $p2\n") ;
     if (p1 > p2)
     {
       /* column pointers must be ascending */
-      PRINTF ("column %d pointer bad\n", j) ;
+      PRINTF ("column $j pointer bad\n") ;
       return (FALSE) ;
     }
     Xi = Xx = GET_POINTER (LU, Xip, Xip_offset, Xlen, Xlen_offset,
         Xi_offset, Xx_offset, j, len) ;
     for (p = 0 ; p < len[0] ; p++)
     {
-      i = Xi [Xi_offset[0] + p] as int ;
-      PRINTF ("row: %d", i) ;
+      i = Xi [Xi_offset[0] + p].toInt() ;
+      PRINTF ("row: $i") ;
       if (i < 0 || i >= n)
       {
         /* row index out of range */
-        PRINTF ("index out of range, col %d row %d\n", j, i) ;
+        PRINTF ("index out of range, col $j row $i\n") ;
         return (FALSE) ;
       }
       if (Xx != null)
