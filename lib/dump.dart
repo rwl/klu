@@ -45,7 +45,7 @@ part of edu.ufl.cise.klu.tdouble;
  *
  * Not user-callable.  Only used when debugging.
  */
-int _valid(int n, List<int> Ap, List<int> Ai, List<double> Ax)
+int _valid(int n, Int32List Ap, Int32List Ai, Float64List Ax)
 {
   int nz, j, p1, p2, i, p ;
   PRINTF ("\ncolumn oriented matrix, n = $n\n") ;
@@ -99,15 +99,15 @@ int _valid(int n, List<int> Ap, List<int> Ai, List<double> Ax)
  * function for U, the flag should be set to false.  Only used when debugging.
  */
 _valid_LU(int n, int flag_test_start_ptr,
-    List<int> Xip, int Xip_offset, List<int> Xlen, int Xlen_offset,
-    List<double> LU)
+    Int32List Xip, int Xip_offset, Int32List Xlen, int Xlen_offset,
+    Float64List LU)
 {
-  /*List<int>*/List<double> Xi ;
-  List<double> Xx ;
+  /*Int32List*/Float64List Xi ;
+  Float64List Xx ;
   int j, p1, p2, i, p ;
-  List<int> len = new List<int>(1) ;
-  List<int> Xi_offset = new List<int>(1) ;
-  List<int> Xx_offset = new List<int>(1) ;
+  Int32List len = new Int32List(1) ;
+  Int32List Xi_offset = new Int32List(1) ;
+  Int32List Xx_offset = new Int32List(1) ;
 
   PRINTF ("\ncolumn oriented matrix, n = $n\n") ;
   if (n <= 0)

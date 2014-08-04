@@ -51,20 +51,20 @@ import static edu.ufl.cise.klu.tdouble.Dklu_solve.klu_solve;*/
  * @param Common
  * @return TRUE if successful, FALSE otherwise
  */
-int rgrowth(List<int> Ap, List<int> Ai, List<double> Ax,
+int rgrowth(Int32List Ap, Int32List Ai, Float64List Ax,
     KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common)
 {
   double temp, max_ai, max_ui, min_block_rgrowth ;
   double aik ;
-  List<int> Q, Pinv ;
-  List<int> Ulen, Uip ;
-  List<double> LU ;
-  List<double> Aentry, Ux, Ukk ;
-  List<double> Rs ;
+  Int32List Q, Pinv ;
+  Int32List Ulen, Uip ;
+  Float64List LU ;
+  Float64List Aentry, Ux, Ukk ;
+  Float64List Rs ;
   int i, newrow, oldrow, k1, k2, nk, j, oldcol, k, pend ;
-  List<int> len = new List<int>(1) ;
-  List<int> Ui_offset = new List<int>(1) ;
-  List<int> Ux_offset = new List<int>(1) ;
+  Int32List len = new Int32List(1) ;
+  Int32List Ui_offset = new Int32List(1) ;
+  Int32List Ux_offset = new Int32List(1) ;
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
@@ -94,7 +94,7 @@ int rgrowth(List<int> Ap, List<int> Ai, List<double> Ax,
   /* compute the reciprocal pivot growth */
   /* ---------------------------------------------------------------------- */
 
-  Aentry = Ax;// as List<double>;
+  Aentry = Ax;// as Float64List;
   Pinv = Numeric.Pinv ;
   Rs = Numeric.Rs ;
   Q = Symbolic.Q ;
@@ -202,11 +202,11 @@ int rgrowth(List<int> Ap, List<int> Ai, List<double> Ax,
  * @param Common
  * @return TRUE if successful, FALSE otherwise
  */
-int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
+int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic,
     KLU_numeric Numeric, KLU_common Common)
 {
   double xj, Xmax, csum, anorm, ainv_norm, est_old, est_new, abs_value ;
-  List<double> Udiag, Aentry, X, S ;
+  Float64List Udiag, Aentry, X, S ;
   int i, j, jmax, jnew, pend, n ;
   int unchanged ;
 
@@ -261,7 +261,7 @@ int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
   /* ---------------------------------------------------------------------- */
 
   anorm =  0.0 ;
-  Aentry = Ax;// as List<double> ;
+  Aentry = Ax;// as Float64List ;
   for (i = 0 ; i < n ; i++)
   {
     pend = Ap [i + 1] ;
@@ -313,7 +313,7 @@ int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
       X [X_offset + jmax] = 1.0 ;
     }
 
-    solve (Symbolic, Numeric, n, 1, X/* as List<double>*/, X_offset, Common) ;
+    solve (Symbolic, Numeric, n, 1, X/* as Float64List*/, X_offset, Common) ;
     est_old = ainv_norm ;
     ainv_norm = 0.0 ;
 
@@ -391,7 +391,7 @@ int condest(List<int> Ap, List<double> Ax, KLU_symbolic Symbolic,
     }
   }
 
-  solve (Symbolic, Numeric, n, 1, X/* as List<double>*/, X_offset, Common) ;
+  solve (Symbolic, Numeric, n, 1, X/* as Float64List*/, X_offset, Common) ;
 
   est_new = 0.0 ;
   for (j = 0 ; j < n ; j++)
@@ -424,10 +424,10 @@ int flops(KLU_symbolic Symbolic, KLU_numeric Numeric,
     KLU_common Common)
 {
   double flops = 0.0 ;
-  List<int> R, Uip, Llen, Ulen ;
-  /*List<int>*/List<double> Ui ;
-  List<List<double>> LUbx ;
-  List<double> LU ;
+  Int32List R, Uip, Llen, Ulen ;
+  /*Int32List*/Float64List Ui ;
+  List<Float64List> LUbx ;
+  Float64List LU ;
   int k, ulen, p, nk, block, nblocks, k1 ;
 
   /* ---------------------------------------------------------------------- */
@@ -457,7 +457,7 @@ int flops(KLU_symbolic Symbolic, KLU_numeric Numeric,
   /* get the contents of the Numeric object */
   /* ---------------------------------------------------------------------- */
 
-  LUbx = Numeric.LUbx;// as List<List<double>> ;
+  LUbx = Numeric.LUbx;// as List<Float64List> ;
 
   /* ---------------------------------------------------------------------- */
   /* compute the flop count */
@@ -476,7 +476,7 @@ int flops(KLU_symbolic Symbolic, KLU_numeric Numeric,
       Ulen = Numeric.Ulen ;
       int Ulen_offset = k1 ;
       LU = LUbx [block] ;
-      List<int> Ui_offset = new List<int>(1) ;
+      Int32List Ui_offset = new Int32List(1) ;
       for (k = 0 ; k < nk ; k++)
       {
         /* compute kth column of U, and update kth column of A */
@@ -509,7 +509,7 @@ int rcond(KLU_symbolic Symbolic, KLU_numeric Numeric,
     KLU_common Common)
 {
   double ukk, umin = 0.0, umax = 0.0 ;
-  List<double> Udiag ;
+  Float64List Udiag ;
   int j, n ;
 
   /* ---------------------------------------------------------------------- */

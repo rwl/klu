@@ -24,6 +24,8 @@
 
 library edu.ufl.cise.klu.common;
 
+import 'dart:typed_data';
+
 part 'defaults.dart';
 part 'l_common.dart';
 part 'l_defaults.dart';

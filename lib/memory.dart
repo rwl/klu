@@ -34,13 +34,13 @@ part of edu.ufl.cise.klu.tdouble;
 /**
  * Safely compute a+b, and check for int overflow.
  */
-int add_size_t(int a, int b, List<int> ok)
+int add_size_t(int a, int b, Int32List ok)
 {
   ok[0] = (ok[0] != 0) && ((a + b) >= MAX (a,b)) ? 1 : 0;
   return ((ok[0] != 0) ? (a + b) : (-1)) ;
 }
 
-int mult_size_t(int a, int k, List<int> ok)
+int mult_size_t(int a, int k, Int32List ok)
 {
   int i, s = 0 ;
   for (i = 0 ; i < k ; i++)
@@ -66,10 +66,10 @@ int mult_size_t(int a, int k, List<int> ok)
  * @param Common
  * @return
  */
-List<int> malloc_int(int n, KLU_common Common)
+Int32List malloc_int(int n, KLU_common Common)
 {
   //Runtime runtime;
-  List<int> p = null;
+  Int32List p = null;
 
   if (n >= INT_MAX)
   {
@@ -80,7 +80,7 @@ List<int> malloc_int(int n, KLU_common Common)
   {
     try
     {
-      p = new List<int>.filled(n, 0);
+      p = new Int32List(n);
       //runtime = Runtime.getRuntime ();
       //Common.memusage = runtime.totalMemory () - runtime.freeMemory ();
       Common.mempeak = MAX (Common.mempeak, Common.memusage) ;
@@ -95,10 +95,10 @@ List<int> malloc_int(int n, KLU_common Common)
   return (p) ;
 }
 
-List<double> malloc_dbl(int n, KLU_common Common)
+Float64List malloc_dbl(int n, KLU_common Common)
 {
   //Runtime runtime;
-  List<double> p = null;
+  Float64List p = null;
 
   if (n >= INT_MAX)
   {
@@ -109,7 +109,7 @@ List<double> malloc_dbl(int n, KLU_common Common)
   {
     try
     {
-      p = new List<double>.filled(n, 0.0);
+      p = new Float64List(n);
       //runtime = Runtime.getRuntime ();
       //Common.memusage = runtime.totalMemory () - runtime.freeMemory ();
       Common.mempeak = MAX (Common.mempeak, Common.memusage) ;
@@ -144,10 +144,10 @@ List<double> malloc_dbl(int n, KLU_common Common)
  * @param Common
  * @return pointer to reallocated block
  */
-List<double> realloc_dbl (int nnew, int nold,
-    List<double> p, KLU_common Common)
+Float64List realloc_dbl (int nnew, int nold,
+    Float64List p, KLU_common Common)
 {
-  List<double> pnew ;
+  Float64List pnew ;
   int snew ;
   int sold ;
 
@@ -173,7 +173,7 @@ List<double> realloc_dbl (int nnew, int nold,
     sold = MAX (1, nold) ;
     try
     {
-      pnew = new List<double>.filled(snew, 0.0) ;
+      pnew = new Float64List(snew) ;
       //System.arraycopy(p, 0, pnew, 0, MIN (snew, sold)) ;
       for (int i = 0; i < MIN (snew, sold); i++) pnew[i] = p[i];
       //Runtime runtime = Runtime.getRuntime();

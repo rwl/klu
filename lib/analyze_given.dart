@@ -51,11 +51,11 @@ part of edu.ufl.cise.klu.tdouble;
  * @param Common
  * @return
  */
-KLU_symbolic alloc_symbolic(int n, List<int> Ap, List<int> Ai, KLU_common Common)
+KLU_symbolic alloc_symbolic(int n, Int32List Ap, Int32List Ai, KLU_common Common)
 {
   KLU_symbolic Symbolic ;
-  List<int> P, Q, R ;
-  List<double> Lnz ;
+  Int32List P, Q, R ;
+  Float64List Lnz ;
   int nz, i, j, p, pend ;
 
   if (Common == null)
@@ -175,13 +175,13 @@ KLU_symbolic alloc_symbolic(int n, List<int> Ap, List<int> Ai, KLU_common Common
  * @param Common
  * @return
  */
-KLU_symbolic analyze_given(int n, List<int> Ap, List<int> Ai,
-    List<int> Puser, List<int> Quser, KLU_common Common)
+KLU_symbolic analyze_given(int n, Int32List Ap, Int32List Ai,
+    Int32List Puser, Int32List Quser, KLU_common Common)
 {
   KLU_symbolic Symbolic ;
-  List<double> Lnz ;
+  Float64List Lnz ;
   int nblocks, nz, block, maxblock, nzoff, p, pend, do_btf, k ;
-  List<int> P, Q, R ;
+  Int32List P, Q, R ;
 
   /* ---------------------------------------------------------------------- */
   /* determine if input matrix is valid, and get # of nonzeros */
@@ -237,7 +237,7 @@ KLU_symbolic analyze_given(int n, List<int> Ap, List<int> Ai,
     /* get workspace for BTF_strongcomp */
     /* ------------------------------------------------------------------ */
 
-    List<int> Pinv, Work, Bi ;
+    Int32List Pinv, Work, Bi ;
     int k1, k2, nk, oldcol ;
 
     Work = malloc_int (4*n, Common) ;

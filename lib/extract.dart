@@ -58,20 +58,20 @@ import edu.ufl.cise.klu.common.KLU_symbolic;*/
  * @return
  */
 int extract(KLU_numeric Numeric, KLU_symbolic Symbolic,
-    List<int> Lp, List<int> Li, List<double> Lx, List<int> Up, List<int> Ui, List<double> Ux,
-    List<int> Fp, List<int> Fi, List<double> Fx, List<int> P, List<int> Q, List<double> Rs,
-    List<int> R, KLU_common Common)
+    Int32List Lp, Int32List Li, Float64List Lx, Int32List Up, Int32List Ui, Float64List Ux,
+    Int32List Fp, Int32List Fi, Float64List Fx, Int32List P, Int32List Q, Float64List Rs,
+    Int32List R, KLU_common Common)
 {
-  List<int> Lip, Llen, Uip, Ulen ;
-  /*List<int>*/List<double> Li2, Ui2 ;
-  List<double> LU ;
-  List<double> Lx2, Ux2, Ukk ;
+  Int32List Lip, Llen, Uip, Ulen ;
+  /*Int32List*/Float64List Li2, Ui2 ;
+  Float64List LU ;
+  Float64List Lx2, Ux2, Ukk ;
   int i, k, block, nblocks, n, nz, k1, k2, nk, kk, p ;
-  List<int> len = new List<int>(1) ;
-  List<int> Li2_offset = new List<int>(1) ;
-  List<int> Lx2_offset = new List<int>(1) ;
-  List<int> Ui2_offset = new List<int>(1) ;
-  List<int> Ux2_offset = new List<int>(1) ;
+  Int32List len = new Int32List(1) ;
+  Int32List Li2_offset = new Int32List(1) ;
+  Int32List Lx2_offset = new Int32List(1) ;
+  Int32List Ui2_offset = new Int32List(1) ;
+  Int32List Ux2_offset = new Int32List(1) ;
 
   if (Common == null)
   {
@@ -267,7 +267,7 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic,
     for (k = 0 ; k < nz ; k++)
     {
       Fx [k] = Numeric.Offx [k] ;
-      //Fx [k] = REAL (((List<double>) Numeric.Offx) [k]) ;
+      //Fx [k] = REAL (((Float64List) Numeric.Offx) [k]) ;
     }
   }
 

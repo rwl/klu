@@ -41,31 +41,31 @@ class KLU_l_numeric
     int unz;           /* actual nz in U, including diagonal */
     int max_lnz_block; /* max actual nz in L in any one block, incl. diag */
     int max_unz_block; /* max actual nz in U in any one block, incl. diag */
-    List<int> Pnum;        /* size n. final pivot permutation */
-    List<int> Pinv;        /* size n. inverse of final pivot permutation */
+    Int32List Pnum;        /* size n. final pivot permutation */
+    Int32List Pinv;        /* size n. inverse of final pivot permutation */
 
     /* LU factors of each block */
-    List<int> Lip;         /* size n. pointers into LUbx[block] for L */
-    List<int> Uip;         /* size n. pointgers into LUbx[block] for U */
-    List<int> Llen;        /* size n. Llen [k] = # of entries in kth column of L */
-    List<int> Ulen;        /* size n. Ulen [k] = # of entries in kth column of U */
-    List<List<double>> LUbx;      /* L and U indices and entries (excl. diagonal of U) */
-    List<int> LUsize;    /* size of each LUbx [block], in sizeof (Unit) */
-    List<double> Udiag;       /* diagonal of U */
+    Int32List Lip;         /* size n. pointers into LUbx[block] for L */
+    Int32List Uip;         /* size n. pointgers into LUbx[block] for U */
+    Int32List Llen;        /* size n. Llen [k] = # of entries in kth column of L */
+    Int32List Ulen;        /* size n. Ulen [k] = # of entries in kth column of U */
+    List<Float64List> LUbx;      /* L and U indices and entries (excl. diagonal of U) */
+    Int32List LUsize;    /* size of each LUbx [block], in sizeof (Unit) */
+    Float64List Udiag;       /* diagonal of U */
 
     /* scale factors; can be NULL if no scaling */
-    List<double> Rs;        /* size n. Rs [i] is scale factor for row i */
+    Float64List Rs;        /* size n. Rs [i] is scale factor for row i */
 
     /* permanent workspace for factorization and solve */
-    List<int> worksize;  /* size (in bytes) of Work */
-    List<double> Work;        /* workspace */
-    List<double> Xwork;       /* alias into Numeric->Work */
-    List<int> Iwork;       /* alias into Numeric->Work */
+    Int32List worksize;  /* size (in bytes) of Work */
+    Float64List Work;        /* workspace */
+    Float64List Xwork;       /* alias into Numeric->Work */
+    Int32List Iwork;       /* alias into Numeric->Work */
 
     /* off-diagonal entries in a conventional compressed-column sparse matrix */
-    List<int> Offp;        /* size n+1, column pointers */
-    List<int> Offi;        /* size nzoff, row indices */
-    List<double> Offx;        /* size nzoff, numerical values */
+    Int32List Offp;        /* size n+1, column pointers */
+    Int32List Offi;        /* size nzoff, row indices */
+    Float64List Offx;        /* size nzoff, numerical values */
     int nzoff;
 
 }

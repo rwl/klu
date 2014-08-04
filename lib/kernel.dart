@@ -54,13 +54,13 @@ part of edu.ufl.cise.klu.tdouble;
  * @param Ap_pos keeps track of position in adj list during DFS
  * @return
  */
-int dfs(int j, int k, List<int> Pinv, List<int> Llen, int Llen_offset,
-    List<int> Lip, int Lip_offset,
-    List<int> Stack, List<int> Flag, List<int> Lpend, int top, List<double> LU,
-    List<double> Lik, int Lik_offset, List<int> plength, List<int> Ap_pos)
+int dfs(int j, int k, Int32List Pinv, Int32List Llen, int Llen_offset,
+    Int32List Lip, int Lip_offset,
+    Int32List Stack, Int32List Flag, Int32List Lpend, int top, Float64List LU,
+    Float64List Lik, int Lik_offset, Int32List plength, Int32List Ap_pos)
 {
   int i, pos, jnew, head, l_length;
-  /*List<int>*/List<double> Li;
+  /*Int32List*/Float64List Li;
 
   l_length = plength [0] ;
 
@@ -156,17 +156,17 @@ int dfs(int j, int k, List<int> Pinv, List<int> Llen, int Llen_offset,
  * @param PSinv inverse of P from symbolic factorization
  * @return
  */
-int lsolve_symbolic(int n, int k, List<int> Ap, List<int> Ai,
-    List<int> Q, List<int> Pinv, List<int> Stack, List<int> Flag, List<int> Lpend,
-    List<int> Ap_pos, List<double> LU, int lup, List<int> Llen, int Llen_offset,
-    List<int> Lip, int Lip_offset, int k1, List<int> PSinv)
+int lsolve_symbolic(int n, int k, Int32List Ap, Int32List Ai,
+    Int32List Q, Int32List Pinv, Int32List Stack, Int32List Flag, Int32List Lpend,
+    Int32List Ap_pos, Float64List LU, int lup, Int32List Llen, int Llen_offset,
+    Int32List Lip, int Lip_offset, int k1, Int32List PSinv)
 {
-  /*List<int>*/List<double> Lik;
+  /*Int32List*/Float64List Lik;
   int i, p, pend, oldcol, kglobal, top ;
-  List<int> l_length;
+  Int32List l_length;
 
   top = n ;
-  l_length = [0] ;
+  l_length = new Int32List.fromList([0]) ;
   Lik = LU ;
   int Lik_offset = lup ;
 
@@ -226,9 +226,9 @@ int lsolve_symbolic(int n, int k, List<int> Ap, List<int> Ai,
  * @param Offi
  * @param Offx
  */
-void construct_column(int k, List<int> Ap, List<int> Ai, List<double> Ax,
-    List<int> Q, List<double> X, int k1, List<int> PSinv, List<double> Rs, int scale,
-    List<int> Offp, List<int> Offi, List<double> Offx)
+void construct_column(int k, Int32List Ap, Int32List Ai, Float64List Ax,
+    Int32List Q, Float64List X, int k1, Int32List PSinv, Float64List Rs, int scale,
+    Int32List Offp, Int32List Offi, Float64List Offx)
 {
   double aik ;
   int i, p, pend, oldcol, kglobal, poff, oldrow ;
@@ -308,17 +308,17 @@ void construct_column(int k, List<int> Ap, List<int> Ai, List<double> Ax,
  * @param X size n, initially zero.  On output,
  * X[Ui[up1..up-1]] and X[Li[lp1..lp-1]] contains the solution.
  */
-void lsolve_numeric(List<int> Pinv, List<double> LU, List<int> Stack,
-    List<int> Lip, int Lip_offset, int top, int n,
-    List<int> Llen, int Llen_offset, List<double> X)
+void lsolve_numeric(Int32List Pinv, Float64List LU, Int32List Stack,
+    Int32List Lip, int Lip_offset, int top, int n,
+    Int32List Llen, int Llen_offset, Float64List X)
 {
   double xj;
-  List<double> Lx;
-  /*List<int>*/List<double> Li;
+  Float64List Lx;
+  /*Int32List*/Float64List Li;
   int p, s, j, jnew ;
-  List<int> len = new List<int>(1) ;
-  List<int> Li_offset = new List<int>(1) ;
-  List<int> Lx_offset = new List<int>(1) ;
+  Int32List len = new Int32List(1) ;
+  Int32List Li_offset = new Int32List(1) ;
+  Int32List Lx_offset = new Int32List(1) ;
 
   /* solve Lx=b */
   for (s = top ; s < n ; s++)
@@ -359,20 +359,20 @@ void lsolve_numeric(List<int> Pinv, List<double> LU, List<int> Stack,
  * @param Common
  * @return
  */
-int lpivot(int diagrow, List<int> p_pivrow, List<double> p_pivot,
-    List<double> p_abs_pivot, double tol, List<double> X, List<double> LU,
-    List<int> Lip, int Lip_offset, List<int> Llen, int Llen_offset,
-    int k, int n, List<int> Pinv , List<int> p_firstrow,
+int lpivot(int diagrow, Int32List p_pivrow, Float64List p_pivot,
+    Float64List p_abs_pivot, double tol, Float64List X, Float64List LU,
+    Int32List Lip, int Lip_offset, Int32List Llen, int Llen_offset,
+    int k, int n, Int32List Pinv , Int32List p_firstrow,
     KLU_common Common)
 {
   double x, pivot ;
-  List<double> Lx ;
+  Float64List Lx ;
   double abs_pivot, xabs ;
   int p, i, ppivrow, pdiag, pivrow, last_row_index, firstrow ;
-  /*List<int>*/List<double> Li ;
-  List<int> len = new List<int>(1) ;
-  List<int> Li_offset = new List<int>(1) ;
-  List<int> Lx_offset = new List<int>(1) ;
+  /*Int32List*/Float64List Li ;
+  Int32List len = new Int32List(1) ;
+  Int32List Li_offset = new Int32List(1) ;
+  Int32List Lx_offset = new Int32List(1) ;
 
   pivrow = EMPTY ;
   if (Llen [Llen_offset + k] == 0)
@@ -520,20 +520,20 @@ int lpivot(int diagrow, List<int> p_pivrow, List<double> p_pivot,
  * @param Ulen size n, column length of U
  * @param Llen size n, column length of L
  */
-void prune(List<int> Lpend, List<int> Pinv, int k, int pivrow,
-    List<double> LU, List<int> Uip, int Uip_offset, List<int> Lip, int Lip_offset,
-    List<int> Ulen, int Ulen_offset, List<int> Llen, int Llen_offset)
+void prune(Int32List Lpend, Int32List Pinv, int k, int pivrow,
+    Float64List LU, Int32List Uip, int Uip_offset, Int32List Lip, int Lip_offset,
+    Int32List Ulen, int Ulen_offset, Int32List Llen, int Llen_offset)
 {
   double x ;
-  List<double> Lx ;
-  /*List<int>*/List<double> Li, Ui ;
+  Float64List Lx ;
+  /*Int32List*/Float64List Li, Ui ;
   int p, i, j, p2, phead, ptail ;
-  List<int> llen = new List<int>(1) ;
-  List<int> ulen = new List<int>(1) ;
-  List<int> Li_offset = new List<int>(1) ;
-  List<int> Lx_offset = new List<int>(1) ;
-  List<int> Ui_offset = new List<int>(1) ;
-  List<int> Ux_offset = new List<int>(1) ;
+  Int32List llen = new Int32List(1) ;
+  Int32List ulen = new Int32List(1) ;
+  Int32List Li_offset = new Int32List(1) ;
+  Int32List Lx_offset = new Int32List(1) ;
+  Int32List Ui_offset = new Int32List(1) ;
+  Int32List Ux_offset = new Int32List(1) ;
 
   /* check to see if any column of L can be pruned */
   Ui = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset,
@@ -648,32 +648,32 @@ void prune(List<int> Lpend, List<int> Pinv, int k, int pivrow,
  * @param Common
  * @return final size of LU on output
  */
-int kernel(int n, List<int> Ap, List<int> Ai, List<double> Ax,
-    List<int> Q, int lusize, List<int> Pinv, List<int> P, List<List<double>> p_LU,
-    List<double> Udiag, int Udiag_offset, List<int> Llen, int Llen_offset,
-    List<int> Ulen, int Ulen_offset, List<int> Lip, int Lip_offset,
-    List<int> Uip, int Uip_offset,
-    List<int> lnz, List<int> unz, List<double> X, List<int> Stack, List<int> Flag,
-    List<int> Ap_pos, List<int> Lpend, int k1, List<int> PSinv, List<double> Rs,
-    List<int> Offp, List<int> Offi, List<double> Offx, KLU_common Common)
+int kernel(int n, Int32List Ap, Int32List Ai, Float64List Ax,
+    Int32List Q, int lusize, Int32List Pinv, Int32List P, List<Float64List> p_LU,
+    Float64List Udiag, int Udiag_offset, Int32List Llen, int Llen_offset,
+    Int32List Ulen, int Ulen_offset, Int32List Lip, int Lip_offset,
+    Int32List Uip, int Uip_offset,
+    Int32List lnz, Int32List unz, Float64List X, Int32List Stack, Int32List Flag,
+    Int32List Ap_pos, Int32List Lpend, int k1, Int32List PSinv, Float64List Rs,
+    Int32List Offp, Int32List Offi, Float64List Offx, KLU_common Common)
 {
-  List<double> pivot = new List<double>(1) ;
-  List<double> abs_pivot = new List<double>(1) ;
+  Float64List pivot = new Float64List(1) ;
+  Float64List abs_pivot = new Float64List(1) ;
   double xsize, nunits, tol, memgrow ;
-  List<double> Ux ;
-  /*List<int>*/List<double> Li, Ui ;
-  List<double> LU ;          /* LU factors (pattern and values) */
+  Float64List Ux ;
+  /*Int32List*/Float64List Li, Ui ;
+  Float64List LU ;          /* LU factors (pattern and values) */
   int k, p, i, j, kbar, diagrow, lup, top, scale;
-  List<int> len = new List<int>(1) ;
-  List<int> firstrow = new List<int>(1) ;
-  List<int> pivrow = [0] ;
+  Int32List len = new Int32List(1) ;
+  Int32List firstrow = new Int32List(1) ;
+  Int32List pivrow = new Int32List.fromList([0]) ;
   int newlusize;
-  List<int> Ui_offset = new List<int>(1) ;
-  List<int> Ux_offset = new List<int>(1) ;
-  List<int> Li_offset = new List<int>(1) ;
-  List<int> Lx_offset = new List<int>(1) ;
+  Int32List Ui_offset = new Int32List(1) ;
+  Int32List Ux_offset = new Int32List(1) ;
+  Int32List Li_offset = new Int32List(1) ;
+  Int32List Lx_offset = new Int32List(1) ;
 
-  List<double> Lx;  // only used when debugging
+  Float64List Lx;  // only used when debugging
 
   ASSERT (Common != null) ;
   scale = Common.scale ;

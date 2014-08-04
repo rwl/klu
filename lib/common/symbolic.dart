@@ -39,14 +39,14 @@ class KLU_symbolic
 	  double symmetry;   /* symmetry of largest block */
     double est_flops;  /* est. factorization flop count */
     double lnz, unz;   /* estimated nz in L and U, including diagonals */
-    List<double> Lnz;      /* size n, but only Lnz [0..nblocks-1] is used */
+    Float64List Lnz;      /* size n, but only Lnz [0..nblocks-1] is used */
 
     /* computed for all orderings: */
     int
         n;         /* whether or not BTF preordering was requested */
     int nz, nzoff, nblocks, maxblock, ordering, do_btf;
 
-    List<int>
+    Int32List
         P,              /* size n */
         Q,              /* size n */
         R;              /* size n+1, but only R [0..nblocks] is used */

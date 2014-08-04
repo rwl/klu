@@ -1,6 +1,7 @@
 //package edu.ufl.cise.klu.test;
 
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:unittest/unittest.dart';
 import 'package:klu/klu.dart' as klu;
 import 'package:klu/common/common.dart';
@@ -60,27 +61,27 @@ File get_file(String name) {
   return new File([Uri.base.toFilePath() + DIR, name].join('/'));
 }
 
-void REAL (List<double> X, int i, double v)
+void REAL (Float64List X, int i, double v)
 {
   X[2*i] = v;
 }
 
-void IMAG (List<double> X, int i, double v)
+void IMAG (Float64List X, int i, double v)
 {
   X[2*i + 1] = v;
 }
 
-//	private static double REAL (List<double> X, int i)
+//	private static double REAL (Float64List X, int i)
 //	{
 //		return X[2*i] ;
 //	}
 //
-//	private static double IMAG (List<double> X, int i)
+//	private static double IMAG (Float64List X, int i)
 //	{
 //		return X[2*i + 1] ;
 //	}
 //
-//	private static double CABS (List<double> X, int i)
+//	private static double CABS (Float64List X, int i)
 //	{
 //		return Math.sqrt(REAL(X, i) * REAL(X, i) + IMAG(X, i) * IMAG(X, i)) ;
 //	}
@@ -105,9 +106,9 @@ double MAX (double a, double b)
  * @param Common default parameters and statistics
  * @return 1 if successful, 0 otherwise
  */
-int backslash(int n, List<int> Ap, List<int> Ai, List<double> Ax,
-    bool isreal, List<double> B, List<double> X, List<double> R, List<int> lunz,
-    List<double> rnorm, KLU_common Common)
+int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax,
+    bool isreal, Float64List B, Float64List X, Float64List R, Int32List lunz,
+    Float64List rnorm, KLU_common Common)
 {
   double anorm = 0.0, asum;
   KLU_symbolic Symbolic;
@@ -275,11 +276,11 @@ int backslash(int n, List<int> Ap, List<int> Ai, List<double> Ax,
 /**
  * Given a sparse matrix A, set up a right-hand-side and solve X = A\b.
  */
-void demo(int n, List<int> Ap, List<int> Ai, List<double> Ax,
-    bool isreal, List<int> lunz, List<double> rnorm, KLU_common Common)
+void demo(int n, Int32List Ap, Int32List Ai, Float64List Ax,
+    bool isreal, Int32List lunz, Float64List rnorm, KLU_common Common)
 {
   int i;
-  List<double> B, X, R;
+  Float64List B, X, R;
 
   stdout.write("KLU: $KLU_DATE, version: $KLU_MAIN_VERSION.$KLU_SUB_VERSION.$KLU_SUBSUB_VERSION\n");
 
@@ -296,9 +297,9 @@ void demo(int n, List<int> Ap, List<int> Ai, List<double> Ax,
   if (isreal)
   {
     /* B = 1 +(1:n)/n */
-    B = new List<double>.filled(n, 0.0);
-    X = new List<double>.filled(n, 0.0);
-    R = new List<double>.filled(n, 0.0);
+    B = new Float64List(n);
+    X = new Float64List(n);
+    R = new Float64List(n);
     if (B != null)
     {
       for(i = 0; i < n; i++)
@@ -310,9 +311,9 @@ void demo(int n, List<int> Ap, List<int> Ai, List<double> Ax,
   else
   {
     /* real(B) = 1 +(1:n)/n, imag(B) = (n:-1:1)/n */
-    B = new List<double>.filled(2 * n, 0.0);
-    X = new List<double>.filled(2 * n, 0.0);
-    R = new List<double>.filled(2 * n, 0.0);
+    B = new Float64List(2 * n);
+    X = new Float64List(2 * n);
+    R = new Float64List(2 * n);
     if (B != null)
     {
       for(i = 0; i < n; i++)
@@ -358,8 +359,8 @@ main() {
   //		Dklu_internal.NDEBUG = false ;
 
     KLU_common Common = new KLU_common();
-    List<int> lunz = new List<int>(1);
-    List<double> rnorm = new List<double>(1);
+    Int32List lunz = new Int32List(1);
+    Float64List rnorm = new Float64List(1);
 
     final file = get_file (IMPCOL_A) ;
     Dproblem prob = get_problem (file, 0.0, 1) ;
@@ -383,8 +384,8 @@ main() {
    */
   test('arrow', () {
     KLU_common Common = new KLU_common() ;
-    List<int> lunz = new List<int>(1) ;
-    List<double> rnorm = new List<double>(1) ;
+    Int32List lunz = new Int32List(1) ;
+    Float64List rnorm = new Float64List(1) ;
 
     final file = get_file (ARROW) ;
     Dproblem prob = get_problem (file, 0.0, 1) ;
@@ -408,8 +409,8 @@ main() {
    */
   test('west0156', () {
     KLU_common Common = new KLU_common();
-    List<int> lunz = new List<int>(1);
-    List<double> rnorm = new List<double>(1);
+    Int32List lunz = new Int32List(1);
+    Float64List rnorm = new Float64List(1);
 
     final file = get_file (WEST0156) ;
     Dproblem prob = get_problem (file, 0.0, 1) ;

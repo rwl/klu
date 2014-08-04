@@ -51,24 +51,24 @@ import static edu.ufl.cise.klu.tdouble.Dklu_dump.klu_valid_LU;*/
  * @param Common
  * @return true if successful, false otherwise
  */
-int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
+int refactor(Int32List Ap, Int32List Ai, Float64List Ax,
     KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common  Common)
 {
   double ukk, ujk, s ;
-  List<double> Offx, Lx, Ux, X, Az, Udiag ;
-  List<double> Rs ;
-  List<int> Q, R, Pnum, Offp, Offi, Pinv, Lip, Uip, Llen, Ulen ;
-  /*List<int>*/List<double> Ui, Li ;
-  List<List<double>> LUbx ;
-  List<double> LU ;
+  Float64List Offx, Lx, Ux, X, Az, Udiag ;
+  Float64List Rs ;
+  Int32List Q, R, Pnum, Offp, Offi, Pinv, Lip, Uip, Llen, Ulen ;
+  /*Int32List*/Float64List Ui, Li ;
+  List<Float64List> LUbx ;
+  Float64List LU ;
   int k1, k2, nk, k, block, oldcol, pend, oldrow, n, p, newrow, scale,
     nblocks, poff, i, j, up, maxblock, nzoff ;
-  List<int> ulen = new List<int>(1) ;
-  List<int> Ui_offset = new List<int>(1) ;
-  List<int> Ux_offset = new List<int>(1) ;
-  List<int> llen = new List<int>(1) ;
-  List<int> Li_offset = new List<int>(1) ;
-  List<int> Lx_offset = new List<int>(1) ;
+  Int32List ulen = new Int32List(1) ;
+  Int32List Ui_offset = new Int32List(1) ;
+  Int32List Ux_offset = new Int32List(1) ;
+  Int32List llen = new Int32List(1) ;
+  Int32List Li_offset = new Int32List(1) ;
+  Int32List Lx_offset = new Int32List(1) ;
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
@@ -90,7 +90,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
   Common.numerical_rank = EMPTY ;
   Common.singular_col = EMPTY ;
 
-  Az = new List<double>.from(Ax) ;
+  Az = new Float64List.fromList(Ax) ;
 
   /* ---------------------------------------------------------------------- */
   /* get the contents of the Symbolic object */
@@ -514,7 +514,7 @@ int refactor(List<int> Ap, List<int> Ai, List<double> Ax,
           int Lip_offset = k1 ;
           Llen = Numeric.Llen ;
           int Llen_offset = k1 ;
-          LU = Numeric.LUbx [block];// as List<double> ;
+          LU = Numeric.LUbx [block];// as Float64List ;
           PRINTF ("\n---- L block $block\n") ;
           if (!NDEBUG) ASSERT (_valid_LU (nk, TRUE, Lip, Lip_offset, Llen, Llen_offset, LU)) ;
           Uip = Numeric.Uip ;

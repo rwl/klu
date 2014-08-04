@@ -42,15 +42,15 @@ import static edu.ufl.cise.klu.tdouble.Dklu_memory.klu_malloc_dbl;*/
 /**
  * Sort L or U using a double-transpose.
  */
-void _sort(int n, List<int> Xip, int Xip_offset, List<int> Xlen, int Xlen_offset,
-    List<double> LU, List<int> Tp, List<int> Tj, List<double> Tx, List<int> W)
+void _sort(int n, Int32List Xip, int Xip_offset, Int32List Xlen, int Xlen_offset,
+    Float64List LU, Int32List Tp, Int32List Tj, Float64List Tx, Int32List W)
 {
-  /*List<int>*/List<double> Xi ;
-  List<double> Xx ;
+  /*Int32List*/Float64List Xi ;
+  Float64List Xx ;
   int p, i, j, nz, tp, xlen, pend ;
-  List<int> len = new List<int>(1) ;
-  List<int> Xi_offset = new List<int>(1) ;
-  List<int> Xx_offset = new List<int>(1) ;
+  Int32List len = new Int32List(1) ;
+  Int32List Xi_offset = new Int32List(1) ;
+  Int32List Xx_offset = new Int32List(1) ;
 
   ASSERT (_valid_LU (n, FALSE, Xip, Xip_offset, Xlen, Xlen_offset, LU)) ;
 
@@ -118,9 +118,9 @@ void _sort(int n, List<int> Xip, int Xip_offset, List<int> Xlen, int Xlen_offset
 int sort(KLU_symbolic Symbolic, KLU_numeric Numeric,
     KLU_common Common)
 {
-  List<int> R, W, Tp, Ti, Lip, Uip, Llen, Ulen ;
-  List<double> Tx ;
-  List<List<double>> LUbx ;
+  Int32List R, W, Tp, Ti, Lip, Uip, Llen, Ulen ;
+  Float64List Tx ;
+  List<Float64List> LUbx ;
   int nk, nz, block, nblocks, maxblock, k1 ;
   int m1 ;
 
@@ -138,7 +138,7 @@ int sort(KLU_symbolic Symbolic, KLU_numeric Numeric,
   Llen = Numeric.Llen ;
   Uip  = Numeric.Uip ;
   Ulen = Numeric.Ulen ;
-  LUbx = new List<List<double>>.from(Numeric.LUbx) ;
+  LUbx = new List<Float64List>.from(Numeric.LUbx) ;
 
   m1 = (maxblock.toInt()) + 1 ;
 

@@ -61,25 +61,25 @@ final String INT_ID = "%d" ;
 //		return Math.ceil(BYTES (type, (double) n) / sizeof (double)) ;
 //	}
 
-List<double> GET_I_POINTER(List<double> LU, List<int> Xip,
-    int Xip_offset, List<int> Xi_offset, int k)
+Float64List GET_I_POINTER(Float64List LU, Int32List Xip,
+    int Xip_offset, Int32List Xi_offset, int k)
 {
   Xi_offset[0] = Xip [Xip_offset + k] ;
   return LU ;
 }
 
-//	void GET_X_POINTER(List<double> LU, List<int> Xip, int Xlen,
-//			List<double> Xx, int k)
+//	void GET_X_POINTER(Float64List LU, Int32List Xip, int Xlen,
+//			Float64List Xx, int k)
 //	{
-//		Xx = (List<double>) (LU + Xip [k] + UNITS (Int, Xlen [k])) ;
+//		Xx = (Float64List) (LU + Xip [k] + UNITS (Int, Xlen [k])) ;
 //	}
 
-List<double> GET_POINTER(List<double> LU,
-    List<int> Xip, int Xip_offset,
-    List<int> Xlen, int Xlen_offset,
-    List<int> Xi_offset,
-    List<int> Xx_offset,
-    int k, List<int> xlen)
+Float64List GET_POINTER(Float64List LU,
+    Int32List Xip, int Xip_offset,
+    Int32List Xlen, int Xlen_offset,
+    Int32List Xi_offset,
+    Int32List Xx_offset,
+    int k, Int32List xlen)
 {
   int xp = Xip [Xip_offset + k] ;
   xlen[0] = Xlen [Xlen_offset + k] ;
@@ -169,7 +169,7 @@ int SPLIT (double s)
 /**
  * c = (s1) + (s2)*i
  */
-//	void ASSIGN (Double c, List<double> s1, List<double> s2, int p,
+//	void ASSIGN (Double c, Float64List s1, Float64List s2, int p,
 //			boolean split)
 //	{
 //		c = s1[p] ;
@@ -347,7 +347,7 @@ double ABS (double a)
   return a.abs() ;
 }
 
-void CLEAR(List<double> A, int i)
+void CLEAR(Float64List A, int i)
 {
   A [i] = 0.0 ;
 }

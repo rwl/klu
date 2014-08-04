@@ -52,11 +52,11 @@ part of edu.ufl.cise.klu.tdouble;
  * @param Common
  * @return true if successful, false otherwise
  */
-int klu_scale(int scale, int n, List<int> Ap, List<int> Ai,
-    List<double> Ax, List<double> Rs, List<int> W, KLU_common Common)
+int klu_scale(int scale, int n, Int32List Ap, Int32List Ai,
+    Float64List Ax, Float64List Rs, Int32List W, KLU_common Common)
 {
   double a ;
-  List<double> Az ;
+  Float64List Az ;
   int row, col, p, pend ;
   bool check_duplicates ;
 
@@ -77,7 +77,7 @@ int klu_scale(int scale, int n, List<int> Ap, List<int> Ai,
     return (TRUE) ;
   }
 
-  Az = new List<double>.from(Ax) ;
+  Az = new Float64List.fromList(Ax) ;
 
   if (n <= 0 || Ap == null || Ai == null || Az == null ||
     (scale > 0 && Rs == null))

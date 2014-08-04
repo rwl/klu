@@ -53,15 +53,15 @@ import static edu.ufl.cise.klu.tdouble.Dklu.klu_utsolve;*/
  */
 int tsolve(KLU_symbolic Symbolic,
     KLU_numeric Numeric, int d, int nrhs,
-    List<double> B, int B_offset, KLU_common Common)
+    Float64List B, int B_offset, KLU_common Common)
 {
-  List<double> x = new List<double>(4) ;
+  Float64List x = new Float64List(4) ;
   double offik, s ;
   double rs ;
-  List<double> Rs ;
-  List<double> Offx, X, Bz, Udiag ;
-  List<int> Q, R, Pnum, Offp, Offi, Lip, Uip, Llen, Ulen ;
-  List<List<double>> LUbx ;
+  Float64List Rs ;
+  Float64List Offx, X, Bz, Udiag ;
+  Int32List Q, R, Pnum, Offp, Offi, Lip, Uip, Llen, Ulen ;
+  List<Float64List> LUbx ;
   int k1, k2, nk, k, block, pend, n, p, nblocks, chunk, nr, i ;
 
   /* ---------------------------------------------------------------------- */

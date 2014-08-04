@@ -51,21 +51,21 @@ import static edu.ufl.cise.klu.tdouble.Dklu.klu_kernel_factor;*/
  * @param Numeric
  * @param Common
  */
-void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
+void factor2(Int32List Ap, Int32List Ai, Float64List Ax,
     KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common)
 {
   double lsize ;
-  List<double> Lnz, Rs ;
-  List<int> P, Q, R, Pnum, Offp, Offi, Pblock, Pinv, Iwork,
+  Float64List Lnz, Rs ;
+  Int32List P, Q, R, Pnum, Offp, Offi, Pblock, Pinv, Iwork,
     Lip, Uip, Llen, Ulen ;
-  List<double> Offx, X, Udiag ;
+  Float64List Offx, X, Udiag ;
   double s ;
-  List<List<double>> LUbx ;
+  List<Float64List> LUbx ;
   int k1, k2, nk, k, block, oldcol, pend, oldrow, n, lnz, unz, p, newrow,
     nblocks, poff, nzoff, scale, max_lnz_block,
     max_unz_block ;
-  List<int> lnz_block = new List<int>(1) ;
-  List<int> unz_block = new List<int>(1) ;
+  Int32List lnz_block = new Int32List(1) ;
+  Int32List unz_block = new Int32List(1) ;
 
   /* ---------------------------------------------------------------------- */
   /* initializations */
@@ -97,7 +97,7 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
   X = Numeric.Xwork ;              /* X is of size n */
   Iwork = Numeric.Iwork ;		/* 5*maxblock for KLU_factor */
   //Pblock = Iwork + 5*((int) Symbolic.maxblock) ;  /* 1*maxblock for Pblock */
-  Pblock = new List<int>(Symbolic.maxblock) ;
+  Pblock = new Int32List(Symbolic.maxblock) ;
   Common.nrealloc = 0 ;
   scale = Common.scale ;
   max_lnz_block = 1 ;
@@ -400,12 +400,12 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
       }
       else
       {
-        List<double> LU ;
+        Float64List LU ;
         Lip = Numeric.Lip ;
         int Lip_offset = k1 ;
         Llen = Numeric.Llen ;
         int Llen_offset = k1 ;
-        LU = Numeric.LUbx [block];// as List<double> ;
+        LU = Numeric.LUbx [block];// as Float64List ;
         PRINTF ("\n---- L block $block\n");
         if (!NDEBUG) ASSERT (_valid_LU (nk, TRUE, Lip, Lip_offset, Llen, Llen_offset, LU)) ;
         Uip = Numeric.Uip ;
@@ -428,11 +428,11 @@ void factor2(List<int> Ap, List<int> Ai, List<double> Ax,
  * @param Common
  * @return null if error, or a valid KLU_numeric object if successful
  */
-KLU_numeric factor(List<int> Ap, List<int> Ai, List<double> Ax,
+KLU_numeric factor(Int32List Ap, Int32List Ai, Float64List Ax,
     KLU_symbolic Symbolic, KLU_common Common)
 {
   int n, nzoff, nblocks, maxblock, k ;
-  List<int> ok = [TRUE] ;
+  final ok = new Int32List.fromList([TRUE]);
   KLU_numeric Numeric ;
   int n1, nzoff1, s, b6, n3 ;
 
@@ -504,8 +504,8 @@ KLU_numeric factor(List<int> Ap, List<int> Ai, List<double> Ax,
 
   Numeric.LUsize = malloc_int (nblocks, Common) ;
 
-  //Numeric.LUbx = klu_malloc (nblocks, sizeof (List<double>), Common) ;
-  Numeric.LUbx = new List<List<double>>(nblocks) ;
+  //Numeric.LUbx = klu_malloc (nblocks, sizeof (Float64List), Common) ;
+  Numeric.LUbx = new List<Float64List>(nblocks) ;
   if (Numeric.LUbx != null)
   {
     for (k = 0 ; k < nblocks ; k++)
@@ -547,10 +547,10 @@ KLU_numeric factor(List<int> Ap, List<int> Ai, List<double> Ax,
     if (ok[0] == 0) throw new OutOfMemoryError() ;
 
     //Numeric.Work = klu_malloc (Numeric.worksize, 1, Common) ;
-    Numeric.Work = new List<double>.filled(Numeric.worksize, 0.0) ;
+    Numeric.Work = new Float64List(Numeric.worksize) ;
     Numeric.Xwork = Numeric.Work ;
-    //Numeric.Iwork = (Int[]) ((List<double>) Numeric.Xwork + n) ;
-    Numeric.Iwork = new List<int>.filled(b6, 0) ;
+    //Numeric.Iwork = (Int[]) ((Float64List) Numeric.Xwork + n) ;
+    Numeric.Iwork = new Int32List(b6) ;
   }
   on OutOfMemoryError catch (e)
   {

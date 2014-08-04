@@ -24,6 +24,8 @@
 
 library edu.ufl.cise.klu.tdouble;
 
+import 'dart:typed_data';
+
 //import edu.ufl.cise.klu.common.KLU_common;
 import './common/common.dart';
 
@@ -135,18 +137,18 @@ part 'version.dart';
  * @param Common
  * @return
  */
-int kernel_factor(int n, List<int> Ap, List<int> Ai,
-		List<double> Ax, List<int> Q, double Lsize,
-		List<List<double>> p_LU, int block,
-		List<double> Udiag, int Udiag_offset, List<int> Llen, int Llen_offset,
-		List<int> Ulen, int Ulen_offset, List<int> Lip, int Lip_offset,
-		List<int> Uip, int Uip_offset, List<int> P, List<int> lnz, List<int> unz,
-		List<double> X, List<int> Work, int k1, List<int> PSinv, List<double> Rs,
-		List<int> Offp, List<int> Offi, List<double> Offx, KLU_common Common)
+int kernel_factor(int n, Int32List Ap, Int32List Ai,
+		Float64List Ax, Int32List Q, double Lsize,
+		List<Float64List> p_LU, int block,
+		Float64List Udiag, int Udiag_offset, Int32List Llen, int Llen_offset,
+		Int32List Ulen, int Ulen_offset, Int32List Lip, int Lip_offset,
+		Int32List Uip, int Uip_offset, Int32List P, Int32List lnz, Int32List unz,
+		Float64List X, Int32List Work, int k1, Int32List PSinv, Float64List Rs,
+		Int32List Offp, Int32List Offi, Float64List Offx, KLU_common Common)
 {
 	double maxlnz, dunits ;
-	List<List<double>> LU = new List<List<double>>(1);//[] ;
-	List<int> Pinv, Lpend, Stack, Flag, Ap_pos ;
+	List<Float64List> LU = new List<Float64List>(1);//[] ;
+	Int32List Pinv, Lpend, Stack, Flag, Ap_pos ;
 	int lsize, usize, anz, ok ;
 	int lusize ;
 	ASSERT (Common != null) ;
@@ -192,19 +194,19 @@ int kernel_factor(int n, List<int> Ap, List<int> Ai,
 	//W = Work ;
 	//Pinv = W ;      //W += n ;
 	//int Pinv_offset = n ;
-	Pinv = new List<int>(n) ;
+	Pinv = new Int32List(n) ;
 	//Stack = W ;     //W += n ;
 	//int Stack_offset = 2*n ;
-	Stack = new List<int>(n) ;
+	Stack = new Int32List(n) ;
 	//Flag = W ;      //W += n ;
 	//int Flag_offset = 3*n ;
-	Flag = new List<int>(n) ;
+	Flag = new Int32List(n) ;
 	//Lpend = W ;     //W += n ;
 	//int Lpend_offset = 4*n ;
-	Lpend = new List<int>(n) ;
+	Lpend = new Int32List(n) ;
 	//Ap_pos = W ;    //W += n ;
 	//int Ap_pos_offset = 5*n ;
-	Ap_pos = new List<int>(n) ;
+	Ap_pos = new Int32List(n) ;
 
 	//dunits = DUNITS (Integer, lsize) + DUNITS (Double, lsize) +
 	//		 DUNITS (Integer, usize) + DUNITS (Double, usize) ;
@@ -259,18 +261,18 @@ int kernel_factor(int n, List<int> Ap, List<int> Ai,
  * @param nrhs
  * @param X right-hand-side on input, solution to Lx=b on output
  */
-void lsolve(int n, List<int> Lip, int Lip_offset,
-		List<int> Llen, int Llen_offset, List<double> LU, int nrhs,
-		List<double> X, int X_offset)
+void lsolve(int n, Int32List Lip, int Lip_offset,
+		Int32List Llen, int Llen_offset, Float64List LU, int nrhs,
+		Float64List X, int X_offset)
 {
-	List<double> x = new List<double>(4) ;
+	Float64List x = new Float64List(4) ;
 	double lik ;
-	/*List<int>*/List<double> Li ;
-	List<double> Lx ;
+	/*Int32List*/Float64List Li ;
+	Float64List Lx ;
 	int k, p, i ;
-	List<int> len = new List<int>(1) ;
-	List<int> Li_offset = new List<int>(1) ;
-	List<int> Lx_offset = new List<int>(1) ;
+	Int32List len = new Int32List(1) ;
+	Int32List Li_offset = new Int32List(1) ;
+	Int32List Lx_offset = new Int32List(1) ;
 
 	switch (nrhs)
 	{
@@ -372,19 +374,19 @@ void lsolve(int n, List<int> Lip, int Lip_offset,
  * @param nrhs
  * @param X right-hand-side on input, solution to Ux=b on output
  */
-void usolve(int n, List<int> Uip, int Uip_offset,
-		List<int> Ulen, int Ulen_offset, List<double> LU,
-		List<double> Udiag, int Udiag_offset, int nrhs,
-		List<double> X, int X_offset)
+void usolve(int n, Int32List Uip, int Uip_offset,
+		Int32List Ulen, int Ulen_offset, Float64List LU,
+		Float64List Udiag, int Udiag_offset, int nrhs,
+		Float64List X, int X_offset)
 {
-	List<double> x = new List<double>(4) ;
+	Float64List x = new Float64List(4) ;
 	double uik, ukk ;
-	/*List<int>*/List<double> Ui ;
-	List<double> Ux ;
+	/*Int32List*/Float64List Ui ;
+	Float64List Ux ;
 	int k, p, i ;
-	List<int> len = new List<int>(1) ;
-	List<int> Ui_offset = new List<int>(1) ;
-	List<int> Ux_offset = new List<int>(1) ;
+	Int32List len = new Int32List(1) ;
+	Int32List Ui_offset = new Int32List(1) ;
+	Int32List Ux_offset = new Int32List(1) ;
 
 	switch (nrhs)
 	{
@@ -523,17 +525,17 @@ void usolve(int n, List<int> Uip, int Uip_offset,
  * @param nrhs
  * @param X right-hand-side on input, solution to L'x=b on output
  */
-void ltsolve(int n, List<int> Lip, int Lip_offset, List<int> Llen, int Llen_offset,
-		List<double> LU, int nrhs, List<double> X, int X_offset)
+void ltsolve(int n, Int32List Lip, int Lip_offset, Int32List Llen, int Llen_offset,
+		Float64List LU, int nrhs, Float64List X, int X_offset)
 {
-	List<double> x = new List<double>(4) ;
+	Float64List x = new Float64List(4) ;
 	double lik ;
-	/*List<int>*/List<double> Li ;
-	List<double> Lx ;
+	/*Int32List*/Float64List Li ;
+	Float64List Lx ;
 	int k, p, i ;
-	List<int> len = new List<int>(1) ;
-	List<int> Li_offset = new List<int>(1) ;
-	List<int> Lx_offset = new List<int>(1) ;
+	Int32List len = new Int32List(1) ;
+	Int32List Li_offset = new Int32List(1) ;
+	Int32List Lx_offset = new Int32List(1) ;
 
 	switch (nrhs)
 	{
@@ -652,19 +654,19 @@ void ltsolve(int n, List<int> Lip, int Lip_offset, List<int> Llen, int Llen_offs
  * @param nrhs
  * @param X right-hand-side on input, solution to Ux=b on output
  */
-void utsolve(int n, List<int> Uip, int Uip_offset,
-		List<int> Ulen, int Ulen_offset, List<double> LU,
-		List<double> Udiag, int Udiag_offset, int nrhs,
-		List<double> X, int X_offset)
+void utsolve(int n, Int32List Uip, int Uip_offset,
+		Int32List Ulen, int Ulen_offset, Float64List LU,
+		Float64List Udiag, int Udiag_offset, int nrhs,
+		Float64List X, int X_offset)
 {
-	List<double> x = new List<double>(4) ;
+	Float64List x = new Float64List(4) ;
 	double uik, ukk ;
 	int k, p, i ;
-	/*List<int>*/List<double> Ui ;
-	List<double> Ux ;
-	List<int> len = new List<int>(1) ;
-	List<int> Ui_offset = new List<int>(1) ;
-	List<int> Ux_offset = new List<int>(1) ;
+	/*Int32List*/Float64List Ui ;
+	Float64List Ux ;
+	Int32List len = new Int32List(1) ;
+	Int32List Ui_offset = new Int32List(1) ;
+	Int32List Ux_offset = new Int32List(1) ;
 
 	switch (nrhs)
 	{

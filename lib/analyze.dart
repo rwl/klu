@@ -81,16 +81,16 @@ import static edu.ufl.cise.colamd.tdouble.Dcolamd.COLAMD_STATS;*/
  * @param Common
  * @return KLU_OK or < 0 if error
  */
-int analyze_worker(int n, List<int> Ap, List<int> Ai, int nblocks,
-    List<int> Pbtf, List<int> Qbtf, List<int> R, int ordering, List<int> P, List<int> Q,
-    List<double> Lnz, List<int> Pblk, List<int> Cp, List<int> Ci, int Cilen,
-    List<int> Pinv, KLU_symbolic Symbolic, KLU_common Common)
+int analyze_worker(int n, Int32List Ap, Int32List Ai, int nblocks,
+    Int32List Pbtf, Int32List Qbtf, Int32List R, int ordering, Int32List P, Int32List Q,
+    Float64List Lnz, Int32List Pblk, Int32List Cp, Int32List Ci, int Cilen,
+    Int32List Pinv, KLU_symbolic Symbolic, KLU_common Common)
 {
   List<num> amd_Info = new List<num>(amd.AMD_INFO);
   double lnz, lnz1, flops, flops1 ;
   int k1, k2, nk, k, block, oldcol, pend, newcol, result, pc, p, newrow,
     maxnz, nzoff, ok, err = KLU_INVALID ;
-  List<int> cstats = new List<int>(colamd.COLAMD_STATS);
+  Int32List cstats = new Int32List(colamd.COLAMD_STATS);
 
   /* ---------------------------------------------------------------------- */
   /* initializations */
@@ -304,13 +304,13 @@ int analyze_worker(int n, List<int> Ap, List<int> Ai, int nblocks,
  * @param Common
  * @return null if error, or a valid KLU_symbolic object if successful
  */
-KLU_symbolic order_and_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Common)
+KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Common)
 {
-  List<double> work = new List<double>(1) ;
+  Float64List work = new Float64List(1) ;
   KLU_symbolic Symbolic ;
-  List<double> Lnz ;
-  List<int> structural_rank = new List<int>(1) ;
-  List<int> Qbtf, Cp, Ci, Pinv, Pblk, Pbtf, P, Q, R ;
+  Float64List Lnz ;
+  Int32List structural_rank = new Int32List(1) ;
+  Int32List Qbtf, Cp, Ci, Pinv, Pblk, Pbtf, P, Q, R ;
   int nblocks, nz, block, maxblock, k1, k2, nk, do_btf, ordering, k, Cilen ;
 
   /* ---------------------------------------------------------------------- */
@@ -504,7 +504,7 @@ KLU_symbolic order_and_analyze(int n, List<int> Ap, List<int> Ai, KLU_common Com
  * @param Common
  * @return null if error, or a valid KLU_symbolic object if successful
  */
-KLU_symbolic analyze(int n, List<int> Ap, List<int> Ai, KLU_common Common)
+KLU_symbolic analyze(int n, Int32List Ap, Int32List Ai, KLU_common Common)
 {
   /* ---------------------------------------------------------------------- */
   /* get the control parameters for BTF and ordering method */
