@@ -5,7 +5,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:unittest/unittest.dart';
 import 'package:klu/klu.dart' as klu;
-import 'package:klu/common/common.dart';
 import 'package:csparse/test_util.dart';
 import 'package:csparse/csparse.dart';
 
@@ -53,11 +52,11 @@ double MAX(double a, double b) {
  * @param Common default parameters and statistics
  * @return 1 if successful, 0 otherwise
  */
-int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Float64List B, Float64List X, Float64List R, Int32List lunz, Float64List rnorm, KLU_common Common) {
+int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Float64List B, Float64List X, Float64List R, Int32List lunz, Float64List rnorm, klu.KLU_common Common) {
   double anorm = 0.0,
       asum;
-  KLU_symbolic Symbolic;
-  KLU_numeric Numeric;
+  klu.KLU_symbolic Symbolic;
+  klu.KLU_numeric Numeric;
   int i, j, p;
 
   if (Ap == null || Ai == null || Ax == null || B == null || X == null || B == null) return (0);
@@ -210,11 +209,11 @@ int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Fl
 /**
  * Given a sparse matrix A, set up a right-hand-side and solve X = A\b.
  */
-void demo(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Int32List lunz, Float64List rnorm, KLU_common Common) {
+void demo(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Int32List lunz, Float64List rnorm, klu.KLU_common Common) {
   int i;
   Float64List B, X, R;
 
-  stdout.write("KLU: $KLU_DATE, version: $KLU_MAIN_VERSION.$KLU_SUB_VERSION.$KLU_SUBSUB_VERSION\n");
+  stdout.write("KLU: ${klu.KLU_DATE}, version: ${klu.KLU_MAIN_VERSION}.${klu.KLU_SUB_VERSION}.${klu.KLU_SUBSUB_VERSION}\n");
 
   /* ---------------------------------------------------------------------- */
   /* set defaults */
@@ -280,7 +279,7 @@ main() {
     //klu.NPRINT = false ;
     //klu.NDEBUG = false ;
 
-    KLU_common Common = new KLU_common();
+    klu.KLU_common Common = new klu.KLU_common();
     Int32List lunz = new Int32List(1);
     Float64List rnorm = new Float64List(1);
 
@@ -305,7 +304,7 @@ main() {
    * recip growth 0.0204082 condest 303 rcond 0.0204082 flops 297
    */
   test('arrow', () {
-    KLU_common Common = new KLU_common();
+    klu.KLU_common Common = new klu.KLU_common();
     Int32List lunz = new Int32List(1);
     Float64List rnorm = new Float64List(1);
 
@@ -330,7 +329,7 @@ main() {
    * recip growth 0.0306751 condest 1.64225e+31 rcond 9.48528e-08 flops 188
    */
   test('west0156', () {
-    KLU_common Common = new KLU_common();
+    klu.KLU_common Common = new klu.KLU_common();
     Int32List lunz = new Int32List(1);
     Float64List rnorm = new Float64List(1);
 

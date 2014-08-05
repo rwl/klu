@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:unittest/unittest.dart';
 import 'package:klu/klu.dart' as klu;
-import 'package:klu/common/common.dart';
 
 const double DELTA = 1e-09;
 
@@ -14,7 +13,7 @@ final b = new Float64List.fromList([8.0, 45.0, -3.0, 3.0, 19.0]);
 
 main() {
   test('A simple KLU demo; solution is x = (1,2,3,4,5)', () {
-    final Common = new KLU_common();
+    final Common = new klu.KLU_common();
 
     //klu.NPRINT = false ;
     //klu.NDEBUG = false ;
