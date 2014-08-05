@@ -27,9 +27,8 @@ part of edu.ufl.cise.klu.common;
 /**
  * Sets default control parameters.
  */
-class KLU_defaults
-{
+class KLU_defaults {
 
-	KLU_common Common;
+  KLU_common Common;
 
 }

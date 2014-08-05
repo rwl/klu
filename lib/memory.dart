@@ -22,32 +22,26 @@
  *
  */
 
-part of edu.ufl.cise.klu.tdouble;
-
-//import edu.ufl.cise.klu.common.KLU_common;
-
 /**
  * KLU memory management routines.
  */
-//public class Dklu_memory extends Dklu_internal {
+part of edu.ufl.cise.klu.tdouble;
 
 /**
  * Safely compute a+b, and check for int overflow.
  */
-int add_size_t(int a, int b, Int32List ok)
-{
-  ok[0] = (ok[0] != 0) && ((a + b) >= MAX (a,b)) ? 1 : 0;
-  return ((ok[0] != 0) ? (a + b) : (-1)) ;
+int add_size_t(int a, int b, Int32List ok) {
+  ok[0] = (ok[0] != 0) && ((a + b) >= MAX(a, b)) ? 1 : 0;
+  return ((ok[0] != 0) ? (a + b) : (-1));
 }
 
-int mult_size_t(int a, int k, Int32List ok)
-{
-  int i, s = 0 ;
-  for (i = 0 ; i < k ; i++)
-  {
-    s = add_size_t (s, a, ok) ;
+int mult_size_t(int a, int k, Int32List ok) {
+  int i,
+      s = 0;
+  for (i = 0; i < k; i++) {
+    s = add_size_t(s, a, ok);
   }
-  return ((ok[0] != 0) ? s : (-1)) ;
+  return ((ok[0] != 0) ? s : (-1));
 }
 
 /**
@@ -66,62 +60,48 @@ int mult_size_t(int a, int k, Int32List ok)
  * @param Common
  * @return
  */
-Int32List malloc_int(int n, KLU_common Common)
-{
+Int32List malloc_int(int n, KLU_common Common) {
   //Runtime runtime;
   Int32List p = null;
 
-  if (n >= INT_MAX)
-  {
-    Common.status = KLU_TOO_LARGE ;
-    p = null ;
-  }
-  else
-  {
-    try
-    {
+  if (n >= INT_MAX) {
+    Common.status = KLU_TOO_LARGE;
+    p = null;
+  } else {
+    try {
       p = new Int32List(n);
       //runtime = Runtime.getRuntime ();
       //Common.memusage = runtime.totalMemory () - runtime.freeMemory ();
-      Common.mempeak = MAX (Common.mempeak, Common.memusage) ;
-    }
-    on OutOfMemoryError catch (e)
-    {
+      Common.mempeak = MAX(Common.mempeak, Common.memusage);
+    } on OutOfMemoryError catch (e) {
       /* failure: out of memory */
-      Common.status = KLU_OUT_OF_MEMORY ;
+      Common.status = KLU_OUT_OF_MEMORY;
       p = null;
     }
   }
-  return (p) ;
+  return (p);
 }
 
-Float64List malloc_dbl(int n, KLU_common Common)
-{
+Float64List malloc_dbl(int n, KLU_common Common) {
   //Runtime runtime;
   Float64List p = null;
 
-  if (n >= INT_MAX)
-  {
-    Common.status = KLU_TOO_LARGE ;
-    p = null ;
-  }
-  else
-  {
-    try
-    {
+  if (n >= INT_MAX) {
+    Common.status = KLU_TOO_LARGE;
+    p = null;
+  } else {
+    try {
       p = new Float64List(n);
       //runtime = Runtime.getRuntime ();
       //Common.memusage = runtime.totalMemory () - runtime.freeMemory ();
-      Common.mempeak = MAX (Common.mempeak, Common.memusage) ;
-    }
-    on OutOfMemoryError catch (e)
-    {
+      Common.mempeak = MAX(Common.mempeak, Common.memusage);
+    } on OutOfMemoryError catch (e) {
       /* failure: out of memory */
-      Common.status = KLU_OUT_OF_MEMORY ;
+      Common.status = KLU_OUT_OF_MEMORY;
       p = null;
     }
   }
-  return (p) ;
+  return (p);
 }
 
 /**
@@ -144,49 +124,37 @@ Float64List malloc_dbl(int n, KLU_common Common)
  * @param Common
  * @return pointer to reallocated block
  */
-Float64List realloc_dbl (int nnew, int nold,
-    Float64List p, KLU_common Common)
-{
-  Float64List pnew ;
-  int snew ;
-  int sold ;
+Float64List realloc_dbl(int nnew, int nold, Float64List p, KLU_common Common) {
+  Float64List pnew;
+  int snew;
+  int sold;
 
-  if (Common == null)
-  {
-    p = null ;
-  }
-  else if (p == null)
-  {
+  if (Common == null) {
+    p = null;
+  } else if (p == null) {
     /* A fresh object is being allocated. */
-    p = malloc_dbl (nnew, Common) ;
-  }
-  else if (nnew >= INT_MAX)
-  {
-    /* failure: nnew is too big.  Do not change p */
-    Common.status = KLU_TOO_LARGE ;
-  }
-  else
-  {
+    p = malloc_dbl(nnew, Common);
+  } else if (nnew >= INT_MAX) {
+    /* failure: nnew is too big. Do not change p */
+    Common.status = KLU_TOO_LARGE;
+  } else {
     /* The object exists, and is changing to some other nonzero size. */
     /* call realloc, or its equivalent */
-    snew = MAX (1, nnew) ;
-    sold = MAX (1, nold) ;
-    try
-    {
-      pnew = new Float64List(snew) ;
+    snew = MAX(1, nnew);
+    sold = MAX(1, nold);
+    try {
+      pnew = new Float64List(snew);
       //System.arraycopy(p, 0, pnew, 0, MIN (snew, sold)) ;
-      for (int i = 0; i < MIN (snew, sold); i++) pnew[i] = p[i];
+      for (int i = 0; i < MIN(snew, sold); i++) pnew[i] = p[i];
       //Runtime runtime = Runtime.getRuntime();
       //Common.memusage = runtime.totalMemory() - runtime.freeMemory();
       // Common.memusage += (snew - sold) ;
-      Common.mempeak = MAX (Common.mempeak, Common.memusage) ;
-      p = pnew ;
-    }
-    on OutOfMemoryError catch (e)
-    {
+      Common.mempeak = MAX(Common.mempeak, Common.memusage);
+      p = pnew;
+    } on OutOfMemoryError catch (e) {
       /* Do not change p, since it still points to allocated memory */
-      Common.status = KLU_OUT_OF_MEMORY ;
+      Common.status = KLU_OUT_OF_MEMORY;
     }
   }
-  return (p) ;
+  return (p);
 }

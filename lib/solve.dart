@@ -24,24 +24,12 @@
 
 part of edu.ufl.cise.klu.tdouble;
 
-/*import edu.ufl.cise.klu.common.KLU_common;
-import edu.ufl.cise.klu.common.KLU_numeric;
-import edu.ufl.cise.klu.common.KLU_symbolic;
-
-import static edu.ufl.cise.klu.tdouble.Dklu_dump.klu_valid;
-import static edu.ufl.cise.klu.tdouble.Dklu.klu_lsolve;
-import static edu.ufl.cise.klu.tdouble.Dklu.klu_usolve;*/
-
 /**
  * Solve Ax=b using the symbolic and numeric objects from KLU_analyze
  * (or KLU_analyze_given) and KLU_factor.  Note that no iterative refinement is
  * performed.  Uses Numeric.Xwork as workspace (undefined on input and output),
  * of size 4n double's (note that columns 2 to 4 of Xwork overlap with
  * Numeric.Iwork).
- */
-//public class Dklu_solve extends Dklu_internal {
-
-/**
  *
  * @param Symbolic
  * @param Numeric
@@ -52,191 +40,172 @@ import static edu.ufl.cise.klu.tdouble.Dklu.klu_usolve;*/
  * @param Common
  * @return
  */
-int solve(KLU_symbolic Symbolic, KLU_numeric Numeric,
-    int d, int nrhs, Float64List B, int B_offset, KLU_common Common)
-{
-  double offik, s ;
-  Float64List x = new Float64List(4) ;
-  double rs ;
-  Float64List Offx, X, Bz, Udiag, Rs ;
-  Int32List Q, R, Pnum, Offp, Offi, Lip, Uip, Llen, Ulen ;
-  List<Float64List> LUbx ;
-  int k1, k2, nk, k, block, pend, n, p, nblocks, chunk, nr, i ;
+int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64List B, int B_offset, KLU_common Common) {
+  double offik, s;
+  Float64List x = new Float64List(4);
+  double rs;
+  Float64List Offx, X, Bz, Udiag, Rs;
+  Int32List Q, R, Pnum, Offp, Offi, Lip, Uip, Llen, Ulen;
+  List<Float64List> LUbx;
+  int k1, k2, nk, k, block, pend, n, p, nblocks, chunk, nr, i;
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
   /* ---------------------------------------------------------------------- */
 
-  if (Common == null)
-  {
-    return (FALSE) ;
+  if (Common == null) {
+    return (FALSE);
   }
-  if (Numeric == null || Symbolic == null || d < Symbolic.n || nrhs < 0 ||
-    B == null)
-  {
-    Common.status = KLU_INVALID ;
-    return (FALSE) ;
+  if (Numeric == null || Symbolic == null || d < Symbolic.n || nrhs < 0 || B == null) {
+    Common.status = KLU_INVALID;
+    return (FALSE);
   }
-  Common.status = KLU_OK ;
+  Common.status = KLU_OK;
 
   /* ---------------------------------------------------------------------- */
   /* get the contents of the Symbolic object */
   /* ---------------------------------------------------------------------- */
 
-  Bz = B ;
-  n = Symbolic.n ;
-  nblocks = Symbolic.nblocks ;
-  Q = Symbolic.Q ;
-  R = Symbolic.R ;
+  Bz = B;
+  n = Symbolic.n;
+  nblocks = Symbolic.nblocks;
+  Q = Symbolic.Q;
+  R = Symbolic.R;
 
   /* ---------------------------------------------------------------------- */
   /* get the contents of the Numeric object */
   /* ---------------------------------------------------------------------- */
 
-  ASSERT (nblocks == Numeric.nblocks) ;
-  Pnum = Numeric.Pnum ;
-  Offp = Numeric.Offp ;
-  Offi = Numeric.Offi ;
-  Offx = Numeric.Offx ;
+  ASSERT(nblocks == Numeric.nblocks);
+  Pnum = Numeric.Pnum;
+  Offp = Numeric.Offp;
+  Offi = Numeric.Offi;
+  Offx = Numeric.Offx;
 
-  Lip  = Numeric.Lip ;
-  Llen = Numeric.Llen ;
-  Uip  = Numeric.Uip ;
-  Ulen = Numeric.Ulen ;
-  LUbx = Numeric.LUbx ;
-  Udiag = Numeric.Udiag ;
+  Lip = Numeric.Lip;
+  Llen = Numeric.Llen;
+  Uip = Numeric.Uip;
+  Ulen = Numeric.Ulen;
+  LUbx = Numeric.LUbx;
+  Udiag = Numeric.Udiag;
 
-  Rs = Numeric.Rs ;
-  X = Numeric.Xwork ;
+  Rs = Numeric.Rs;
+  X = Numeric.Xwork;
 
-  if (!NDEBUG) ASSERT_INT (_valid (n, Offp, Offi, Offx)) ;
+  if (!NDEBUG) ASSERT_INT(_valid(n, Offp, Offi, Offx));
 
   /* ---------------------------------------------------------------------- */
   /* solve in chunks of 4 columns at a time */
   /* ---------------------------------------------------------------------- */
 
-  for (chunk = 0 ; chunk < nrhs ; chunk += 4)
-  {
+  for (chunk = 0; chunk < nrhs; chunk += 4) {
 
     /* ------------------------------------------------------------------ */
     /* get the size of the current chunk */
     /* ------------------------------------------------------------------ */
 
-    nr = MIN (nrhs - chunk, 4) ;
+    nr = MIN(nrhs - chunk, 4);
 
     /* ------------------------------------------------------------------ */
     /* scale and permute the right hand side, X = P*(R\B) */
     /* ------------------------------------------------------------------ */
 
-    if (Rs == null)
-    {
+    if (Rs == null) {
 
       /* no scaling */
-      switch (nr)
-      {
+      switch (nr) {
 
         case 1:
 
-          for (k = 0 ; k < n ; k++)
-          {
-            X [k] = Bz [B_offset + Pnum [k]] ;
+          for (k = 0; k < n; k++) {
+            X[k] = Bz[B_offset + Pnum[k]];
           }
-          break ;
+          break;
 
         case 2:
 
-          for (k = 0 ; k < n ; k++)
-          {
-            i = Pnum [k] ;
-            X [2*k    ] = Bz [B_offset + i] ;
-            X [2*k + 1] = Bz [B_offset + i + d] ;
+          for (k = 0; k < n; k++) {
+            i = Pnum[k];
+            X[2 * k] = Bz[B_offset + i];
+            X[2 * k + 1] = Bz[B_offset + i + d];
           }
-          break ;
+          break;
 
         case 3:
 
-          for (k = 0 ; k < n ; k++)
-          {
-            i = Pnum [k] ;
-            X [3*k    ] = Bz [B_offset + i      ] ;
-            X [3*k + 1] = Bz [B_offset + i + d  ] ;
-            X [3*k + 2] = Bz [B_offset + i + d*2] ;
+          for (k = 0; k < n; k++) {
+            i = Pnum[k];
+            X[3 * k] = Bz[B_offset + i];
+            X[3 * k + 1] = Bz[B_offset + i + d];
+            X[3 * k + 2] = Bz[B_offset + i + d * 2];
           }
-          break ;
+          break;
 
         case 4:
 
-          for (k = 0 ; k < n ; k++)
-          {
-            i = Pnum [k] ;
-            X [4*k    ] = Bz [B_offset + i      ] ;
-            X [4*k + 1] = Bz [B_offset + i + d  ] ;
-            X [4*k + 2] = Bz [B_offset + i + d*2] ;
-            X [4*k + 3] = Bz [B_offset + i + d*3] ;
+          for (k = 0; k < n; k++) {
+            i = Pnum[k];
+            X[4 * k] = Bz[B_offset + i];
+            X[4 * k + 1] = Bz[B_offset + i + d];
+            X[4 * k + 2] = Bz[B_offset + i + d * 2];
+            X[4 * k + 3] = Bz[B_offset + i + d * 3];
           }
-          break ;
+          break;
       }
 
-    }
-    else
-    {
+    } else {
 
-      switch (nr)
-      {
+      switch (nr) {
 
         case 1:
 
-          for (k = 0 ; k < n ; k++)
-          {
+          for (k = 0; k < n; k++) {
             //SCALE_DIV_ASSIGN (X [k], Bz  [Pnum [k]], Rs [k]) ;
-            X [k] = Bz  [B_offset + Pnum [k]] / Rs [k] ;
+            X[k] = Bz[B_offset + Pnum[k]] / Rs[k];
           }
-          break ;
+          break;
 
         case 2:
 
-          for (k = 0 ; k < n ; k++)
-          {
-            i = Pnum [k] ;
-            rs = Rs [k] ;
+          for (k = 0; k < n; k++) {
+            i = Pnum[k];
+            rs = Rs[k];
             //SCALE_DIV_ASSIGN (X [2*k], Bz [i], rs) ;
-            X [2*k] =  Bz [B_offset + i] / rs ;
+            X[2 * k] = Bz[B_offset + i] / rs;
             //SCALE_DIV_ASSIGN (X [2*k + 1], Bz [i + d], rs) ;
-            X [2*k + 1] = Bz [B_offset + i + d] / rs ;
+            X[2 * k + 1] = Bz[B_offset + i + d] / rs;
           }
-          break ;
+          break;
 
         case 3:
 
-          for (k = 0 ; k < n ; k++)
-          {
-            i = Pnum [k] ;
-            rs = Rs [k] ;
+          for (k = 0; k < n; k++) {
+            i = Pnum[k];
+            rs = Rs[k];
             //SCALE_DIV_ASSIGN (X [3*k], Bz [i], rs) ;
-            X [3*k] = Bz [B_offset + i] / rs ;
+            X[3 * k] = Bz[B_offset + i] / rs;
             //SCALE_DIV_ASSIGN (X [3*k + 1], Bz [i + d], rs) ;
-            X [3*k + 1] = Bz [B_offset + i + d] / rs ;
+            X[3 * k + 1] = Bz[B_offset + i + d] / rs;
             //SCALE_DIV_ASSIGN (X [3*k + 2], Bz [i + d*2], rs) ;
-            X [3*k + 2] = Bz [B_offset + i + d*2] / rs ;
+            X[3 * k + 2] = Bz[B_offset + i + d * 2] / rs;
           }
-          break ;
+          break;
 
         case 4:
 
-          for (k = 0 ; k < n ; k++)
-          {
-            i = Pnum [k] ;
-            rs = Rs [k] ;
+          for (k = 0; k < n; k++) {
+            i = Pnum[k];
+            rs = Rs[k];
             //SCALE_DIV_ASSIGN (X [4*k], Bz [i], rs) ;
-            X [4*k] = Bz [B_offset + i] / rs ;
+            X[4 * k] = Bz[B_offset + i] / rs;
             //SCALE_DIV_ASSIGN (X [4*k + 1], Bz [i + d], rs) ;
-            X [4*k + 1] = Bz [B_offset + i + d] / rs ;
+            X[4 * k + 1] = Bz[B_offset + i + d] / rs;
             //SCALE_DIV_ASSIGN (X [4*k + 2], Bz [i + d*2], rs) ;
-            X [4*k + 2] = Bz [B_offset + i + d*2] / rs ;
+            X[4 * k + 2] = Bz[B_offset + i + d * 2] / rs;
             //SCALE_DIV_ASSIGN (X [4*k + 3], Bz [i + d*3], rs) ;
-            X [4*k + 3] = Bz [B_offset + i + d*3] / rs ;
+            X[4 * k + 3] = Bz[B_offset + i + d * 3] / rs;
           }
-          break ;
+          break;
       }
     }
 
@@ -244,155 +213,138 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric,
     /* solve X = (L*U + Off)\X */
     /* ------------------------------------------------------------------ */
 
-    for (block = nblocks-1 ; block >= 0 ; block--)
-    {
+    for (block = nblocks - 1; block >= 0; block--) {
 
       /* -------------------------------------------------------------- */
       /* the block of size nk is from rows/columns k1 to k2-1 */
       /* -------------------------------------------------------------- */
 
-      k1 = R [block] ;
-      k2 = R [block+1] ;
-      nk = k2 - k1 ;
-      PRINTF ("solve $block, k1 $k1 k2-1 ${k2-1} nk $nk\n") ;
+      k1 = R[block];
+      k2 = R[block + 1];
+      nk = k2 - k1;
+      PRINTF("solve $block, k1 $k1 k2-1 ${k2-1} nk $nk\n");
 
       /* solve the block system */
-      if (nk == 1)
-      {
-        s = Udiag [k1] ;
-        switch (nr)
-        {
+      if (nk == 1) {
+        s = Udiag[k1];
+        switch (nr) {
 
           case 1:
             //DIV (X [k1], X [k1], s) ;
-            X [k1] = X [k1] / s ;
-            break ;
+            X[k1] = X[k1] / s;
+            break;
 
           case 2:
             //DIV (X [2*k1], X [2*k1], s) ;
-            X [2*k1] = X [2*k1] / s ;
+            X[2 * k1] = X[2 * k1] / s;
             //DIV (X [2*k1 + 1], X [2*k1 + 1], s) ;
-            X [2*k1 + 1] = X [2*k1 + 1] / s ;
-            break ;
+            X[2 * k1 + 1] = X[2 * k1 + 1] / s;
+            break;
 
           case 3:
             //DIV (X [3*k1], X [3*k1], s) ;
-            X [3*k1] = X [3*k1] / s ;
+            X[3 * k1] = X[3 * k1] / s;
             //DIV (X [3*k1 + 1], X [3*k1 + 1], s) ;
-            X [3*k1 + 1] = X [3*k1 + 1] / s ;
+            X[3 * k1 + 1] = X[3 * k1 + 1] / s;
             //DIV (X [3*k1 + 2], X [3*k1 + 2], s) ;
-            X [3*k1 + 2] = X [3*k1 + 2] / s ;
-            break ;
+            X[3 * k1 + 2] = X[3 * k1 + 2] / s;
+            break;
 
           case 4:
             //DIV (X [4*k1], X [4*k1], s) ;
-            X [4*k1] = X [4*k1] / s ;
+            X[4 * k1] = X[4 * k1] / s;
             //DIV (X [4*k1 + 1], X [4*k1 + 1], s) ;
-            X [4*k1 + 1] = X [4*k1 + 1] / s ;
+            X[4 * k1 + 1] = X[4 * k1 + 1] / s;
             //DIV (X [4*k1 + 2], X [4*k1 + 2], s) ;
-            X [4*k1 + 2] = X [4*k1 + 2] / s ;
+            X[4 * k1 + 2] = X[4 * k1 + 2] / s;
             //DIV (X [4*k1 + 3], X [4*k1 + 3], s) ;
-            X [4*k1 + 3] = X [4*k1 + 3] / s ;
-            break ;
+            X[4 * k1 + 3] = X[4 * k1 + 3] / s;
+            break;
 
         }
-      }
-      else
-      {
-        lsolve (nk, Lip, k1, Llen, k1,
-            LUbx [block], nr, X, nr*k1) ;
-        usolve (nk, Uip, k1, Ulen, k1,
-            LUbx [block], Udiag, k1, nr, X, nr*k1) ;
+      } else {
+        lsolve(nk, Lip, k1, Llen, k1, LUbx[block], nr, X, nr * k1);
+        usolve(nk, Uip, k1, Ulen, k1, LUbx[block], Udiag, k1, nr, X, nr * k1);
       }
 
       /* -------------------------------------------------------------- */
       /* block back-substitution for the off-diagonal-block entries */
       /* -------------------------------------------------------------- */
 
-      if (block > 0)
-      {
-        switch (nr)
-        {
+      if (block > 0) {
+        switch (nr) {
 
           case 1:
 
-            for (k = k1 ; k < k2 ; k++)
-            {
-              pend = Offp [k+1] ;
-              x [0] = X [k] ;
-              for (p = Offp [k] ; p < pend ; p++)
-              {
+            for (k = k1; k < k2; k++) {
+              pend = Offp[k + 1];
+              x[0] = X[k];
+              for (p = Offp[k]; p < pend; p++) {
                 //MULT_SUB (X [Offi [p]], Offx [p], x [0]) ;
-                X [Offi [p]] -= Offx [p] * x [0] ;
+                X[Offi[p]] -= Offx[p] * x[0];
               }
             }
-            break ;
+            break;
 
           case 2:
 
-            for (k = k1 ; k < k2 ; k++)
-            {
-              pend = Offp [k+1] ;
-              x [0] = X [2*k    ] ;
-              x [1] = X [2*k + 1] ;
-              for (p = Offp [k] ; p < pend ; p++)
-              {
-                i = Offi [p] ;
-                offik = Offx [p] ;
+            for (k = k1; k < k2; k++) {
+              pend = Offp[k + 1];
+              x[0] = X[2 * k];
+              x[1] = X[2 * k + 1];
+              for (p = Offp[k]; p < pend; p++) {
+                i = Offi[p];
+                offik = Offx[p];
                 //MULT_SUB (X [2*i], offik, x [0]) ;
-                X [2*i] -= offik * x [0] ;
+                X[2 * i] -= offik * x[0];
                 //MULT_SUB (X [2*i + 1], offik, x [1]) ;
-                X [2*i + 1] -= offik * x [1] ;
+                X[2 * i + 1] -= offik * x[1];
               }
             }
-            break ;
+            break;
 
           case 3:
 
-            for (k = k1 ; k < k2 ; k++)
-            {
-              pend = Offp [k+1] ;
-              x [0] = X [3*k    ] ;
-              x [1] = X [3*k + 1] ;
-              x [2] = X [3*k + 2] ;
-              for (p = Offp [k] ; p < pend ; p++)
-              {
-                i = Offi [p] ;
-                offik = Offx [p] ;
+            for (k = k1; k < k2; k++) {
+              pend = Offp[k + 1];
+              x[0] = X[3 * k];
+              x[1] = X[3 * k + 1];
+              x[2] = X[3 * k + 2];
+              for (p = Offp[k]; p < pend; p++) {
+                i = Offi[p];
+                offik = Offx[p];
                 //MULT_SUB (X [3*i], offik, x [0]) ;
-                X [3*i] -= offik * x [0] ;
+                X[3 * i] -= offik * x[0];
                 //MULT_SUB (X [3*i + 1], offik, x [1]) ;
-                X [3*i + 1] -= offik * x [1] ;
+                X[3 * i + 1] -= offik * x[1];
                 //MULT_SUB (X [3*i + 2], offik, x [2]) ;
-                X [3*i + 2] -= offik * x [2] ;
+                X[3 * i + 2] -= offik * x[2];
               }
             }
-            break ;
+            break;
 
           case 4:
 
-            for (k = k1 ; k < k2 ; k++)
-            {
-              pend = Offp [k+1] ;
-              x [0] = X [4*k    ] ;
-              x [1] = X [4*k + 1] ;
-              x [2] = X [4*k + 2] ;
-              x [3] = X [4*k + 3] ;
-              for (p = Offp [k] ; p < pend ; p++)
-              {
-                i = Offi [p] ;
-                offik = Offx [p] ;
+            for (k = k1; k < k2; k++) {
+              pend = Offp[k + 1];
+              x[0] = X[4 * k];
+              x[1] = X[4 * k + 1];
+              x[2] = X[4 * k + 2];
+              x[3] = X[4 * k + 3];
+              for (p = Offp[k]; p < pend; p++) {
+                i = Offi[p];
+                offik = Offx[p];
                 //MULT_SUB (X [4*i], offik, x [0]) ;
-                X [4*i] -= offik * x [0] ;
+                X[4 * i] -= offik * x[0];
                 //MULT_SUB (X [4*i + 1], offik, x [1]) ;
-                X [4*i + 1] -= offik * x [1] ;
+                X[4 * i + 1] -= offik * x[1];
                 //MULT_SUB (X [4*i + 2], offik, x [2]) ;
-                X [4*i + 2] -= offik * x [2] ;
+                X[4 * i + 2] -= offik * x[2];
                 //MULT_SUB (X [4*i + 3], offik, x [3]) ;
-                X [4*i + 3] -= offik * x [3] ;
+                X[4 * i + 3] -= offik * x[3];
               }
             }
-            break ;
+            break;
         }
       }
     }
@@ -401,56 +353,51 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric,
     /* permute the result, Bz  = Q*X */
     /* ------------------------------------------------------------------ */
 
-    switch (nr)
-    {
+    switch (nr) {
 
       case 1:
 
-        for (k = 0 ; k < n ; k++)
-        {
-          Bz  [B_offset + Q [k]] = X [k] ;
+        for (k = 0; k < n; k++) {
+          Bz[B_offset + Q[k]] = X[k];
         }
-        break ;
+        break;
 
       case 2:
 
-        for (k = 0 ; k < n ; k++)
-        {
-          i = Q [k] ;
-          Bz  [B_offset + i      ] = X [2*k    ] ;
-          Bz  [B_offset + i + d  ] = X [2*k + 1] ;
+        for (k = 0; k < n; k++) {
+          i = Q[k];
+          Bz[B_offset + i] = X[2 * k];
+          Bz[B_offset + i + d] = X[2 * k + 1];
         }
-        break ;
+        break;
 
       case 3:
 
-        for (k = 0 ; k < n ; k++)
-        {
-          i = Q [k] ;
-          Bz  [B_offset + i      ] = X [3*k    ] ;
-          Bz  [B_offset + i + d  ] = X [3*k + 1] ;
-          Bz  [B_offset + i + d*2] = X [3*k + 2] ;
+        for (k = 0; k < n; k++) {
+          i = Q[k];
+          Bz[B_offset + i] = X[3 * k];
+          Bz[B_offset + i + d] = X[3 * k + 1];
+          Bz[B_offset + i + d * 2] = X[3 * k + 2];
         }
-        break ;
+        break;
 
       case 4:
 
-        for (k = 0 ; k < n ; k++)
-        {
-          i = Q [k] ;
-          Bz  [B_offset + i      ] = X [4*k    ] ;
-          Bz  [B_offset + i + d  ] = X [4*k + 1] ;
-          Bz  [B_offset + i + d*2] = X [4*k + 2] ;
-          Bz  [B_offset + i + d*3] = X [4*k + 3] ;
+        for (k = 0; k < n; k++) {
+          i = Q[k];
+          Bz[B_offset + i] = X[4 * k];
+          Bz[B_offset + i + d] = X[4 * k + 1];
+          Bz[B_offset + i + d * 2] = X[4 * k + 2];
+          Bz[B_offset + i + d * 3] = X[4 * k + 3];
         }
-        break ;
+        break;
     }
 
     /* ------------------------------------------------------------------ */
     /* go to the next chunk of B */
     /* ------------------------------------------------------------------ */
 
-    B_offset += d*4 ;
+    B_offset += d * 4;
   }
-  return (TRUE) ;
+  return (TRUE);
 }

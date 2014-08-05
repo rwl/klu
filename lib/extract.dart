@@ -24,20 +24,12 @@
 
 part of edu.ufl.cise.klu.tdouble;
 
-/*import edu.ufl.cise.klu.common.KLU_common;
-import edu.ufl.cise.klu.common.KLU_numeric;
-import edu.ufl.cise.klu.common.KLU_symbolic;*/
-
 /**
  * Extract KLU factorization into conventional compressed-column matrices.
  * If any output array is null, that part of the LU factorization is not
  * extracted (this is not an error condition).
  *
  * nnz(L) = Numeric.lnz, nnz(U) = Numeric.unz, and nnz(F) = Numeric.Offp [n]
- */
-//public class Dklu_extract extends Dklu_internal {
-
-/**
  *
  * @param Numeric
  * @param Symbolic
@@ -57,56 +49,44 @@ import edu.ufl.cise.klu.common.KLU_symbolic;*/
  * @param Common
  * @return
  */
-int extract(KLU_numeric Numeric, KLU_symbolic Symbolic,
-    Int32List Lp, Int32List Li, Float64List Lx, Int32List Up, Int32List Ui, Float64List Ux,
-    Int32List Fp, Int32List Fi, Float64List Fx, Int32List P, Int32List Q, Float64List Rs,
-    Int32List R, KLU_common Common)
-{
-  Int32List Lip, Llen, Uip, Ulen ;
-  /*Int32List*/Float64List Li2, Ui2 ;
-  Float64List LU ;
-  Float64List Lx2, Ux2, Ukk ;
-  int i, k, block, nblocks, n, nz, k1, k2, nk, kk, p ;
-  Int32List len = new Int32List(1) ;
-  Int32List Li2_offset = new Int32List(1) ;
-  Int32List Lx2_offset = new Int32List(1) ;
-  Int32List Ui2_offset = new Int32List(1) ;
-  Int32List Ux2_offset = new Int32List(1) ;
+int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List Li, Float64List Lx, Int32List Up, Int32List Ui, Float64List Ux, Int32List Fp, Int32List Fi, Float64List Fx, Int32List P, Int32List Q, Float64List Rs, Int32List R, KLU_common Common) {
+  Int32List Lip, Llen, Uip, Ulen;
+  /*Int32List*/Float64List Li2, Ui2;
+  Float64List LU;
+  Float64List Lx2, Ux2, Ukk;
+  int i, k, block, nblocks, n, nz, k1, k2, nk, kk, p;
+  Int32List len = new Int32List(1);
+  Int32List Li2_offset = new Int32List(1);
+  Int32List Lx2_offset = new Int32List(1);
+  Int32List Ui2_offset = new Int32List(1);
+  Int32List Ux2_offset = new Int32List(1);
 
-  if (Common == null)
-  {
-    return (FALSE) ;
+  if (Common == null) {
+    return (FALSE);
   }
 
-  if (Symbolic == null || Numeric == null)
-  {
-    Common.status = KLU_INVALID ;
-    return (FALSE) ;
+  if (Symbolic == null || Numeric == null) {
+    Common.status = KLU_INVALID;
+    return (FALSE);
   }
 
-  Common.status = KLU_OK ;
-  n = Symbolic.n ;
-  nblocks = Symbolic.nblocks ;
+  Common.status = KLU_OK;
+  n = Symbolic.n;
+  nblocks = Symbolic.nblocks;
 
   /* ---------------------------------------------------------------------- */
   /* extract scale factors */
   /* ---------------------------------------------------------------------- */
 
-  if (Rs != null)
-  {
-    if (Numeric.Rs != null)
-    {
-      for (i = 0 ; i < n ; i++)
-      {
-        Rs [i] = Numeric.Rs [i] ;
+  if (Rs != null) {
+    if (Numeric.Rs != null) {
+      for (i = 0; i < n; i++) {
+        Rs[i] = Numeric.Rs[i];
       }
-    }
-    else
-    {
+    } else {
       /* no scaling */
-      for (i = 0 ; i < n ; i++)
-      {
-        Rs [i] = 1.0 ;
+      for (i = 0; i < n; i++) {
+        Rs[i] = 1.0;
       }
     }
   }
@@ -115,11 +95,9 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic,
   /* extract block boundaries */
   /* ---------------------------------------------------------------------- */
 
-  if (R != null)
-  {
-    for (block = 0 ; block <= nblocks ; block++)
-    {
-      R [block] = Symbolic.R [block] ;
+  if (R != null) {
+    for (block = 0; block <= nblocks; block++) {
+      R[block] = Symbolic.R[block];
     }
   }
 
@@ -127,11 +105,9 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic,
   /* extract final row permutation */
   /* ---------------------------------------------------------------------- */
 
-  if (P != null)
-  {
-    for (k = 0 ; k < n ; k++)
-    {
-      P [k] = Numeric.Pnum [k] ;
+  if (P != null) {
+    for (k = 0; k < n; k++) {
+      P[k] = Numeric.Pnum[k];
     }
   }
 
@@ -139,11 +115,9 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic,
   /* extract column permutation */
   /* ---------------------------------------------------------------------- */
 
-  if (Q != null)
-  {
-    for (k = 0 ; k < n ; k++)
-    {
-      Q [k] = Symbolic.Q [k] ;
+  if (Q != null) {
+    for (k = 0; k < n; k++) {
+      Q[k] = Symbolic.Q[k];
     }
   }
 
@@ -151,125 +125,105 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic,
   /* extract each block of L */
   /* ---------------------------------------------------------------------- */
 
-  if (Lp != null && Li != null && Lx != null)
-  {
-    nz = 0 ;
-    for (block = 0 ; block < nblocks ; block++)
-    {
-      k1 = Symbolic.R [block] ;
-      k2 = Symbolic.R [block+1] ;
-      nk = k2 - k1 ;
-      if (nk == 1)
-      {
+  if (Lp != null && Li != null && Lx != null) {
+    nz = 0;
+    for (block = 0; block < nblocks; block++) {
+      k1 = Symbolic.R[block];
+      k2 = Symbolic.R[block + 1];
+      nk = k2 - k1;
+      if (nk == 1) {
         /* singleton block */
-        Lp [k1] = nz ;
-        Li [nz] = k1 ;
-        Lx [nz] = 1.0 ;
-        nz++ ;
-      }
-      else
-      {
+        Lp[k1] = nz;
+        Li[nz] = k1;
+        Lx[nz] = 1.0;
+        nz++;
+      } else {
         /* non-singleton block */
-        LU = Numeric.LUbx [block] ;
-        Lip = Numeric.Lip ;
-        int Lip_offset = k1 ;
-        Llen = Numeric.Llen ;
-        int Llen_offset = k1 ;
-        for (kk = 0 ; kk < nk ; kk++)
-        {
-          Lp [k1+kk] = nz ;
+        LU = Numeric.LUbx[block];
+        Lip = Numeric.Lip;
+        int Lip_offset = k1;
+        Llen = Numeric.Llen;
+        int Llen_offset = k1;
+        for (kk = 0; kk < nk; kk++) {
+          Lp[k1 + kk] = nz;
           /* add the unit diagonal entry */
-          Li [nz] = k1 + kk ;
-          Lx [nz] = 1.0 ;
-          nz++ ;
-          Li2 = Lx2 = GET_POINTER (LU, Lip, Lip_offset,
-              Llen, Llen_offset,
-              Li2_offset, Lx2_offset, kk, len) ;
-          for (p = 0 ; p < len[0] ; p++)
-          {
-            Li [nz] = k1 + Li2 [Li2_offset[0] + p].toInt() ;
-            Lx [nz] = Lx2 [Lx2_offset[0] + p] ; //REAL (Lx2 [p]) ;
-            nz++ ;
+          Li[nz] = k1 + kk;
+          Lx[nz] = 1.0;
+          nz++;
+          Li2 = Lx2 = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li2_offset, Lx2_offset, kk, len);
+          for (p = 0; p < len[0]; p++) {
+            Li[nz] = k1 + Li2[Li2_offset[0] + p].toInt();
+            Lx[nz] = Lx2[Lx2_offset[0] + p]; //REAL (Lx2 [p]) ;
+            nz++;
           }
         }
       }
     }
-    Lp [n] = nz ;
-    ASSERT (nz == Numeric.lnz) ;
+    Lp[n] = nz;
+    ASSERT(nz == Numeric.lnz);
   }
 
   /* ---------------------------------------------------------------------- */
   /* extract each block of U */
   /* ---------------------------------------------------------------------- */
 
-  if (Up != null && Ui != null && Ux != null)
-  {
-    nz = 0 ;
-    for (block = 0 ; block < nblocks ; block++)
-    {
-      k1 = Symbolic.R [block] ;
-      k2 = Symbolic.R [block+1] ;
-      nk = k2 - k1 ;
-      Ukk = Numeric.Udiag ;
-      int Ukk_offset = k1 ;
-      if (nk == 1)
-      {
+  if (Up != null && Ui != null && Ux != null) {
+    nz = 0;
+    for (block = 0; block < nblocks; block++) {
+      k1 = Symbolic.R[block];
+      k2 = Symbolic.R[block + 1];
+      nk = k2 - k1;
+      Ukk = Numeric.Udiag;
+      int Ukk_offset = k1;
+      if (nk == 1) {
         /* singleton block */
-        Up [k1] = nz ;
-        Ui [nz] = k1 ;
-        Ux [nz] = Ukk [Ukk_offset + 0] ; //REAL (Ukk [0]) ;
-        nz++ ;
-      }
-      else
-      {
+        Up[k1] = nz;
+        Ui[nz] = k1;
+        Ux[nz] = Ukk[Ukk_offset + 0]; //REAL (Ukk [0]) ;
+        nz++;
+      } else {
         /* non-singleton block */
-        LU = Numeric.LUbx [block] ;
-        Uip = Numeric.Uip ;
-        int Uip_offset = k1 ;
-        Ulen = Numeric.Ulen ;
-        int Ulen_offset = k1 ;
-        for (kk = 0 ; kk < nk ; kk++)
-        {
-          Up [k1+kk] = nz ;
-          Ui2 = Ux2 = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui2_offset, Ux2_offset, kk, len) ;
-          for (p = 0 ; p < len[0] ; p++)
-          {
-            Ui [nz] = k1 + Ui2 [Ui2_offset[0] + p].toInt() ;
-            Ux [nz] = Ux2 [Ux2_offset[0] + p] ; //REAL (Ux2 [p]) ;
-            nz++ ;
+        LU = Numeric.LUbx[block];
+        Uip = Numeric.Uip;
+        int Uip_offset = k1;
+        Ulen = Numeric.Ulen;
+        int Ulen_offset = k1;
+        for (kk = 0; kk < nk; kk++) {
+          Up[k1 + kk] = nz;
+          Ui2 = Ux2 = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui2_offset, Ux2_offset, kk, len);
+          for (p = 0; p < len[0]; p++) {
+            Ui[nz] = k1 + Ui2[Ui2_offset[0] + p].toInt();
+            Ux[nz] = Ux2[Ux2_offset[0] + p]; //REAL (Ux2 [p]) ;
+            nz++;
           }
           /* add the diagonal entry */
-          Ui [nz] = k1 + kk ;
-          Ux [nz] = Ukk [Ukk_offset+ kk] ; //REAL (Ukk [kk]) ;
-          nz++ ;
+          Ui[nz] = k1 + kk;
+          Ux[nz] = Ukk[Ukk_offset + kk]; //REAL (Ukk [kk]) ;
+          nz++;
         }
       }
     }
-    Up [n] = nz ;
-    ASSERT (nz == Numeric.unz) ;
+    Up[n] = nz;
+    ASSERT(nz == Numeric.unz);
   }
 
   /* ---------------------------------------------------------------------- */
   /* extract the off-diagonal blocks, F */
   /* ---------------------------------------------------------------------- */
 
-  if (Fp != null && Fi != null && Fx != null)
-  {
-    for (k = 0 ; k <= n ; k++)
-    {
-      Fp [k] = Numeric.Offp [k] ;
+  if (Fp != null && Fi != null && Fx != null) {
+    for (k = 0; k <= n; k++) {
+      Fp[k] = Numeric.Offp[k];
     }
-    nz = Fp [n] ;
-    for (k = 0 ; k < nz ; k++)
-    {
-      Fi [k] = Numeric.Offi [k] ;
+    nz = Fp[n];
+    for (k = 0; k < nz; k++) {
+      Fi[k] = Numeric.Offi[k];
     }
-    for (k = 0 ; k < nz ; k++)
-    {
-      Fx [k] = Numeric.Offx [k] ;
+    for (k = 0; k < nz; k++) {
+      Fx[k] = Numeric.Offx[k];
       //Fx [k] = REAL (((Float64List) Numeric.Offx) [k]) ;
     }
   }
 
-  return (TRUE) ;
+  return (TRUE);
 }

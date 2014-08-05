@@ -22,10 +22,6 @@
  *
  */
 
-part of edu.ufl.cise.klu.tdouble;
-
-//import edu.ufl.cise.klu.common.KLU_common;
-
 /**
  * Scale a matrix and check to see if it is valid.  Can be called by the user.
  * This is called by KLU_factor and KLU_refactor.  Returns true if the input
@@ -33,12 +29,12 @@ part of edu.ufl.cise.klu.tdouble;
  * then the input matrix is checked for duplicate entries.
  *
  * scaling methods:
- *      <0: no scaling, do not compute Rs, and do not check input matrix.
- *      0: no scaling
- *      1: the scale factor for row i is sum (abs (A (i,:)))
- *      2 or more: the scale factor for row i is max(abs (A (i,:)))
+ *  * `<0`: no scaling, do not compute Rs, and do not check input matrix.
+ *  * `0`: no scaling
+ *  * `1`: the scale factor for row i is sum (abs (A (i,:)))
+ *  * `2`: or more: the scale factor for row i is max(abs (A (i,:)))
  */
-//public class Dklu_scale extends Dklu_internal {
+part of edu.ufl.cise.klu.tdouble;
 
 /**
  *
@@ -52,53 +48,44 @@ part of edu.ufl.cise.klu.tdouble;
  * @param Common
  * @return true if successful, false otherwise
  */
-int klu_scale(int scale, int n, Int32List Ap, Int32List Ai,
-    Float64List Ax, Float64List Rs, Int32List W, KLU_common Common)
-{
-  double a ;
-  Float64List Az ;
-  int row, col, p, pend ;
-  bool check_duplicates ;
+int klu_scale(int scale, int n, Int32List Ap, Int32List Ai, Float64List Ax, Float64List Rs, Int32List W, KLU_common Common) {
+  double a;
+  Float64List Az;
+  int row, col, p, pend;
+  bool check_duplicates;
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
   /* ---------------------------------------------------------------------- */
 
-  if (Common == null)
-  {
-    return (FALSE) ;
+  if (Common == null) {
+    return (FALSE);
   }
-  Common.status = KLU_OK ;
+  Common.status = KLU_OK;
 
-  if (scale < 0)
-  {
+  if (scale < 0) {
     /* return without checking anything and without computing the
      * scale factors */
-    return (TRUE) ;
+    return (TRUE);
   }
 
-  Az = new Float64List.fromList(Ax) ;
+  Az = new Float64List.fromList(Ax);
 
-  if (n <= 0 || Ap == null || Ai == null || Az == null ||
-    (scale > 0 && Rs == null))
-  {
+  if (n <= 0 || Ap == null || Ai == null || Az == null || (scale > 0 && Rs == null)) {
     /* Ap, Ai, Ax and Rs must be present, and n must be > 0 */
-    Common.status = KLU_INVALID ;
-    return (FALSE) ;
+    Common.status = KLU_INVALID;
+    return (FALSE);
   }
-  if (Ap [0] != 0 || Ap [n] < 0)
-  {
+  if (Ap[0] != 0 || Ap[n] < 0) {
     /* nz = Ap [n] must be >= 0 and Ap [0] must equal zero */
-    Common.status = KLU_INVALID ;
-    return (FALSE) ;
+    Common.status = KLU_INVALID;
+    return (FALSE);
   }
-  for (col = 0 ; col < n ; col++)
-  {
-    if (Ap [col] > Ap [col+1])
-    {
+  for (col = 0; col < n; col++) {
+    if (Ap[col] > Ap[col + 1]) {
       /* column pointers must be non-decreasing */
-      Common.status = KLU_INVALID ;
-      return (FALSE) ;
+      Common.status = KLU_INVALID;
+      return (FALSE);
     }
   }
 
@@ -106,78 +93,63 @@ int klu_scale(int scale, int n, Int32List Ap, Int32List Ai,
   /* scale */
   /* ---------------------------------------------------------------------- */
 
-  if (scale > 0)
-  {
+  if (scale > 0) {
     /* initialize row sum or row max */
-    for (row = 0 ; row < n ; row++)
-    {
-      Rs [row] = 0.0 ;
+    for (row = 0; row < n; row++) {
+      Rs[row] = 0.0;
     }
   }
 
   /* check for duplicates only if W is present */
-  check_duplicates = (W != null) ;
-  if (check_duplicates)
-  {
-    for (row = 0 ; row < n ; row++)
-    {
-      W [row] = EMPTY ;
+  check_duplicates = (W != null);
+  if (check_duplicates) {
+    for (row = 0; row < n; row++) {
+      W[row] = EMPTY;
     }
   }
 
-  for (col = 0 ; col < n ; col++)
-  {
-    pend = Ap [col+1] ;
-    for (p = Ap [col] ; p < pend ; p++)
-    {
-      row = Ai [p] ;
-      if (row < 0 || row >= n)
-      {
+  for (col = 0; col < n; col++) {
+    pend = Ap[col + 1];
+    for (p = Ap[col]; p < pend; p++) {
+      row = Ai[p];
+      if (row < 0 || row >= n) {
         /* row index out of range, or duplicate entry */
-        Common.status = KLU_INVALID ;
-        return (FALSE) ;
+        Common.status = KLU_INVALID;
+        return (FALSE);
       }
-      if (check_duplicates)
-      {
-        if (W [row] == col)
-        {
+      if (check_duplicates) {
+        if (W[row] == col) {
           /* duplicate entry */
-          Common.status = KLU_INVALID ;
-          return (FALSE) ;
+          Common.status = KLU_INVALID;
+          return (FALSE);
         }
         /* flag row i as appearing in column col */
-        W [row] = col ;
+        W[row] = col;
       }
       //ABS (a, Az [p]) ;
-      a = ABS (Az [p]) ;
-      if (scale == 1)
-      {
+      a = ABS(Az[p]);
+      if (scale == 1) {
         /* accumulate the abs. row sum */
-        Rs [row] += a ;
-      }
-      else if (scale > 1)
-      {
+        Rs[row] += a;
+      } else if (scale > 1) {
         /* find the max abs. value in the row */
-        Rs [row] = MAX (Rs [row], a) ;
+        Rs[row] = MAX(Rs[row], a);
       }
     }
   }
 
-  if (scale > 0)
-  {
+  if (scale > 0) {
     /* do not scale empty rows */
-    for (row = 0 ; row < n ; row++)
-    {
+    for (row = 0; row < n; row++) {
       /* matrix is singular */
-      PRINTF ("Rs [$row] = ${Rs [row]}\n") ;
+      PRINTF("Rs [$row] = ${Rs [row]}\n");
 
-      if (Rs [row] == 0.0)
-      {
-        PRINTF ("Row $row of A is all zero\n") ;
-        Rs [row] = 1.0 ;
+      if (Rs[row] == 0.0) {
+        PRINTF("Row $row of A is all zero\n");
+        Rs[row] = 1.0;
       }
     }
   }
 
-  return (TRUE) ;
+  return (TRUE);
 }

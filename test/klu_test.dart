@@ -1,5 +1,6 @@
-//package edu.ufl.cise.klu.test;
-
+/**
+ * Read in a matrix and solve a linear system.
+ */
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:unittest/unittest.dart';
@@ -8,87 +9,33 @@ import 'package:klu/common/common.dart';
 import 'package:csparse/test_util.dart';
 import 'package:csparse/csparse.dart';
 
-/*import java.io.IOException;
-import java.io.InputStream;
-
-import edu.emory.mathcs.csparsej.tdouble.Dcs_common.Dcs;
-import edu.emory.mathcs.csparsej.tdouble.test.Dcs_test;
-
-import edu.ufl.cise.klu.common.KLU_common;
-import edu.ufl.cise.klu.common.KLU_numeric;
-import edu.ufl.cise.klu.common.KLU_symbolic;
-import edu.ufl.cise.klu.common.KLU_version;
-
-import static edu.ufl.cise.klu.tdouble.Dklu_analyze.klu_analyze;
-import static edu.ufl.cise.klu.tdouble.Dklu_defaults.klu_defaults;
-import static edu.ufl.cise.klu.tdouble.Dklu_diagnostics.klu_rgrowth;
-import static edu.ufl.cise.klu.tdouble.Dklu_diagnostics.klu_condest;
-import static edu.ufl.cise.klu.tdouble.Dklu_diagnostics.klu_rcond;
-import static edu.ufl.cise.klu.tdouble.Dklu_diagnostics.klu_flops;
-import static edu.ufl.cise.klu.tdouble.Dklu_factor.klu_factor;
-import static edu.ufl.cise.klu.tdouble.Dklu_solve.klu_solve;*/
-
-/**
- * Read in a matrix and solve a linear system.
- */
-//public class Dklu_test extends Dcs_test {
-
 final String DIR = "matrix";
-
 final String ARROW = "arrow";
-
 final String IMPCOL_A = "impcol_a";
-
 final String WEST0156 = "west0156";
-
-//	private static final String C1 = "1c";
-//
-//	private static final String ARROW_C = "arrowc";
-//
-//	private static final String C_TINA = "ctina";
-//
-//	private static final String GD99_CC = "GD99_cc";
-//
-//	private static final String ONE = "one";
-//
-//	private static final String ONE_C = "onec";
-//
-//	private static final String TWO = "two";
-//
-//	private static final String W156 = "w156";
+//final String C1 = "1c";
+//final String ARROW_C = "arrowc";
+//final String C_TINA = "ctina";
+//final String GD99_CC = "GD99_cc";
+//final String ONE = "one";
+//final String ONE_C = "onec";
+//final String TWO = "two";
+//final String W156 = "w156";
 
 File get_file(String name) {
   return new File([Uri.base.toFilePath() + DIR, name].join('/'));
 }
 
-void REAL (Float64List X, int i, double v)
-{
-  X[2*i] = v;
+void REAL(Float64List X, int i, double v) {
+  X[2 * i] = v;
 }
 
-void IMAG (Float64List X, int i, double v)
-{
-  X[2*i + 1] = v;
+void IMAG(Float64List X, int i, double v) {
+  X[2 * i + 1] = v;
 }
 
-//	private static double REAL (Float64List X, int i)
-//	{
-//		return X[2*i] ;
-//	}
-//
-//	private static double IMAG (Float64List X, int i)
-//	{
-//		return X[2*i + 1] ;
-//	}
-//
-//	private static double CABS (Float64List X, int i)
-//	{
-//		return Math.sqrt(REAL(X, i) * REAL(X, i) + IMAG(X, i) * IMAG(X, i)) ;
-//	}
-
-double MAX (double a, double b)
-{
-  return (a) > (b) ? (a) : (b) ;
+double MAX(double a, double b) {
+  return (a) > (b) ? (a) : (b);
 }
 
 /**
@@ -106,83 +53,72 @@ double MAX (double a, double b)
  * @param Common default parameters and statistics
  * @return 1 if successful, 0 otherwise
  */
-int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax,
-    bool isreal, Float64List B, Float64List X, Float64List R, Int32List lunz,
-    Float64List rnorm, KLU_common Common)
-{
-  double anorm = 0.0, asum;
+int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Float64List B, Float64List X, Float64List R, Int32List lunz, Float64List rnorm, KLU_common Common) {
+  double anorm = 0.0,
+      asum;
   KLU_symbolic Symbolic;
   KLU_numeric Numeric;
   int i, j, p;
 
-  if (Ap == null || Ai == null || Ax == null || B == null || X == null || B == null)
-    return(0);
+  if (Ap == null || Ai == null || Ax == null || B == null || X == null || B == null) return (0);
 
   /* ---------------------------------------------------------------------- */
   /* symbolic ordering and analysis */
   /* ---------------------------------------------------------------------- */
 
-  Symbolic = klu.analyze (n, Ap, Ai, Common);
-  if (Symbolic == null) return(0);
+  Symbolic = klu.analyze(n, Ap, Ai, Common);
+  if (Symbolic == null) return (0);
 
-  if (isreal)
-  {
+  if (isreal) {
 
     /* ------------------------------------------------------------------ */
     /* factorization */
     /* ------------------------------------------------------------------ */
 
-    Numeric = klu.factor (Ap, Ai, Ax, Symbolic, Common);
-    if (Numeric == null)
-    {
+    Numeric = klu.factor(Ap, Ai, Ax, Symbolic, Common);
+    if (Numeric == null) {
       //klu_free_symbolic(Symbolic, Common);
-      return(0);
+      return (0);
     }
 
     /* ------------------------------------------------------------------ */
     /* statistics(not required to solve Ax=b) */
     /* ------------------------------------------------------------------ */
 
-    klu.rgrowth (Ap, Ai, Ax, Symbolic, Numeric, Common);
-    klu.condest (Ap, Ax, Symbolic, Numeric, Common);
-    klu.rcond (Symbolic, Numeric, Common);
-    klu.flops (Symbolic, Numeric, Common);
-    lunz[0] = Numeric.lnz + Numeric.unz - n +
-      (Numeric.Offp != null ? Numeric.Offp [n] : 0);
+    klu.rgrowth(Ap, Ai, Ax, Symbolic, Numeric, Common);
+    klu.condest(Ap, Ax, Symbolic, Numeric, Common);
+    klu.rcond(Symbolic, Numeric, Common);
+    klu.flops(Symbolic, Numeric, Common);
+    lunz[0] = Numeric.lnz + Numeric.unz - n + (Numeric.Offp != null ? Numeric.Offp[n] : 0);
 
     /* ------------------------------------------------------------------ */
     /* solve Ax=b */
     /* ------------------------------------------------------------------ */
 
-    for(i = 0; i < n; i++)
-    {
-      X [i] = B [i];
+    for (i = 0; i < n; i++) {
+      X[i] = B[i];
     }
-    klu.solve (Symbolic, Numeric, n, 1, X, 0, Common);
+    klu.solve(Symbolic, Numeric, n, 1, X, 0, Common);
 
     /* ------------------------------------------------------------------ */
     /* compute residual, rnorm = norm(b-Ax,1) / norm(A,1) */
     /* ------------------------------------------------------------------ */
 
-    for(i = 0; i < n; i++)
-    {
-      R [i] = B [i];
+    for (i = 0; i < n; i++) {
+      R[i] = B[i];
     }
-    for(j = 0; j < n; j++)
-    {
+    for (j = 0; j < n; j++) {
       asum = 0.0;
-      for(p = Ap [j]; p < Ap [j+1]; p++)
-      {
+      for (p = Ap[j]; p < Ap[j + 1]; p++) {
         /* R(i) -= A(i,j) * X(j) */
-        R [Ai [p]] -= Ax [p] * X [j];
-        asum += Ax [p].abs();
+        R[Ai[p]] -= Ax[p] * X[j];
+        asum += Ax[p].abs();
       }
-      anorm = MAX (anorm, asum);
+      anorm = MAX(anorm, asum);
     }
     rnorm[0] = 0.0;
-    for(i = 0; i < n; i++)
-    {
-      rnorm[0] = MAX (rnorm[0], R [i].abs());
+    for (i = 0; i < n; i++) {
+      rnorm[0] = MAX(rnorm[0], R[i].abs());
     }
 
     /* ------------------------------------------------------------------ */
@@ -192,75 +128,73 @@ int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax,
     //klu_free_numeric(Numeric, Common);
     Numeric = null;
 
-  }
-  else
-  {
+  } else {
     throw new Error();
 
     /* ------------------------------------------------------------------ */
     /* statistics(not required to solve Ax=b) */
     /* ------------------------------------------------------------------ */
 
-//			Numeric = klu_z_factor (Ap, Ai, Ax, Symbolic, Common);
-//			if (Numeric == null)
-//			{
-//				klu_free_symbolic (Symbolic, Common);
-//				return(0);
-//			}
-//
-//			/* ------------------------------------------------------------------ */
-//			/* statistics */
-//			/* ------------------------------------------------------------------ */
-//
-//			klu_z_rgrowth (Ap, Ai, Ax, Symbolic, Numeric, Common);
-//			klu_z_condest (Ap, Ax, Symbolic, Numeric, Common);
-//			klu_z_rcond (Symbolic, Numeric, Common);
-//			klu_z_flops (Symbolic, Numeric, Common);
-//			lunz = Numeric.lnz + Numeric.unz - n +
-//				(Numeric.Offp != null ? Numeric.Offp [n] : 0);
-//
-//			/* ------------------------------------------------------------------ */
-//			/* solve Ax=b */
-//			/* ------------------------------------------------------------------ */
-//
-//			for(i = 0; i < 2*n; i++)
-//			{
-//				X [i] = B [i];
-//			}
-//			klu_z_solve (Symbolic, Numeric, n, 1, X, Common);
-//
-//			/* ------------------------------------------------------------------ */
-//			/* compute residual, rnorm = norm(b-Ax,1) / norm(A,1) */
-//			/* ------------------------------------------------------------------ */
-//
-//			for(i = 0; i < 2*n; i++)
-//			{
-//				R [i] = B [i];
-//			}
-//			for(j = 0; j < n; j++)
-//			{
-//				asum = 0;
-//				for(p = Ap [j]; p < Ap [j+1]; p++)
-//				{
-//					/* R(i) -= A(i,j) * X(j) */
-//					i = Ai [p];
-//					REAL(R,i) -= REAL(Ax,p) * REAL(X,j) - IMAG(Ax,p) * IMAG(X,j);
-//					IMAG(R,i) -= IMAG(Ax,p) * REAL(X,j) + REAL(Ax,p) * IMAG(X,j);
-//					asum += CABS(Ax, p);
-//				}
-//				anorm = MAX(anorm, asum);
-//			}
-//			rnorm = 0;
-//			for(i = 0; i < n; i++)
-//			{
-//				rnorm = MAX (rnorm, CABS(R, i));
-//			}
-//
-//			/* ------------------------------------------------------------------ */
-//			/* free numeric factorization */
-//			/* ------------------------------------------------------------------ */
-//
-//			klu_z_free_numeric (&Numeric, Common);
+    //Numeric = klu.z_factor (Ap, Ai, Ax, Symbolic, Common);
+    //if (Numeric == null)
+    //{
+    //	klu_free_symbolic (Symbolic, Common);
+    //	return(0);
+    //}
+    //
+    ///* ------------------------------------------------------------------ */
+    ///* statistics */
+    ///* ------------------------------------------------------------------ */
+    //
+    //klu_z_rgrowth (Ap, Ai, Ax, Symbolic, Numeric, Common);
+    //klu_z_condest (Ap, Ax, Symbolic, Numeric, Common);
+    //klu_z_rcond (Symbolic, Numeric, Common);
+    //klu_z_flops (Symbolic, Numeric, Common);
+    //lunz = Numeric.lnz + Numeric.unz - n +
+    //	(Numeric.Offp != null ? Numeric.Offp [n] : 0);
+    //
+    ///* ------------------------------------------------------------------ */
+    ///* solve Ax=b */
+    ///* ------------------------------------------------------------------ */
+    //
+    //for(i = 0; i < 2*n; i++)
+    //{
+    //	X [i] = B [i];
+    //}
+    //klu_z_solve (Symbolic, Numeric, n, 1, X, Common);
+    //
+    ///* ------------------------------------------------------------------ */
+    ///* compute residual, rnorm = norm(b-Ax,1) / norm(A,1) */
+    ///* ------------------------------------------------------------------ */
+    //
+    //for(i = 0; i < 2*n; i++)
+    //{
+    //	R [i] = B [i];
+    //}
+    //for(j = 0; j < n; j++)
+    //{
+    //	asum = 0;
+    //	for(p = Ap [j]; p < Ap [j+1]; p++)
+    //	{
+    //		/* R(i) -= A(i,j) * X(j) */
+    //		i = Ai [p];
+    //		REAL(R,i) -= REAL(Ax,p) * REAL(X,j) - IMAG(Ax,p) * IMAG(X,j);
+    //		IMAG(R,i) -= IMAG(Ax,p) * REAL(X,j) + REAL(Ax,p) * IMAG(X,j);
+    //		asum += CABS(Ax, p);
+    //	}
+    //	anorm = MAX(anorm, asum);
+    //}
+    //rnorm = 0;
+    //for(i = 0; i < n; i++)
+    //{
+    //	rnorm = MAX (rnorm, CABS(R, i));
+    //}
+    //
+    ///* ------------------------------------------------------------------ */
+    ///* free numeric factorization */
+    ///* ------------------------------------------------------------------ */
+    //
+    //klu_z_free_numeric (&Numeric, Common);
   }
 
   /* ---------------------------------------------------------------------- */
@@ -276,9 +210,7 @@ int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax,
 /**
  * Given a sparse matrix A, set up a right-hand-side and solve X = A\b.
  */
-void demo(int n, Int32List Ap, Int32List Ai, Float64List Ax,
-    bool isreal, Int32List lunz, Float64List rnorm, KLU_common Common)
-{
+void demo(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Int32List lunz, Float64List rnorm, KLU_common Common) {
   int i;
   Float64List B, X, R;
 
@@ -288,38 +220,31 @@ void demo(int n, Int32List Ap, Int32List Ai, Float64List Ax,
   /* set defaults */
   /* ---------------------------------------------------------------------- */
 
-  klu.defaults (Common);
+  klu.defaults(Common);
 
   /* ---------------------------------------------------------------------- */
   /* create a right-hand-side */
   /* ---------------------------------------------------------------------- */
 
-  if (isreal)
-  {
+  if (isreal) {
     /* B = 1 +(1:n)/n */
     B = new Float64List(n);
     X = new Float64List(n);
     R = new Float64List(n);
-    if (B != null)
-    {
-      for(i = 0; i < n; i++)
-      {
-        B [i] = 1 + (i+1) / n;
+    if (B != null) {
+      for (i = 0; i < n; i++) {
+        B[i] = 1 + (i + 1) / n;
       }
     }
-  }
-  else
-  {
+  } else {
     /* real(B) = 1 +(1:n)/n, imag(B) = (n:-1:1)/n */
     B = new Float64List(2 * n);
     X = new Float64List(2 * n);
     R = new Float64List(2 * n);
-    if (B != null)
-    {
-      for(i = 0; i < n; i++)
-      {
-        REAL(B, i, 1 + (i+1) / n);
-        IMAG(B, i,     (n-i) / n);
+    if (B != null) {
+      for (i = 0; i < n; i++) {
+        REAL(B, i, 1 + (i + 1) / n);
+        IMAG(B, i, (n - i) / n);
       }
     }
   }
@@ -328,14 +253,11 @@ void demo(int n, Int32List Ap, Int32List Ai, Float64List Ax,
   /* X = A\b using KLU and print statistics */
   /* ---------------------------------------------------------------------- */
 
-  if (backslash (n, Ap, Ai, Ax, isreal, B, X, R, lunz, rnorm, Common) == 0)
-  {
+  if (backslash(n, Ap, Ai, Ax, isreal, B, X, R, lunz, rnorm, Common) == 0) {
     stdout.write("KLU failed\n");
-  }
-  else
-  {
+  } else {
     stdout.write("n $n nnz(A) ${Ap [n]} nnz(L+U+F) ${lunz[0]} resid ${rnorm[0]}\n" +
-      "recip growth ${Common.rgrowth} condest ${Common.condest} rcond ${Common.rcond} flops ${Common.flops}\n");
+        "recip growth ${Common.rgrowth} condest ${Common.condest} rcond ${Common.rcond} flops ${Common.flops}\n");
   }
 
   /* ---------------------------------------------------------------------- */
@@ -355,27 +277,27 @@ main() {
    * recip growth 0.00957447 condest 4.35093e+07 rcond 4.5277e-05 flops 259
    */
   test('impcol_a', () {
-  //		Dklu_version.NPRINT = false ;
-  //		Dklu_internal.NDEBUG = false ;
+    //klu.NPRINT = false ;
+    //klu.NDEBUG = false ;
 
     KLU_common Common = new KLU_common();
     Int32List lunz = new Int32List(1);
     Float64List rnorm = new Float64List(1);
 
-    final file = get_file (IMPCOL_A) ;
-    Dproblem prob = get_problem (file, 0.0, 1) ;
-    Dcs A = prob.A ;
-    demo (A.m, A.p, A.i, A.x, true, lunz, rnorm, Common) ;
+    final file = get_file(IMPCOL_A);
+    Dproblem prob = get_problem(file, 0.0, 1);
+    Dcs A = prob.A;
+    demo(A.m, A.p, A.i, A.x, true, lunz, rnorm, Common);
 
-    expect(207, equals(A.m)) ;
-    expect(207, equals(A.n)) ;
-    expect(572, equals(A.p[A.m])) ;
-    expect(615, equals(lunz[0])) ;
-    expect(6.98492e-10, closeTo(rnorm[0], 1e-14)) ;
-    expect(0.00957447, closeTo(Common.rgrowth, 1e-06)) ;
-    expect(4.35093e+07, closeTo(Common.condest, 1e+06)) ;  // FIXME: improve assertion accuracy
-    expect(4.5277e-05, closeTo(Common.rcond, 1e-08)) ;
-    expect(259, closeTo(Common.flops, 1e-03)) ;
+    expect(207, equals(A.m));
+    expect(207, equals(A.n));
+    expect(572, equals(A.p[A.m]));
+    expect(615, equals(lunz[0]));
+    expect(6.98492e-10, closeTo(rnorm[0], 1e-14));
+    expect(0.00957447, closeTo(Common.rgrowth, 1e-06));
+    expect(4.35093e+07, closeTo(Common.condest, 1e+06)); // FIXME: improve assertion accuracy
+    expect(4.5277e-05, closeTo(Common.rcond, 1e-08));
+    expect(259, closeTo(Common.flops, 1e-03));
   });
 
   /**
@@ -383,24 +305,24 @@ main() {
    * recip growth 0.0204082 condest 303 rcond 0.0204082 flops 297
    */
   test('arrow', () {
-    KLU_common Common = new KLU_common() ;
-    Int32List lunz = new Int32List(1) ;
-    Float64List rnorm = new Float64List(1) ;
+    KLU_common Common = new KLU_common();
+    Int32List lunz = new Int32List(1);
+    Float64List rnorm = new Float64List(1);
 
-    final file = get_file (ARROW) ;
-    Dproblem prob = get_problem (file, 0.0, 1) ;
-    Dcs A = prob.A ;
-    demo (A.m, A.p, A.i, A.x, true, lunz, rnorm, Common) ;
+    final file = get_file(ARROW);
+    Dproblem prob = get_problem(file, 0.0, 1);
+    Dcs A = prob.A;
+    demo(A.m, A.p, A.i, A.x, true, lunz, rnorm, Common);
 
-    expect(100, equals(A.m)) ;
-    expect(100, equals(A.n)) ;
-    expect(298, equals(A.p[A.m])) ;
-    expect(298, equals(lunz[0])) ;
-    expect(1.77636e-15, closeTo(rnorm[0], 1e-18)) ;
-    expect(0.0204082, closeTo(Common.rgrowth, 1e-06)) ;
-    expect(303, closeTo(Common.condest, 1e-03)) ;
-    expect(0.0204082, closeTo(Common.rcond, 1e-06)) ;
-    expect(297, closeTo(Common.flops, 1e-03)) ;
+    expect(100, equals(A.m));
+    expect(100, equals(A.n));
+    expect(298, equals(A.p[A.m]));
+    expect(298, equals(lunz[0]));
+    expect(1.77636e-15, closeTo(rnorm[0], 1e-18));
+    expect(0.0204082, closeTo(Common.rgrowth, 1e-06));
+    expect(303, closeTo(Common.condest, 1e-03));
+    expect(0.0204082, closeTo(Common.rcond, 1e-06));
+    expect(297, closeTo(Common.flops, 1e-03));
   });
 
   /**
@@ -412,19 +334,19 @@ main() {
     Int32List lunz = new Int32List(1);
     Float64List rnorm = new Float64List(1);
 
-    final file = get_file (WEST0156) ;
-    Dproblem prob = get_problem (file, 0.0, 1) ;
-    Dcs A = prob.A ;
-    demo (A.m, A.p, A.i, A.x, true, lunz, rnorm, Common) ;
+    final file = get_file(WEST0156);
+    Dproblem prob = get_problem(file, 0.0, 1);
+    Dcs A = prob.A;
+    demo(A.m, A.p, A.i, A.x, true, lunz, rnorm, Common);
 
-    expect(156, equals(A.m)) ;
-    expect(156, equals(A.n)) ;
-    expect(371, equals(A.p[A.m])) ;
-    expect(406, equals(lunz[0])) ;
-    expect(1.04858e+06, closeTo(rnorm[0], 1e+02)) ;
-    expect(0.0306751, closeTo(Common.rgrowth, 1e-06)) ;
-    expect(1.64225e+31, closeTo(Common.condest, 1e+26)) ;
-    expect(9.48528e-08, closeTo(Common.rcond, 1e-12)) ;
-    expect(188, closeTo(Common.flops, 1e-03)) ;
+    expect(156, equals(A.m));
+    expect(156, equals(A.n));
+    expect(371, equals(A.p[A.m]));
+    expect(406, equals(lunz[0]));
+    expect(1.04858e+06, closeTo(rnorm[0], 1e+02));
+    expect(0.0306751, closeTo(Common.rgrowth, 1e-06));
+    expect(1.64225e+31, closeTo(Common.condest, 1e+26));
+    expect(9.48528e-08, closeTo(Common.rcond, 1e-12));
+    expect(188, closeTo(Common.flops, 1e-03));
   });
 }

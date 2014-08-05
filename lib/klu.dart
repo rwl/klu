@@ -22,37 +22,6 @@
  *
  */
 
-library edu.ufl.cise.klu.tdouble;
-
-import 'dart:typed_data';
-
-//import edu.ufl.cise.klu.common.KLU_common;
-import './common/common.dart';
-
-import 'package:btf/btf.dart' as btf;
-import 'package:colamd/colamd.dart' as colamd;
-import 'package:amd/amd.dart' as amd;
-
-//import static edu.ufl.cise.klu.tdouble.Dklu_memory.klu_malloc_dbl;
-//import static edu.ufl.cise.klu.tdouble.Dklu_kernel.klu_kernel;
-
-part 'analyze.dart';
-part 'analyze_given.dart';
-part 'defaults.dart';
-part 'diagnostics.dart';
-part 'dump.dart';
-part 'extract.dart';
-part 'factor.dart';
-part 'internal.dart';
-part 'kernel.dart';
-part 'memory.dart';
-part 'refactor.dart';
-part 'scale.dart';
-part 'solve.dart';
-part 'sort.dart';
-part 'tsolve.dart';
-part 'version.dart';
-
 /**
  * KLU: factorizes P*A into L*U, using the Gilbert-Peierls algorithm[1], with
  * optional symmetric pruning by Eisenstat and Liu[2].  The code is by Tim
@@ -100,14 +69,39 @@ part 'version.dart';
  * permutation.  If Q is null, then it is assumed to be the identity
  * permutation.  Q is not modified.
  *
- *[1] Gilbert, J. R. and Peierls, T., "Sparse Partial Pivoting in Time
- *      Proportional to Arithmetic Operations," SIAM J. Sci. Stat. Comp.,
- *      vol 9, pp.  862-874, 1988.
- *[2] Eisenstat, S. C. and Liu, J. W. H., "Exploiting Structural Symmetry in
- *      Unsymmetric Sparse Symbolic Factorization," SIAM J. Matrix Analysis &
- *      Applic., vol 13, pp.  202-211, 1992.
+ * 1. Gilbert, J. R. and Peierls, T., "Sparse Partial Pivoting in Time
+ *    Proportional to Arithmetic Operations," SIAM J. Sci. Stat. Comp.,
+ *    vol 9, pp.  862-874, 1988.
+ * 2. Eisenstat, S. C. and Liu, J. W. H., "Exploiting Structural Symmetry in
+ *    Unsymmetric Sparse Symbolic Factorization," SIAM J. Matrix Analysis &
+ *    Applic., vol 13, pp.  202-211, 1992.
  */
-//public class Dklu extends Dklu_internal {
+library edu.ufl.cise.klu.tdouble;
+
+import 'dart:typed_data';
+
+import './common/common.dart';
+
+import 'package:btf/btf.dart' as btf;
+import 'package:colamd/colamd.dart' as colamd;
+import 'package:amd/amd.dart' as amd;
+
+part 'analyze.dart';
+part 'analyze_given.dart';
+part 'defaults.dart';
+part 'diagnostics.dart';
+part 'dump.dart';
+part 'extract.dart';
+part 'factor.dart';
+part 'internal.dart';
+part 'kernel.dart';
+part 'memory.dart';
+part 'refactor.dart';
+part 'scale.dart';
+part 'solve.dart';
+part 'sort.dart';
+part 'tsolve.dart';
+part 'version.dart';
 
 /**
  *
@@ -137,115 +131,98 @@ part 'version.dart';
  * @param Common
  * @return
  */
-int kernel_factor(int n, Int32List Ap, Int32List Ai,
-		Float64List Ax, Int32List Q, double Lsize,
-		List<Float64List> p_LU, int block,
-		Float64List Udiag, int Udiag_offset, Int32List Llen, int Llen_offset,
-		Int32List Ulen, int Ulen_offset, Int32List Lip, int Lip_offset,
-		Int32List Uip, int Uip_offset, Int32List P, Int32List lnz, Int32List unz,
-		Float64List X, Int32List Work, int k1, Int32List PSinv, Float64List Rs,
-		Int32List Offp, Int32List Offi, Float64List Offx, KLU_common Common)
-{
-	double maxlnz, dunits ;
-	List<Float64List> LU = new List<Float64List>(1);//[] ;
-	Int32List Pinv, Lpend, Stack, Flag, Ap_pos ;
-	int lsize, usize, anz, ok ;
-	int lusize ;
-	ASSERT (Common != null) ;
+int kernel_factor(int n, Int32List Ap, Int32List Ai, Float64List Ax, Int32List Q, double Lsize, List<Float64List> p_LU, int block, Float64List Udiag, int Udiag_offset, Int32List Llen, int Llen_offset, Int32List Ulen, int Ulen_offset, Int32List Lip, int Lip_offset, Int32List Uip, int Uip_offset, Int32List P, Int32List lnz, Int32List unz, Float64List X, Int32List Work, int k1, Int32List PSinv, Float64List Rs, Int32List Offp, Int32List Offi, Float64List Offx, KLU_common Common) {
+  double maxlnz, dunits;
+  List<Float64List> LU = new List<Float64List>(1);//[] ;
+  Int32List Pinv, Lpend, Stack, Flag, Ap_pos;
+  int lsize, usize, anz, ok;
+  int lusize;
+  ASSERT(Common != null);
 
-	/* ---------------------------------------------------------------------- */
-	/* get control parameters, or use defaults */
-	/* ---------------------------------------------------------------------- */
+  /* ---------------------------------------------------------------------- */
+  /* get control parameters, or use defaults */
+  /* ---------------------------------------------------------------------- */
 
-	n = MAX (1, n) ;
-	anz = Ap [n+k1] - Ap [k1] ;
+  n = MAX(1, n);
+  anz = Ap[n + k1] - Ap[k1];
 
-	if (Lsize <= 0)
-	{
-		Lsize = -Lsize ;
-		Lsize = MAX (Lsize, 1.0) ;
-		lsize = (Lsize * anz + n).toInt() ;
-	}
-	else
-	{
-		lsize = Lsize.toInt() ;
-	}
+  if (Lsize <= 0) {
+    Lsize = -Lsize;
+    Lsize = MAX(Lsize, 1.0);
+    lsize = (Lsize * anz + n).toInt();
+  } else {
+    lsize = Lsize.toInt();
+  }
 
-	usize = lsize ;
+  usize = lsize;
 
-	lsize  = MAX (n+1, lsize) ;
-	usize  = MAX (n+1, usize) ;
+  lsize = MAX(n + 1, lsize);
+  usize = MAX(n + 1, usize);
 
-	maxlnz = ((n) * (n) + (n)) / 2.0 ;
-	maxlnz = MIN (maxlnz, (INT_MAX)) ;
-	lsize  = MIN (maxlnz.toInt(), lsize) ;
-	usize  = MIN (maxlnz.toInt(), usize) ;
+  maxlnz = ((n) * (n) + (n)) / 2.0;
+  maxlnz = MIN(maxlnz, (INT_MAX));
+  lsize = MIN(maxlnz.toInt(), lsize);
+  usize = MIN(maxlnz.toInt(), usize);
 
-	PRINTF ("Welcome to klu: n $n anz $anz k1 $k1 lsize $lsize usize $usize maxlnz $maxlnz\n") ;
+  PRINTF("Welcome to klu: n $n anz $anz k1 $k1 lsize $lsize usize $usize maxlnz $maxlnz\n");
 
-	/* ---------------------------------------------------------------------- */
-	/* allocate workspace and outputs */
-	/* ---------------------------------------------------------------------- */
+  /* ---------------------------------------------------------------------- */
+  /* allocate workspace and outputs */
+  /* ---------------------------------------------------------------------- */
 
-	/* return arguments are not yet assigned */
-	p_LU [block] = null ;
+  /* return arguments are not yet assigned */
+  p_LU[block] = null;
 
-	/* these computations are safe from int overflow */
-	//W = Work ;
-	//Pinv = W ;      //W += n ;
-	//int Pinv_offset = n ;
-	Pinv = new Int32List(n) ;
-	//Stack = W ;     //W += n ;
-	//int Stack_offset = 2*n ;
-	Stack = new Int32List(n) ;
-	//Flag = W ;      //W += n ;
-	//int Flag_offset = 3*n ;
-	Flag = new Int32List(n) ;
-	//Lpend = W ;     //W += n ;
-	//int Lpend_offset = 4*n ;
-	Lpend = new Int32List(n) ;
-	//Ap_pos = W ;    //W += n ;
-	//int Ap_pos_offset = 5*n ;
-	Ap_pos = new Int32List(n) ;
+  /* these computations are safe from int overflow */
+  //W = Work ;
+  //Pinv = W ;      //W += n ;
+  //int Pinv_offset = n ;
+  Pinv = new Int32List(n);
+  //Stack = W ;     //W += n ;
+  //int Stack_offset = 2*n ;
+  Stack = new Int32List(n);
+  //Flag = W ;      //W += n ;
+  //int Flag_offset = 3*n ;
+  Flag = new Int32List(n);
+  //Lpend = W ;     //W += n ;
+  //int Lpend_offset = 4*n ;
+  Lpend = new Int32List(n);
+  //Ap_pos = W ;    //W += n ;
+  //int Ap_pos_offset = 5*n ;
+  Ap_pos = new Int32List(n);
 
-	//dunits = DUNITS (Integer, lsize) + DUNITS (Double, lsize) +
-	//		 DUNITS (Integer, usize) + DUNITS (Double, usize) ;
-	dunits = (lsize + lsize + usize + usize).toDouble() ;
-	lusize = dunits.toInt() ;
-	ok = INT_OVERFLOW (dunits) ? FALSE : TRUE ;
-	LU [0] = ok != 0 ? malloc_dbl (lusize, Common) : null ;
-	if (LU [0] == null)
-	{
-		/* out of memory, or problem too large */
-		Common.status = KLU_OUT_OF_MEMORY ;
-		lusize = 0 ;
-		return (lusize) ;
-	}
+  //dunits = DUNITS (Integer, lsize) + DUNITS (Double, lsize) +
+  //		 DUNITS (Integer, usize) + DUNITS (Double, usize) ;
+  dunits = (lsize + lsize + usize + usize).toDouble();
+  lusize = dunits.toInt();
+  ok = INT_OVERFLOW(dunits) ? FALSE : TRUE;
+  LU[0] = ok != 0 ? malloc_dbl(lusize, Common) : null;
+  if (LU[0] == null) {
+    /* out of memory, or problem too large */
+    Common.status = KLU_OUT_OF_MEMORY;
+    lusize = 0;
+    return (lusize);
+  }
 
-	/* ---------------------------------------------------------------------- */
-	/* factorize */
-	/* ---------------------------------------------------------------------- */
+  /* ---------------------------------------------------------------------- */
+  /* factorize */
+  /* ---------------------------------------------------------------------- */
 
-	/* with pruning, and non-recursive depth-first-search */
-	lusize = kernel (n, Ap, Ai, Ax, Q, lusize,
-			Pinv, P, LU, Udiag, Udiag_offset, Llen, Llen_offset,
-			Ulen, Ulen_offset, Lip, Lip_offset, Uip, Uip_offset,
-			lnz, unz, X, Stack, Flag, Ap_pos, Lpend,
-			k1, PSinv, Rs, Offp, Offi, Offx, Common) ;
+  /* with pruning, and non-recursive depth-first-search */
+  lusize = _kernel(n, Ap, Ai, Ax, Q, lusize, Pinv, P, LU, Udiag, Udiag_offset, Llen, Llen_offset, Ulen, Ulen_offset, Lip, Lip_offset, Uip, Uip_offset, lnz, unz, X, Stack, Flag, Ap_pos, Lpend, k1, PSinv, Rs, Offp, Offi, Offx, Common);
 
-	/* ---------------------------------------------------------------------- */
-	/* return LU factors, or return nothing if an error occurred */
-	/* ---------------------------------------------------------------------- */
+  /* ---------------------------------------------------------------------- */
+  /* return LU factors, or return nothing if an error occurred */
+  /* ---------------------------------------------------------------------- */
 
-	if (Common.status < KLU_OK)
-	{
-		//LU = KLU_free (LU, lusize, sizeof (double), Common) ;
-		LU [0] = null ;
-		lusize = 0 ;
-	}
-	p_LU [block] = LU [0] ;
-	PRINTF (" in klu noffdiag ${Common.noffdiag}\n") ;
-	return (lusize) ;
+  if (Common.status < KLU_OK) {
+    //LU = KLU_free (LU, lusize, sizeof (double), Common) ;
+    LU[0] = null;
+    lusize = 0;
+  }
+  p_LU[block] = LU[0];
+  PRINTF(" in klu noffdiag ${Common.noffdiag}\n");
+  return (lusize);
 }
 
 /**
@@ -261,103 +238,91 @@ int kernel_factor(int n, Int32List Ap, Int32List Ai,
  * @param nrhs
  * @param X right-hand-side on input, solution to Lx=b on output
  */
-void lsolve(int n, Int32List Lip, int Lip_offset,
-		Int32List Llen, int Llen_offset, Float64List LU, int nrhs,
-		Float64List X, int X_offset)
-{
-	Float64List x = new Float64List(4) ;
-	double lik ;
-	/*Int32List*/Float64List Li ;
-	Float64List Lx ;
-	int k, p, i ;
-	Int32List len = new Int32List(1) ;
-	Int32List Li_offset = new Int32List(1) ;
-	Int32List Lx_offset = new Int32List(1) ;
+void lsolve(int n, Int32List Lip, int Lip_offset, Int32List Llen, int Llen_offset, Float64List LU, int nrhs, Float64List X, int X_offset) {
+  Float64List x = new Float64List(4);
+  double lik;
+  /*Int32List*/Float64List Li;
+  Float64List Lx;
+  int k, p, i;
+  Int32List len = new Int32List(1);
+  Int32List Li_offset = new Int32List(1);
+  Int32List Lx_offset = new Int32List(1);
 
-	switch (nrhs)
-	{
+  switch (nrhs) {
 
-		case 1:
-			for (k = 0 ; k < n ; k++)
-			{
-				x [0] = X [X_offset + k] ;
-				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
-				/* unit diagonal of L is not stored*/
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					//MULT_SUB (X [Li [p]], Lx [p], x [0]) ;
-					X [X_offset + (Li [Li_offset[0] + p]).toInt()] -= Lx [Lx_offset[0] + p] * x [0] ;
-				}
-			}
-			break ;
+    case 1:
+      for (k = 0; k < n; k++) {
+        x[0] = X[X_offset + k];
+        Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len);
+        /* unit diagonal of L is not stored*/
+        for (p = 0; p < len[0]; p++) {
+          //MULT_SUB (X [Li [p]], Lx [p], x [0]) ;
+          X[X_offset + (Li[Li_offset[0] + p]).toInt()] -= Lx[Lx_offset[0] + p] * x[0];
+        }
+      }
+      break;
 
-		case 2:
+    case 2:
 
-			for (k = 0 ; k < n ; k++)
-			{
-				x [0] = X [X_offset + 2*k    ] ;
-				x [1] = X [X_offset + 2*k + 1] ;
-				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = (Li [Li_offset[0] + p]).toInt() ;
-					lik = Lx [Lx_offset[0] + p] ;
-					//MULT_SUB (X [2*i], lik, x [0]) ;
-					X [X_offset + 2*i] -= lik * x [0] ;
-					//MULT_SUB (X [2*i + 1], lik, x [1]) ;
-					X [X_offset + 2*i + 1] -= lik * x [1] ;
-				}
-			}
-			break ;
+      for (k = 0; k < n; k++) {
+        x[0] = X[X_offset + 2 * k];
+        x[1] = X[X_offset + 2 * k + 1];
+        Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len);
+        for (p = 0; p < len[0]; p++) {
+          i = (Li[Li_offset[0] + p]).toInt();
+          lik = Lx[Lx_offset[0] + p];
+          //MULT_SUB (X [2*i], lik, x [0]) ;
+          X[X_offset + 2 * i] -= lik * x[0];
+          //MULT_SUB (X [2*i + 1], lik, x [1]) ;
+          X[X_offset + 2 * i + 1] -= lik * x[1];
+        }
+      }
+      break;
 
-		case 3:
+    case 3:
 
-			for (k = 0 ; k < n ; k++)
-			{
-				x [0] = X [X_offset + 3*k    ] ;
-				x [1] = X [X_offset + 3*k + 1] ;
-				x [2] = X [X_offset + 3*k + 2] ;
-				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = (Li [Li_offset[0] + p]).toInt() ;
-					lik = Lx [Lx_offset[0] + p] ;
-					//MULT_SUB (X [3*i], lik, x [0]) ;
-					X [X_offset + 3*i] -= lik * x [0] ;
-					//MULT_SUB (X [3*i + 1], lik, x [1]) ;
-					X [X_offset + 3*i + 1] -= lik * x [1] ;
-					//MULT_SUB (X [3*i + 2], lik, x [2]) ;
-					X [X_offset + 3*i + 2] -= lik * x [2] ;
-				}
-			}
-			break ;
+      for (k = 0; k < n; k++) {
+        x[0] = X[X_offset + 3 * k];
+        x[1] = X[X_offset + 3 * k + 1];
+        x[2] = X[X_offset + 3 * k + 2];
+        Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len);
+        for (p = 0; p < len[0]; p++) {
+          i = (Li[Li_offset[0] + p]).toInt();
+          lik = Lx[Lx_offset[0] + p];
+          //MULT_SUB (X [3*i], lik, x [0]) ;
+          X[X_offset + 3 * i] -= lik * x[0];
+          //MULT_SUB (X [3*i + 1], lik, x [1]) ;
+          X[X_offset + 3 * i + 1] -= lik * x[1];
+          //MULT_SUB (X [3*i + 2], lik, x [2]) ;
+          X[X_offset + 3 * i + 2] -= lik * x[2];
+        }
+      }
+      break;
 
-		case 4:
+    case 4:
 
-			for (k = 0 ; k < n ; k++)
-			{
-				x [0] = X [X_offset + 4*k    ] ;
-				x [1] = X [X_offset + 4*k + 1] ;
-				x [2] = X [X_offset + 4*k + 2] ;
-				x [3] = X [X_offset + 4*k + 3] ;
-				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = (Li [Li_offset[0] + p]).toInt() ;
-					lik = Lx [Lx_offset[0] + p] ;
-					//MULT_SUB (X [4*i], lik, x [0]) ;
-					X [X_offset + 4*i] -= lik * x [0] ;
-					//MULT_SUB (X [4*i + 1], lik, x [1]) ;
-					X [X_offset + 4*i + 1] -= lik * x [1] ;
-					//MULT_SUB (X [4*i + 2], lik, x [2]) ;
-					X [X_offset + 4*i + 2] -= lik * x [2] ;
-					//MULT_SUB (X [4*i + 3], lik, x [3]) ;
-					X [X_offset + 4*i + 3] -= lik * x [3] ;
-				}
-			}
-			break ;
+      for (k = 0; k < n; k++) {
+        x[0] = X[X_offset + 4 * k];
+        x[1] = X[X_offset + 4 * k + 1];
+        x[2] = X[X_offset + 4 * k + 2];
+        x[3] = X[X_offset + 4 * k + 3];
+        Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len);
+        for (p = 0; p < len[0]; p++) {
+          i = (Li[Li_offset[0] + p]).toInt();
+          lik = Lx[Lx_offset[0] + p];
+          //MULT_SUB (X [4*i], lik, x [0]) ;
+          X[X_offset + 4 * i] -= lik * x[0];
+          //MULT_SUB (X [4*i + 1], lik, x [1]) ;
+          X[X_offset + 4 * i + 1] -= lik * x[1];
+          //MULT_SUB (X [4*i + 2], lik, x [2]) ;
+          X[X_offset + 4 * i + 2] -= lik * x[2];
+          //MULT_SUB (X [4*i + 3], lik, x [3]) ;
+          X[X_offset + 4 * i + 3] -= lik * x[3];
+        }
+      }
+      break;
 
-	}
+  }
 }
 
 /**
@@ -374,142 +339,125 @@ void lsolve(int n, Int32List Lip, int Lip_offset,
  * @param nrhs
  * @param X right-hand-side on input, solution to Ux=b on output
  */
-void usolve(int n, Int32List Uip, int Uip_offset,
-		Int32List Ulen, int Ulen_offset, Float64List LU,
-		Float64List Udiag, int Udiag_offset, int nrhs,
-		Float64List X, int X_offset)
-{
-	Float64List x = new Float64List(4) ;
-	double uik, ukk ;
-	/*Int32List*/Float64List Ui ;
-	Float64List Ux ;
-	int k, p, i ;
-	Int32List len = new Int32List(1) ;
-	Int32List Ui_offset = new Int32List(1) ;
-	Int32List Ux_offset = new Int32List(1) ;
+void usolve(int n, Int32List Uip, int Uip_offset, Int32List Ulen, int Ulen_offset, Float64List LU, Float64List Udiag, int Udiag_offset, int nrhs, Float64List X, int X_offset) {
+  Float64List x = new Float64List(4);
+  double uik, ukk;
+  /*Int32List*/Float64List Ui;
+  Float64List Ux;
+  int k, p, i;
+  Int32List len = new Int32List(1);
+  Int32List Ui_offset = new Int32List(1);
+  Int32List Ux_offset = new Int32List(1);
 
-	switch (nrhs)
-	{
+  switch (nrhs) {
 
-		case 1:
+    case 1:
 
-			for (k = n-1 ; k >= 0 ; k--)
-			{
-				Ui = Ux = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset,
-						Ui_offset, Ux_offset, k, len) ;
-				//DIV (x [0], X [k], Udiag [k]) ;
-				x [0] = X [X_offset + k] / Udiag [Udiag_offset + k] ;
-				X [X_offset + k] = x [0] ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					//MULT_SUB (X [Ui [p]], Ux [p], x [0]) ;
-					X [X_offset + (Ui [Ui_offset[0] + p]).toInt()] -= Ux [Ux_offset[0] + p] * x [0] ;
+      for (k = n - 1; k >= 0; k--) {
+        Ui = Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len);
+        //DIV (x [0], X [k], Udiag [k]) ;
+        x[0] = X[X_offset + k] / Udiag[Udiag_offset + k];
+        X[X_offset + k] = x[0];
+        for (p = 0; p < len[0]; p++) {
+          //MULT_SUB (X [Ui [p]], Ux [p], x [0]) ;
+          X[X_offset + (Ui[Ui_offset[0] + p]).toInt()] -= Ux[Ux_offset[0] + p] * x[0];
 
-				}
-			}
+        }
+      }
 
-			break ;
+      break;
 
-		case 2:
+    case 2:
 
-			for (k = n-1 ; k >= 0 ; k--)
-			{
-				Ui = Ux = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset,
-						Ui_offset, Ux_offset, k, len) ;
-				ukk = Udiag [Udiag_offset + k] ;
-				//DIV (x [0], X [2*k], ukk) ;
-				x [0] = X [X_offset + 2*k    ] / ukk ;
-				//DIV (x [1], X [2*k + 1], ukk) ;
-				x [1] = X [X_offset + 2*k + 1] / ukk ;
+      for (k = n - 1; k >= 0; k--) {
+        Ui = Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len);
+        ukk = Udiag[Udiag_offset + k];
+        //DIV (x [0], X [2*k], ukk) ;
+        x[0] = X[X_offset + 2 * k] / ukk;
+        //DIV (x [1], X [2*k + 1], ukk) ;
+        x[1] = X[X_offset + 2 * k + 1] / ukk;
 
-				X [X_offset + 2*k    ] = x [0] ;
-				X [X_offset + 2*k + 1] = x [1] ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = Ui [Ui_offset[0] + p].toInt() ;
-					uik = Ux [Ux_offset[0] + p] ;
-					//MULT_SUB (X [2*i], uik, x [0]) ;
-					X [X_offset + 2*i    ] -= uik * x [0] ;
-					//MULT_SUB (X [2*i + 1], uik, x [1]) ;
-					X [X_offset + 2*i + 1] -= uik * x [1] ;
-				}
-			}
+        X[X_offset + 2 * k] = x[0];
+        X[X_offset + 2 * k + 1] = x[1];
+        for (p = 0; p < len[0]; p++) {
+          i = Ui[Ui_offset[0] + p].toInt();
+          uik = Ux[Ux_offset[0] + p];
+          //MULT_SUB (X [2*i], uik, x [0]) ;
+          X[X_offset + 2 * i] -= uik * x[0];
+          //MULT_SUB (X [2*i + 1], uik, x [1]) ;
+          X[X_offset + 2 * i + 1] -= uik * x[1];
+        }
+      }
 
-			break ;
+      break;
 
-		case 3:
+    case 3:
 
-			for (k = n-1 ; k >= 0 ; k--)
-			{
-				Ui = Ux = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset,
-						Ui_offset, Ux_offset, k, len) ;
-				ukk = Udiag [Udiag_offset + k] ;
+      for (k = n - 1; k >= 0; k--) {
+        Ui = Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len);
+        ukk = Udiag[Udiag_offset + k];
 
-				//DIV (x [0], X [3*k], ukk) ;
-				x [0] = X [X_offset + 3*k] / ukk ;
-				//DIV (x [1], X [3*k + 1], ukk) ;
-				x [1] = X [X_offset + 3*k + 1] / ukk ;
-				//DIV (x [2], X [3*k + 2], ukk) ;
-				x [2] = X [X_offset + 3*k + 2] / ukk ;
+        //DIV (x [0], X [3*k], ukk) ;
+        x[0] = X[X_offset + 3 * k] / ukk;
+        //DIV (x [1], X [3*k + 1], ukk) ;
+        x[1] = X[X_offset + 3 * k + 1] / ukk;
+        //DIV (x [2], X [3*k + 2], ukk) ;
+        x[2] = X[X_offset + 3 * k + 2] / ukk;
 
-				X [3*k    ] = x [0] ;
-				X [3*k + 1] = x [1] ;
-				X [3*k + 2] = x [2] ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = Ui [Ui_offset[0] + p].toInt() ;
-					uik = Ux [Ux_offset[0] + p] ;
-					//MULT_SUB (X [3*i], uik, x [0]) ;
-					X [X_offset + 3*i] -= uik * x [0] ;
-					//MULT_SUB (X [3*i + 1], uik, x [1]) ;
-					X [X_offset + 3*i + 1] -= uik * x [1] ;
-					//MULT_SUB (X [3*i + 2], uik, x [2]) ;
-					X [X_offset + 3*i + 2] -= uik * x [2] ;
-				}
-			}
+        X[3 * k] = x[0];
+        X[3 * k + 1] = x[1];
+        X[3 * k + 2] = x[2];
+        for (p = 0; p < len[0]; p++) {
+          i = Ui[Ui_offset[0] + p].toInt();
+          uik = Ux[Ux_offset[0] + p];
+          //MULT_SUB (X [3*i], uik, x [0]) ;
+          X[X_offset + 3 * i] -= uik * x[0];
+          //MULT_SUB (X [3*i + 1], uik, x [1]) ;
+          X[X_offset + 3 * i + 1] -= uik * x[1];
+          //MULT_SUB (X [3*i + 2], uik, x [2]) ;
+          X[X_offset + 3 * i + 2] -= uik * x[2];
+        }
+      }
 
-			break ;
+      break;
 
-		case 4:
+    case 4:
 
-			for (k = n-1 ; k >= 0 ; k--)
-			{
-				Ui = Ux = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset,
-						Ui_offset, Ux_offset, k, len) ;
-				ukk = Udiag [Udiag_offset + k] ;
+      for (k = n - 1; k >= 0; k--) {
+        Ui = Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len);
+        ukk = Udiag[Udiag_offset + k];
 
-				//DIV (x [0], X [4*k], ukk) ;
-				x [0] = X [X_offset + 4*k] / ukk ;
-				//DIV (x [1], X [4*k + 1], ukk) ;
-				x [1] = X [X_offset + 4*k + 1] / ukk ;
-				//DIV (x [2], X [4*k + 2], ukk) ;
-				x [2] = X [X_offset + 4*k + 2] / ukk ;
-				//DIV (x [3], X [4*k + 3], ukk) ;
-				x [3] = X [X_offset + 4*k + 3] / ukk ;
+        //DIV (x [0], X [4*k], ukk) ;
+        x[0] = X[X_offset + 4 * k] / ukk;
+        //DIV (x [1], X [4*k + 1], ukk) ;
+        x[1] = X[X_offset + 4 * k + 1] / ukk;
+        //DIV (x [2], X [4*k + 2], ukk) ;
+        x[2] = X[X_offset + 4 * k + 2] / ukk;
+        //DIV (x [3], X [4*k + 3], ukk) ;
+        x[3] = X[X_offset + 4 * k + 3] / ukk;
 
-				X [X_offset + 4*k    ] = x [0] ;
-				X [X_offset + 4*k + 1] = x [1] ;
-				X [X_offset + 4*k + 2] = x [2] ;
-				X [X_offset + 4*k + 3] = x [3] ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = Ui [Ui_offset[0] + p].toInt() ;
-					uik = Ux [Ux_offset[0] + p] ;
+        X[X_offset + 4 * k] = x[0];
+        X[X_offset + 4 * k + 1] = x[1];
+        X[X_offset + 4 * k + 2] = x[2];
+        X[X_offset + 4 * k + 3] = x[3];
+        for (p = 0; p < len[0]; p++) {
+          i = Ui[Ui_offset[0] + p].toInt();
+          uik = Ux[Ux_offset[0] + p];
 
-					//MULT_SUB (X [4*i], uik, x [0]) ;
-					X [X_offset + 4*i] -= uik * x [0] ;
-					//MULT_SUB (X [4*i + 1], uik, x [1]) ;
-					X [X_offset + 4*i + 1] -= uik * x [1] ;
-					//MULT_SUB (X [4*i + 2], uik, x [2]) ;
-					X [X_offset + 4*i + 2] -= uik * x [2] ;
-					//MULT_SUB (X [4*i + 3], uik, x [3]) ;
-					X [X_offset + 4*i + 3] -= uik * x [3] ;
-				}
-			}
+          //MULT_SUB (X [4*i], uik, x [0]) ;
+          X[X_offset + 4 * i] -= uik * x[0];
+          //MULT_SUB (X [4*i + 1], uik, x [1]) ;
+          X[X_offset + 4 * i + 1] -= uik * x[1];
+          //MULT_SUB (X [4*i + 2], uik, x [2]) ;
+          X[X_offset + 4 * i + 2] -= uik * x[2];
+          //MULT_SUB (X [4*i + 3], uik, x [3]) ;
+          X[X_offset + 4 * i + 3] -= uik * x[3];
+        }
+      }
 
-			break ;
+      break;
 
-	}
+  }
 }
 
 /**
@@ -525,119 +473,108 @@ void usolve(int n, Int32List Uip, int Uip_offset,
  * @param nrhs
  * @param X right-hand-side on input, solution to L'x=b on output
  */
-void ltsolve(int n, Int32List Lip, int Lip_offset, Int32List Llen, int Llen_offset,
-		Float64List LU, int nrhs, Float64List X, int X_offset)
-{
-	Float64List x = new Float64List(4) ;
-	double lik ;
-	/*Int32List*/Float64List Li ;
-	Float64List Lx ;
-	int k, p, i ;
-	Int32List len = new Int32List(1) ;
-	Int32List Li_offset = new Int32List(1) ;
-	Int32List Lx_offset = new Int32List(1) ;
+void ltsolve(int n, Int32List Lip, int Lip_offset, Int32List Llen, int Llen_offset, Float64List LU, int nrhs, Float64List X, int X_offset) {
+  Float64List x = new Float64List(4);
+  double lik;
+  /*Int32List*/Float64List Li;
+  Float64List Lx;
+  int k, p, i;
+  Int32List len = new Int32List(1);
+  Int32List Li_offset = new Int32List(1);
+  Int32List Lx_offset = new Int32List(1);
 
-	switch (nrhs)
-	{
+  switch (nrhs) {
 
-		case 1:
+    case 1:
 
-			for (k = n-1 ; k >= 0 ; k--)
-			{
-				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
-				x [0] = X [X_offset + k] ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					{
-						//MULT_SUB (x [0], Lx [p], X [Li [p]]) ;
-						x [0] -= Lx [Lx_offset[0] + p] * X [X_offset + Li [Li_offset[0] + p].toInt()] ;
-					}
-				}
-				X [X_offset + k] = x [0] ;
-			}
-			break ;
+      for (k = n - 1; k >= 0; k--) {
+        Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len);
+        x[0] = X[X_offset + k];
+        for (p = 0; p < len[0]; p++) {
+          {
+            //MULT_SUB (x [0], Lx [p], X [Li [p]]) ;
+            x[0] -= Lx[Lx_offset[0] + p] * X[X_offset + Li[Li_offset[0] + p].toInt()];
+          }
+        }
+        X[X_offset + k] = x[0];
+      }
+      break;
 
-		case 2:
+    case 2:
 
-			for (k = n-1 ; k >= 0 ; k--)
-			{
-				x [0] = X [X_offset + 2*k    ] ;
-				x [1] = X [X_offset + 2*k + 1] ;
-				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = Li [Li_offset[0] + p].toInt() ;
-					{
-						lik = Lx [Lx_offset[0] + p] ;
-					}
-					//MULT_SUB (x [0], lik, X [2*i]) ;
-					x [0] -= lik * X [X_offset + 2*i] ;
-					//MULT_SUB (x [1], lik, X [2*i + 1]) ;
-					x [1] -= lik * X [X_offset + 2*i + 1] ;
-				}
-				X [X_offset + 2*k    ] = x [0] ;
-				X [X_offset + 2*k + 1] = x [1] ;
-			}
-			break ;
+      for (k = n - 1; k >= 0; k--) {
+        x[0] = X[X_offset + 2 * k];
+        x[1] = X[X_offset + 2 * k + 1];
+        Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len);
+        for (p = 0; p < len[0]; p++) {
+          i = Li[Li_offset[0] + p].toInt();
+          {
+            lik = Lx[Lx_offset[0] + p];
+          }
+          //MULT_SUB (x [0], lik, X [2*i]) ;
+          x[0] -= lik * X[X_offset + 2 * i];
+          //MULT_SUB (x [1], lik, X [2*i + 1]) ;
+          x[1] -= lik * X[X_offset + 2 * i + 1];
+        }
+        X[X_offset + 2 * k] = x[0];
+        X[X_offset + 2 * k + 1] = x[1];
+      }
+      break;
 
-		case 3:
+    case 3:
 
-			for (k = n-1 ; k >= 0 ; k--)
-			{
-				x [0] = X [X_offset + 3*k    ] ;
-				x [1] = X [X_offset + 3*k + 1] ;
-				x [2] = X [X_offset + 3*k + 2] ;
-				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = Li [Li_offset[0] + p].toInt() ;
-					{
-						lik = Lx [Lx_offset[0] + p] ;
-					}
-					//MULT_SUB (x [0], lik, X [3*i]) ;
-					x [0] -= lik * X [X_offset + 3*i] ;
-					//MULT_SUB (x [1], lik, X [3*i + 1]) ;
-					x [1] -= lik * X [X_offset + 3*i + 1] ;
-					//MULT_SUB (x [2], lik, X [3*i + 2]) ;
-					x [2] -= lik * X [X_offset + 3*i + 2] ;
-				}
-				X [X_offset + 3*k    ] = x [0] ;
-				X [X_offset + 3*k + 1] = x [1] ;
-				X [X_offset + 3*k + 2] = x [2] ;
-			}
-			break ;
+      for (k = n - 1; k >= 0; k--) {
+        x[0] = X[X_offset + 3 * k];
+        x[1] = X[X_offset + 3 * k + 1];
+        x[2] = X[X_offset + 3 * k + 2];
+        Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len);
+        for (p = 0; p < len[0]; p++) {
+          i = Li[Li_offset[0] + p].toInt();
+          {
+            lik = Lx[Lx_offset[0] + p];
+          }
+          //MULT_SUB (x [0], lik, X [3*i]) ;
+          x[0] -= lik * X[X_offset + 3 * i];
+          //MULT_SUB (x [1], lik, X [3*i + 1]) ;
+          x[1] -= lik * X[X_offset + 3 * i + 1];
+          //MULT_SUB (x [2], lik, X [3*i + 2]) ;
+          x[2] -= lik * X[X_offset + 3 * i + 2];
+        }
+        X[X_offset + 3 * k] = x[0];
+        X[X_offset + 3 * k + 1] = x[1];
+        X[X_offset + 3 * k + 2] = x[2];
+      }
+      break;
 
-		case 4:
+    case 4:
 
-			for (k = n-1 ; k >= 0 ; k--)
-			{
-				x [0] = X [X_offset + 4*k    ] ;
-				x [1] = X [X_offset + 4*k + 1] ;
-				x [2] = X [X_offset + 4*k + 2] ;
-				x [3] = X [X_offset + 4*k + 3] ;
-				Li = Lx = GET_POINTER (LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len) ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = Li [Li_offset[0] + p].toInt() ;
-					{
-						lik = Lx [Lx_offset[0] + p] ;
-					}
-					//MULT_SUB (x [0], lik, X [4*i]) ;
-					x [0] -= lik * X [X_offset + 4*i] ;
-					//MULT_SUB (x [1], lik, X [4*i + 1]) ;
-					x [1] -= lik * X [X_offset + 4*i + 1] ;
-					//MULT_SUB (x [2], lik, X [4*i + 2]) ;
-					x [2] -= lik * X [X_offset + 4*i + 2] ;
-					//MULT_SUB (x [3], lik, X [4*i + 3]) ;
-					x [3] -= lik * X [X_offset + 4*i + 3] ;
-				}
-				X [X_offset + 4*k    ] = x [0] ;
-				X [X_offset + 4*k + 1] = x [1] ;
-				X [X_offset + 4*k + 2] = x [2] ;
-				X [X_offset + 4*k + 3] = x [3] ;
-			}
-			break ;
-	}
+      for (k = n - 1; k >= 0; k--) {
+        x[0] = X[X_offset + 4 * k];
+        x[1] = X[X_offset + 4 * k + 1];
+        x[2] = X[X_offset + 4 * k + 2];
+        x[3] = X[X_offset + 4 * k + 3];
+        Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, len);
+        for (p = 0; p < len[0]; p++) {
+          i = Li[Li_offset[0] + p].toInt();
+          {
+            lik = Lx[Lx_offset[0] + p];
+          }
+          //MULT_SUB (x [0], lik, X [4*i]) ;
+          x[0] -= lik * X[X_offset + 4 * i];
+          //MULT_SUB (x [1], lik, X [4*i + 1]) ;
+          x[1] -= lik * X[X_offset + 4 * i + 1];
+          //MULT_SUB (x [2], lik, X [4*i + 2]) ;
+          x[2] -= lik * X[X_offset + 4 * i + 2];
+          //MULT_SUB (x [3], lik, X [4*i + 3]) ;
+          x[3] -= lik * X[X_offset + 4 * i + 3];
+        }
+        X[X_offset + 4 * k] = x[0];
+        X[X_offset + 4 * k + 1] = x[1];
+        X[X_offset + 4 * k + 2] = x[2];
+        X[X_offset + 4 * k + 3] = x[3];
+      }
+      break;
+  }
 }
 
 /**
@@ -654,141 +591,128 @@ void ltsolve(int n, Int32List Lip, int Lip_offset, Int32List Llen, int Llen_offs
  * @param nrhs
  * @param X right-hand-side on input, solution to Ux=b on output
  */
-void utsolve(int n, Int32List Uip, int Uip_offset,
-		Int32List Ulen, int Ulen_offset, Float64List LU,
-		Float64List Udiag, int Udiag_offset, int nrhs,
-		Float64List X, int X_offset)
-{
-	Float64List x = new Float64List(4) ;
-	double uik, ukk ;
-	int k, p, i ;
-	/*Int32List*/Float64List Ui ;
-	Float64List Ux ;
-	Int32List len = new Int32List(1) ;
-	Int32List Ui_offset = new Int32List(1) ;
-	Int32List Ux_offset = new Int32List(1) ;
+void utsolve(int n, Int32List Uip, int Uip_offset, Int32List Ulen, int Ulen_offset, Float64List LU, Float64List Udiag, int Udiag_offset, int nrhs, Float64List X, int X_offset) {
+  Float64List x = new Float64List(4);
+  double uik, ukk;
+  int k, p, i;
+  /*Int32List*/Float64List Ui;
+  Float64List Ux;
+  Int32List len = new Int32List(1);
+  Int32List Ui_offset = new Int32List(1);
+  Int32List Ux_offset = new Int32List(1);
 
-	switch (nrhs)
-	{
+  switch (nrhs) {
 
-		case 1:
+    case 1:
 
-			for (k = 0 ; k < n ; k++)
-			{
-				Ui = Ux = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len) ;
-				x [0] = X [X_offset + k] ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					{
-						//MULT_SUB (x [0], Ux [p], X [Ui [p]]) ;
-						x [0] -= Ux [Ux_offset[0] + p] * X [X_offset + Ui [Ui_offset[0] + p].toInt()] ;
-					}
-				}
-				{
-					ukk = Udiag [k] ;
-				}
-				//DIV (X [k], x [0], ukk) ;
-				X [X_offset + k] = x [0] / ukk ;
-			}
-			break ;
+      for (k = 0; k < n; k++) {
+        Ui = Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len);
+        x[0] = X[X_offset + k];
+        for (p = 0; p < len[0]; p++) {
+          {
+            //MULT_SUB (x [0], Ux [p], X [Ui [p]]) ;
+            x[0] -= Ux[Ux_offset[0] + p] * X[X_offset + Ui[Ui_offset[0] + p].toInt()];
+          }
+        }
+        {
+          ukk = Udiag[k];
+        }
+        //DIV (X [k], x [0], ukk) ;
+        X[X_offset + k] = x[0] / ukk;
+      }
+      break;
 
-		case 2:
+    case 2:
 
-			for (k = 0 ; k < n ; k++)
-			{
-				Ui = Ux = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len) ;
-				x [0] = X [X_offset + 2*k    ] ;
-				x [1] = X [X_offset + 2*k + 1] ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = Ui [Ui_offset[0] + p].toInt() ;
-					{
-						uik = Ux [Ux_offset[0] + p] ;
-					}
-					//MULT_SUB (x [0], uik, X [2*i]) ;
-					x [0] -= uik * X [X_offset + 2*i] ;
-					//MULT_SUB (x [1], uik, X [2*i + 1]) ;
-					x [1] -= uik * X [X_offset + 2*i + 1] ;
-				}
-				{
-					ukk = Udiag [k] ;
-				}
-				//DIV (X [2*k], x [0], ukk) ;
-				X [X_offset + 2*k] = x [0] / ukk ;
-				//DIV (X [2*k + 1], x [1], ukk) ;
-				X [X_offset + 2*k + 1] = x [1] / ukk ;
-			}
-			break ;
+      for (k = 0; k < n; k++) {
+        Ui = Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len);
+        x[0] = X[X_offset + 2 * k];
+        x[1] = X[X_offset + 2 * k + 1];
+        for (p = 0; p < len[0]; p++) {
+          i = Ui[Ui_offset[0] + p].toInt();
+          {
+            uik = Ux[Ux_offset[0] + p];
+          }
+          //MULT_SUB (x [0], uik, X [2*i]) ;
+          x[0] -= uik * X[X_offset + 2 * i];
+          //MULT_SUB (x [1], uik, X [2*i + 1]) ;
+          x[1] -= uik * X[X_offset + 2 * i + 1];
+        }
+        {
+          ukk = Udiag[k];
+        }
+        //DIV (X [2*k], x [0], ukk) ;
+        X[X_offset + 2 * k] = x[0] / ukk;
+        //DIV (X [2*k + 1], x [1], ukk) ;
+        X[X_offset + 2 * k + 1] = x[1] / ukk;
+      }
+      break;
 
-		case 3:
+    case 3:
 
-			for (k = 0 ; k < n ; k++)
-			{
-				Ui = Ux = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len) ;
-				x [0] = X [X_offset + 3*k    ] ;
-				x [1] = X [X_offset + 3*k + 1] ;
-				x [2] = X [X_offset + 3*k + 2] ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = Ui [Ui_offset[0] + p].toInt() ;
-					{
-						uik = Ux [Ux_offset[0] + p] ;
-					}
-					//MULT_SUB (x [0], uik, X [3*i]) ;
-					x [0] -= uik * X [X_offset + 3*i] ;
-					//MULT_SUB (x [1], uik, X [3*i + 1]) ;
-					x [1] -= uik * X [X_offset + 3*i + 1] ;
-					//MULT_SUB (x [2], uik, X [3*i + 2]) ;
-					x [2] -= uik * X [X_offset + 3*i + 2] ;
-				}
-				{
-					ukk = Udiag [k] ;
-				}
-				//DIV (X [3*k], x [0], ukk) ;
-				X [X_offset + 3*k] = x [0] / ukk ;
-				//DIV (X [3*k + 1], x [1], ukk) ;
-				X [X_offset + 3*k + 1] = x [1] / ukk ;
-				//DIV (X [3*k + 2], x [2], ukk) ;
-				X [X_offset + 3*k + 2] = x [2] / ukk ;
-			}
-			break ;
+      for (k = 0; k < n; k++) {
+        Ui = Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len);
+        x[0] = X[X_offset + 3 * k];
+        x[1] = X[X_offset + 3 * k + 1];
+        x[2] = X[X_offset + 3 * k + 2];
+        for (p = 0; p < len[0]; p++) {
+          i = Ui[Ui_offset[0] + p].toInt();
+          {
+            uik = Ux[Ux_offset[0] + p];
+          }
+          //MULT_SUB (x [0], uik, X [3*i]) ;
+          x[0] -= uik * X[X_offset + 3 * i];
+          //MULT_SUB (x [1], uik, X [3*i + 1]) ;
+          x[1] -= uik * X[X_offset + 3 * i + 1];
+          //MULT_SUB (x [2], uik, X [3*i + 2]) ;
+          x[2] -= uik * X[X_offset + 3 * i + 2];
+        }
+        {
+          ukk = Udiag[k];
+        }
+        //DIV (X [3*k], x [0], ukk) ;
+        X[X_offset + 3 * k] = x[0] / ukk;
+        //DIV (X [3*k + 1], x [1], ukk) ;
+        X[X_offset + 3 * k + 1] = x[1] / ukk;
+        //DIV (X [3*k + 2], x [2], ukk) ;
+        X[X_offset + 3 * k + 2] = x[2] / ukk;
+      }
+      break;
 
-		case 4:
+    case 4:
 
-			for (k = 0 ; k < n ; k++)
-			{
-				Ui = Ux = GET_POINTER (LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len) ;
-				x [0] = X [X_offset + 4*k    ] ;
-				x [1] = X [X_offset + 4*k + 1] ;
-				x [2] = X [X_offset + 4*k + 2] ;
-				x [3] = X [X_offset + 4*k + 3] ;
-				for (p = 0 ; p < len[0] ; p++)
-				{
-					i = Ui [Ui_offset[0] + p].toInt() ;
-					{
-						uik = Ux [Ux_offset[0] + p] ;
-					}
-					//MULT_SUB (x [0], uik, X [4*i]) ;
-					x [0] -= uik * X [X_offset + 4*i] ;
-					//MULT_SUB (x [1], uik, X [4*i + 1]) ;
-					x [1] -= uik * X [X_offset + 4*i + 1] ;
-					//MULT_SUB (x [2], uik, X [4*i + 2]) ;
-					x [2] -= uik * X [X_offset + 4*i + 2] ;
-					//MULT_SUB (x [3], uik, X [4*i + 3]) ;
-					x [3] -= uik * X [X_offset + 4*i + 3] ;
-				}
-				{
-					ukk = Udiag [k] ;
-				}
-				//DIV (X [4*k], x [0], ukk) ;
-				X [X_offset + 4*k] = x [0] / ukk ;
-				//DIV (X [4*k + 1], x [1], ukk) ;
-				X [X_offset + 4*k + 1] = x [1] / ukk ;
-				//DIV (X [4*k + 2], x [2], ukk) ;
-				X [X_offset + 4*k + 2] = x [2] / ukk ;
-				//DIV (X [4*k + 3], x [3], ukk) ;
-				X [X_offset + 4*k + 3] = x [3] / ukk ;
-			}
-			break ;
-	}
+      for (k = 0; k < n; k++) {
+        Ui = Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, len);
+        x[0] = X[X_offset + 4 * k];
+        x[1] = X[X_offset + 4 * k + 1];
+        x[2] = X[X_offset + 4 * k + 2];
+        x[3] = X[X_offset + 4 * k + 3];
+        for (p = 0; p < len[0]; p++) {
+          i = Ui[Ui_offset[0] + p].toInt();
+          {
+            uik = Ux[Ux_offset[0] + p];
+          }
+          //MULT_SUB (x [0], uik, X [4*i]) ;
+          x[0] -= uik * X[X_offset + 4 * i];
+          //MULT_SUB (x [1], uik, X [4*i + 1]) ;
+          x[1] -= uik * X[X_offset + 4 * i + 1];
+          //MULT_SUB (x [2], uik, X [4*i + 2]) ;
+          x[2] -= uik * X[X_offset + 4 * i + 2];
+          //MULT_SUB (x [3], uik, X [4*i + 3]) ;
+          x[3] -= uik * X[X_offset + 4 * i + 3];
+        }
+        {
+          ukk = Udiag[k];
+        }
+        //DIV (X [4*k], x [0], ukk) ;
+        X[X_offset + 4 * k] = x[0] / ukk;
+        //DIV (X [4*k + 1], x [1], ukk) ;
+        X[X_offset + 4 * k + 1] = x[1] / ukk;
+        //DIV (X [4*k + 2], x [2], ukk) ;
+        X[X_offset + 4 * k + 2] = x[2] / ukk;
+        //DIV (X [4*k + 3], x [3], ukk) ;
+        X[X_offset + 4 * k + 3] = x[3] / ukk;
+      }
+      break;
+  }
 }

@@ -22,18 +22,15 @@
  *
  */
 
-part of edu.ufl.cise.klu.tdouble;
-
 /**
- * Debug routines for klu.  Only used when NDEBUG is not defined at
- * compile-time.
+ * Debug routines for klu. Only used when NDEBUG is true.
  */
-//public class Dklu_dump extends Dklu_internal {
+part of edu.ufl.cise.klu.tdouble;
 
 /**
  * Check if a column-form matrix is valid or not.  The matrix A is
  * n-by-n.  The row indices of entries in column j are in
- * Ai [Ap [j] ... Ap [j+1]-1].  Required conditions are:
+ * `Ai[Ap [j] ... Ap [j+1]-1]`.  Required conditions are:
  *
  *      n >= 0
  *      nz = Ap [n_col] >= 0        number of entries in the matrix
@@ -45,51 +42,43 @@ part of edu.ufl.cise.klu.tdouble;
  *
  * Not user-callable.  Only used when debugging.
  */
-int _valid(int n, Int32List Ap, Int32List Ai, Float64List Ax)
-{
-  int nz, j, p1, p2, i, p ;
-  PRINTF ("\ncolumn oriented matrix, n = $n\n") ;
-  if (n <= 0)
-  {
-    PRINTF ("n must be >= 0: $n\n") ;
-    return (FALSE) ;
+int _valid(int n, Int32List Ap, Int32List Ai, Float64List Ax) {
+  int nz, j, p1, p2, i, p;
+  PRINTF("\ncolumn oriented matrix, n = $n\n");
+  if (n <= 0) {
+    PRINTF("n must be >= 0: $n\n");
+    return (FALSE);
   }
-  nz = Ap [n] ;
-  if (Ap [0] != 0 || nz < 0)
-  {
+  nz = Ap[n];
+  if (Ap[0] != 0 || nz < 0) {
     /* column pointers must start at Ap [0] = 0, and Ap [n] must be >= 0 */
-    PRINTF ("column 0 pointer bad or nz < 0\n") ;
-    return (FALSE) ;
+    PRINTF("column 0 pointer bad or nz < 0\n");
+    return (FALSE);
   }
-  for (j = 0 ; j < n ; j++)
-  {
-    p1 = Ap [j] ;
-    p2 = Ap [j+1] ;
-    PRINTF ("\nColumn: $j p1: $p1 p2: $p2\n") ;
-    if (p1 > p2)
-    {
+  for (j = 0; j < n; j++) {
+    p1 = Ap[j];
+    p2 = Ap[j + 1];
+    PRINTF("\nColumn: $j p1: $p1 p2: $p2\n");
+    if (p1 > p2) {
       /* column pointers must be ascending */
-      PRINTF ("column $j pointer bad\n") ;
-      return (FALSE) ;
+      PRINTF("column $j pointer bad\n");
+      return (FALSE);
     }
-    for (p = p1 ; p < p2 ; p++)
-    {
-      i = Ai [p] ;
-      PRINTF ("row: $i") ;
-      if (i < 0 || i >= n)
-      {
+    for (p = p1; p < p2; p++) {
+      i = Ai[p];
+      PRINTF("row: $i");
+      if (i < 0 || i >= n) {
         /* row index out of range */
-        PRINTF ("index out of range, col $j row $i\n") ;
-        return (FALSE) ;
+        PRINTF("index out of range, col $j row $i\n");
+        return (FALSE);
       }
-      if (Ax != null)
-      {
-        PRINT_ENTRY (Ax [p]) ;
+      if (Ax != null) {
+        PRINT_ENTRY(Ax[p]);
       }
-      PRINTF ("\n") ;
+      PRINTF("\n");
     }
   }
-  return (TRUE) ;
+  return (TRUE);
 }
 
 /**
@@ -98,60 +87,49 @@ int _valid(int n, Int32List Ap, Int32List Ai, Float64List Ax)
  * test if Xip [0] = 0. This is not applicable for U. So when calling this
  * function for U, the flag should be set to false.  Only used when debugging.
  */
-_valid_LU(int n, int flag_test_start_ptr,
-    Int32List Xip, int Xip_offset, Int32List Xlen, int Xlen_offset,
-    Float64List LU)
-{
-  /*Int32List*/Float64List Xi ;
-  Float64List Xx ;
-  int j, p1, p2, i, p ;
-  Int32List len = new Int32List(1) ;
-  Int32List Xi_offset = new Int32List(1) ;
-  Int32List Xx_offset = new Int32List(1) ;
+_valid_LU(int n, int flag_test_start_ptr, Int32List Xip, int Xip_offset, Int32List Xlen, int Xlen_offset, Float64List LU) {
+  /*Int32List*/Float64List Xi;
+  Float64List Xx;
+  int j, p1, p2, i, p;
+  Int32List len = new Int32List(1);
+  Int32List Xi_offset = new Int32List(1);
+  Int32List Xx_offset = new Int32List(1);
 
-  PRINTF ("\ncolumn oriented matrix, n = $n\n") ;
-  if (n <= 0)
-  {
-    PRINTF ("n must be >= 0: $n\n") ;
-    return (FALSE) ;
+  PRINTF("\ncolumn oriented matrix, n = $n\n");
+  if (n <= 0) {
+    PRINTF("n must be >= 0: $n\n");
+    return (FALSE);
   }
-  if (flag_test_start_ptr != 0 && Xip [Xip_offset + 0] != 0)
-  {
+  if (flag_test_start_ptr != 0 && Xip[Xip_offset + 0] != 0) {
     /* column pointers must start at Xip [0] = 0*/
-    PRINTF ("column 0 pointer bad\n") ;
-    return (FALSE) ;
+    PRINTF("column 0 pointer bad\n");
+    return (FALSE);
   }
 
-  for (j = 0 ; j < n ; j++)
-  {
-    p1 = Xip [Xip_offset + j] ;
-    p2 = Xip [Xip_offset + j+1] ;
-    PRINTF ("\nColumn: $j p1: $p1 p2: $p2\n") ;
-    if (p1 > p2)
-    {
+  for (j = 0; j < n; j++) {
+    p1 = Xip[Xip_offset + j];
+    p2 = Xip[Xip_offset + j + 1];
+    PRINTF("\nColumn: $j p1: $p1 p2: $p2\n");
+    if (p1 > p2) {
       /* column pointers must be ascending */
-      PRINTF ("column $j pointer bad\n") ;
-      return (FALSE) ;
+      PRINTF("column $j pointer bad\n");
+      return (FALSE);
     }
-    Xi = Xx = GET_POINTER (LU, Xip, Xip_offset, Xlen, Xlen_offset,
-        Xi_offset, Xx_offset, j, len) ;
-    for (p = 0 ; p < len[0] ; p++)
-    {
-      i = Xi [Xi_offset[0] + p].toInt() ;
-      PRINTF ("row: $i") ;
-      if (i < 0 || i >= n)
-      {
+    Xi = Xx = GET_POINTER(LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len);
+    for (p = 0; p < len[0]; p++) {
+      i = Xi[Xi_offset[0] + p].toInt();
+      PRINTF("row: $i");
+      if (i < 0 || i >= n) {
         /* row index out of range */
-        PRINTF ("index out of range, col $j row $i\n") ;
-        return (FALSE) ;
+        PRINTF("index out of range, col $j row $i\n");
+        return (FALSE);
       }
-      if (Xx != null)
-      {
-        PRINT_ENTRY (Xx [Xx_offset[0] + p]) ;
+      if (Xx != null) {
+        PRINT_ENTRY(Xx[Xx_offset[0] + p]);
       }
-      PRINTF ("\n") ;
+      PRINTF("\n");
     }
   }
 
-  return (TRUE) ;
+  return (TRUE);
 }

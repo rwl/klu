@@ -29,43 +29,65 @@ part of edu.ufl.cise.klu.common;
  *
  * 64-bit version.
  */
-class KLU_l_numeric
-{
+class KLU_l_numeric {
 
-	/* LU factors of each block, the pivot row permutation, and the
-     * entries in the off-diagonal blocks */
+  /* LU factors of each block, the pivot row permutation, and the
+   * entries in the off-diagonal blocks */
 
-    int n;             /* A is n-by-n */
-    int nblocks;       /* number of diagonal blocks */
-    int lnz;           /* actual nz in L, including diagonal */
-    int unz;           /* actual nz in U, including diagonal */
-    int max_lnz_block; /* max actual nz in L in any one block, incl. diag */
-    int max_unz_block; /* max actual nz in U in any one block, incl. diag */
-    Int32List Pnum;        /* size n. final pivot permutation */
-    Int32List Pinv;        /* size n. inverse of final pivot permutation */
+  /** A is n-by-n */
+  int n;
+  /** number of diagonal blocks */
+  int nblocks;
+  /** actual nz in L, including diagonal */
+  int lnz;
+  /** actual nz in U, including diagonal */
+  int unz;
+  /** max actual nz in L in any one block, incl. diag */
+  int max_lnz_block;
+  /** max actual nz in U in any one block, incl. diag */
+  int max_unz_block;
+  /** size n. final pivot permutation */
+  Int32List Pnum;
+  /** size n. inverse of final pivot permutation */
+  Int32List Pinv;
 
-    /* LU factors of each block */
-    Int32List Lip;         /* size n. pointers into LUbx[block] for L */
-    Int32List Uip;         /* size n. pointgers into LUbx[block] for U */
-    Int32List Llen;        /* size n. Llen [k] = # of entries in kth column of L */
-    Int32List Ulen;        /* size n. Ulen [k] = # of entries in kth column of U */
-    List<Float64List> LUbx;      /* L and U indices and entries (excl. diagonal of U) */
-    Int32List LUsize;    /* size of each LUbx [block], in sizeof (Unit) */
-    Float64List Udiag;       /* diagonal of U */
+  /* LU factors of each block */
+  /** size n. pointers into LUbx[block] for L */
+  Int32List Lip;
+  /** size n. pointgers into LUbx[block] for U */
+  Int32List Uip;
+  /** size n. Llen [k] = # of entries in kth column of L */
+  Int32List Llen;
+  /** size n. Ulen [k] = # of entries in kth column of U */
+  Int32List Ulen;
+  /** L and U indices and entries (excl. diagonal of U) */
+  List<Float64List> LUbx;
+  /** size of each LUbx [block], in sizeof (Unit) */
+  Int32List LUsize;
+  /** diagonal of U */
+  Float64List Udiag;
 
-    /* scale factors; can be NULL if no scaling */
-    Float64List Rs;        /* size n. Rs [i] is scale factor for row i */
+  /* scale factors; can be NULL if no scaling */
+  /** size n. Rs [i] is scale factor for row i */
+  Float64List Rs;
 
-    /* permanent workspace for factorization and solve */
-    Int32List worksize;  /* size (in bytes) of Work */
-    Float64List Work;        /* workspace */
-    Float64List Xwork;       /* alias into Numeric->Work */
-    Int32List Iwork;       /* alias into Numeric->Work */
+  /* permanent workspace for factorization and solve */
+  /** size (in bytes) of Work */
+  Int32List worksize;
+  /** workspace */
+  Float64List Work;
+  /** alias into Numeric.Work */
+  Float64List Xwork;
+  /** alias into Numeric->Work */
+  Int32List Iwork;
 
-    /* off-diagonal entries in a conventional compressed-column sparse matrix */
-    Int32List Offp;        /* size n+1, column pointers */
-    Int32List Offi;        /* size nzoff, row indices */
-    Float64List Offx;        /* size nzoff, numerical values */
-    int nzoff;
+  /* off-diagonal entries in a conventional compressed-column sparse matrix */
+  /** size n+1, column pointers */
+  Int32List Offp;
+  /** size nzoff, row indices */
+  Int32List Offi;
+  /** size nzoff, numerical values */
+  Float64List Offx;
+  int nzoff;
 
 }

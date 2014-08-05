@@ -24,86 +24,51 @@
 
 part of edu.ufl.cise.klu.tdouble;
 
-//public abstract class Dklu_internal extends Dklu_version {
-
 /**
  * enable debugging and assertions
  */
-bool NDEBUG = true ;
+bool NDEBUG = true;
 
-void ASSERT (bool a)
-{
-  if (!NDEBUG)
-  {
-    assert(a) ;
+void ASSERT(bool a) {
+  if (!NDEBUG) {
+    assert(a);
   }
 }
 
-void ASSERT_INT (int a)
-{
-  ASSERT (a != 0) ;
+void ASSERT_INT(int a) {
+  ASSERT(a != 0);
 }
 
 /**
  * @return true if an integer (stored in double x) would overflow (or if
  * x is NaN)
  */
-bool INT_OVERFLOW (double x)
-{
-  return ((!(x * (1.0+1e-8) <= INT_MAX)) || SCALAR_IS_NAN (x)) ;
+bool INT_OVERFLOW(double x) {
+  return ((!(x * (1.0 + 1e-8) <= INT_MAX)) || SCALAR_IS_NAN(x));
 }
 
-final int TRUE = 1 ;
-final int FALSE = 0 ;
+final int TRUE = 1;
+final int FALSE = 0;
 
-num MAX (num a, num b)
-{
-  return a > b ?  a : b ;
+num MAX(num a, num b) {
+  return a > b ? a : b;
 }
 
-num MIN (num a, num b)
-{
-  return a < b ?  a : b ;
+num MIN(num a, num b) {
+  return a < b ? a : b;
 }
-
-/*double MAX (double a, double b)
-{
-  return a > b ?  a : b ;
-}
-
-double MIN (double a, double b)
-{
-  return a < b ?  a : b ;
-}
-
-long MAX (long a, long b)
-{
-  return a > b ?  a : b ;
-}*/
 
 /* FLIP is a "negation about -1", and is used to mark an integer i that is
  * normally non-negative.  FLIP (EMPTY) is EMPTY.  FLIP of a number > EMPTY
  * is negative, and FLIP of a number < EMTPY is positive.  FLIP (FLIP (i)) = i
  * for all integers i.  UNFLIP (i) is >= EMPTY. */
-const int EMPTY = -1 ;
+const int EMPTY = -1;
 const double EMPTY_D = -1.0;
 
-num FLIP (num i)
-{
-  return -i - 2 ;
+num FLIP(num i) {
+  return -i - 2;
 }
 
-/*double FLIP (double i)
-{
-  return -i - 2 ;
-}*/
-
-num UNFLIP (num i)
-{
-  return (i < EMPTY) ? FLIP (i) : i ;
+num UNFLIP(num i) {
+  return (i < EMPTY) ? FLIP(i) : i;
 }
-
-/*double UNFLIP (double i)
-{
-  return (i < EMPTY) ? FLIP (i) : i ;
-}*/

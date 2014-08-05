@@ -24,114 +24,66 @@
 
 part of edu.ufl.cise.klu.tdouble;
 
-//public abstract class Dklu_version {
-
-/*public static */final int KLU_OK = 0;
+const int KLU_OK = 0;
 /** status > 0 is a warning, not an error */
-/*public static */final int KLU_SINGULAR = 1;
-/*public static */final int KLU_OUT_OF_MEMORY = -2;
-/*public static */final int KLU_INVALID = -3;
+const int KLU_SINGULAR = 1;
+const int KLU_OUT_OF_MEMORY = -2;
+const int KLU_INVALID = -3;
 /** integer overflow has occured */
-/*public static */final int KLU_TOO_LARGE = -4;
+const int KLU_TOO_LARGE = -4;
 
 /** enable diagnostic printing */
-/*public static */bool NPRINT = true ;
+bool NPRINT = true;
 
-final int INT_MAX = 0x7fffffff ;
+const int INT_MAX = 0x7fffffff;
 
-final String INT_ID = "%d" ;
-
-//	int BYTES (Object type, double n)
-//	{
-//		return sizeof (type * n) ;
-//	}
-//
-//	double CEILING (double b, double u)
-//	{
-//		return (b+u-1) / u ;
-//	}
-//
-//	double UNITS (Object type, double n)
-//	{
-//		return CEILING (BYTES (type, n), sizeof (double)) ;
-//	}
-//
-//	double DUNITS (Object type, int n)
-//	{
-//		return Math.ceil(BYTES (type, (double) n) / sizeof (double)) ;
-//	}
-
-Float64List GET_I_POINTER(Float64List LU, Int32List Xip,
-    int Xip_offset, Int32List Xi_offset, int k)
-{
-  Xi_offset[0] = Xip [Xip_offset + k] ;
-  return LU ;
+Float64List GET_I_POINTER(Float64List LU, Int32List Xip, int Xip_offset, Int32List Xi_offset, int k) {
+  Xi_offset[0] = Xip[Xip_offset + k];
+  return LU;
 }
 
-//	void GET_X_POINTER(Float64List LU, Int32List Xip, int Xlen,
-//			Float64List Xx, int k)
-//	{
-//		Xx = (Float64List) (LU + Xip [k] + UNITS (Int, Xlen [k])) ;
-//	}
-
-Float64List GET_POINTER(Float64List LU,
-    Int32List Xip, int Xip_offset,
-    Int32List Xlen, int Xlen_offset,
-    Int32List Xi_offset,
-    Int32List Xx_offset,
-    int k, Int32List xlen)
-{
-  int xp = Xip [Xip_offset + k] ;
-  xlen[0] = Xlen [Xlen_offset + k] ;
-  Xi_offset[0] = xp ;
-  Xx_offset[0] = xp + xlen[0] ;
-  return LU ;
+Float64List GET_POINTER(Float64List LU, Int32List Xip, int Xip_offset, Int32List Xlen, int Xlen_offset, Int32List Xi_offset, Int32List Xx_offset, int k, Int32List xlen) {
+  int xp = Xip[Xip_offset + k];
+  xlen[0] = Xlen[Xlen_offset + k];
+  Xi_offset[0] = xp;
+  Xx_offset[0] = xp + xlen[0];
+  return LU;
 }
 
-bool SCALAR_IS_NAN (double x)
-{
-  return x != x ;
+bool SCALAR_IS_NAN(double x) {
+  return x != x;
 }
 
-bool SCALAR_IS_ZERO (double x)
-{
-  return x == 0.0 ;
+bool SCALAR_IS_ZERO(double x) {
+  return x == 0.0;
 }
 
-bool SCALAR_IS_NONZERO (double x)
-{
-  return x != 0.0 ;
+bool SCALAR_IS_NONZERO(double x) {
+  return x != 0.0;
 }
 
-bool SCALAR_IS_LTZERO (double x)
-{
-  return x < 0.0 ;
+bool SCALAR_IS_LTZERO(double x) {
+  return x < 0.0;
 }
 
 /* scalar absolute value macro. If x is NaN, the result is NaN */
-double SCALAR_ABS (double x)
-{
-  return SCALAR_IS_LTZERO (x) ? -x : x ;
+double SCALAR_ABS(double x) {
+  return SCALAR_IS_LTZERO(x) ? -x : x;
 }
 
-void PRINTF(String format)//, Object args)
-{
+void PRINTF(String format) {
   if (!NPRINT) {
-    print(format);//, args) ;
+    print(format);
   }
 }
 
-void PRINT_SCALAR (double a)
-{
+void PRINT_SCALAR(double a) {
   if (!NPRINT) {
 
-    if (SCALAR_IS_NONZERO (a))
-    {
-      PRINTF (" ($a)") ;
-    }
-    else
-    {
-      PRINTF (" (0)") ;
+    if (SCALAR_IS_NONZERO(a)) {
+      PRINTF(" ($a)");
+    } else {
+      PRINTF(" (0)");
     }
 
   }
@@ -142,221 +94,67 @@ void PRINT_SCALAR (double a)
 /* ---------------------------------------------------------------------- */
 
 /**
- * @return TRUE if a complex number is in split form, FALSE if in packed
+ * Returns [TRUE] if a complex number is in split form, [FALSE] if in packed
  * form.
  */
-int SPLIT (double s)
-{
-  return 1 ;
+int SPLIT(double s) {
+  return 1;
 }
-
-/**
- * @return real part of c
- */
-//	double REAL (double c)
-//	{
-//		return c ;
-//	}
-
-/**
- * @return imag part of c
- */
-//	double IMAG (double c)
-//	{
-//		return 0.0 ;
-//	}
-
-/**
- * c = (s1) + (s2)*i
- */
-//	void ASSIGN (Double c, Float64List s1, Float64List s2, int p,
-//			boolean split)
-//	{
-//		c = s1[p] ;
-//	}
-
-//	void CLEAR (Double c)
-//	{
-//		c = 0.0 ;
-//	}
-
-//	void CLEAR_AND_INCREMENT (Double p)
-//	{
-//		p = 0.0 ;
-//		p++ ;
-//	}
 
 /**
  * @return True if a is NaN
  */
-bool IS_NAN (double a)
-{
-  return SCALAR_IS_NAN (a) ;
+bool IS_NAN(double a) {
+  return SCALAR_IS_NAN(a);
 }
 
 /**
  * @return True if a == 0
  */
-bool IS_ZERO (double a)
-{
-  return SCALAR_IS_ZERO (a) ;
+bool IS_ZERO(double a) {
+  return SCALAR_IS_ZERO(a);
 }
 
 /**
  * @return True if a != 0
  */
-bool IS_NONZERO (double a)
-{
-  return SCALAR_IS_NONZERO (a) ;
+bool IS_NONZERO(double a) {
+  return SCALAR_IS_NONZERO(a);
 }
 
 /**
  * c /= s
  */
-double SCALE_DIV (double c, double s)
-{
-  c /= s ;
-  return c ;
+double SCALE_DIV(double c, double s) {
+  c /= s;
+  return c;
 }
-
-/**
- * a = c/s
- */
-//	double SCALE_DIV_ASSIGN (double c, double s)
-//	{
-//		return c / s ;
-//	}
-
-/**
- * c *= s
- */
-//	void SCALE (Double c, double s)
-//	{
-//		c *= s ;
-//	}
-
-/**
- * c += a
- */
-//	void ASSEMBLE (Double c, double a)
-//	{
-//		c += a ;
-//	}
-
-/**
- * c += *p++
- */
-//	void ASSEMBLE_AND_INCREMENT (Double c, double p)
-//	{
-//		c += p++ ;
-//	}
-
-/**
- * c -= a
- */
-//	void DECREMENT (Double c, double a)
-//	{
-//		c -= a ;
-//	}
-
-/**
- * c = a*b
- */
-//	void MULT (Double c, double a,  double b)
-//	{
-//		c = a * b ;
-//	}
-
-/**
- * c = a*conjugate(b)
- */
-//	void MULT_CONJ (Double c, double a, double b)
-//	{
-//		c = a * b ;
-//	}
 
 /**
  * c -= a*b
  */
-double MULT_SUB (double c, double a, double b)
-{
-  c -= a * b ;
-  return c ;
+double MULT_SUB(double c, double a, double b) {
+  c -= a * b;
+  return c;
 }
 
-//	/**
-//	 * c -= a*conjugate(b)
-//	 */
-//	void MULT_SUB_CONJ (Double c, double a, double b)
-//	{
-//		c -= a * b ;
-//	}
-//
-//	/**
-//	 * c = a/b
-//	 */
-//	void DIV (Double c, double a, double b)
-//	{
-//		c = a / b ;
-//	}
-//
-//	/**
-//	 * c = 1/c
-//	 */
-//	void RECIPROCAL (Double c)
-//	{
-//		c = 1.0 / c ;
-//	}
-//
-//	/**
-//	 * c = a/conjugate(b)
-//	 */
-//	void DIV_CONJ (Double c, double a, double b)
-//	{
-//		c = a / b ;
-//	}
-//
-//	/**
-//	 * approximate absolute value, s = |r|+|i|
-//	 */
-//	void APPROX_ABS (Double s, double a)
-//	{
-//		s = SCALAR_ABS (a) ;
-//	}
-//
-//	/**
-//	 * exact absolute value, s = sqrt (a.real^2 + amag^2)
-//	 */
-//	void ABS (Double s, double a)
-//	{
-//		s = SCALAR_ABS (a) ;
-//	}
-
-void PRINT_ENTRY (double a)
-{
-  PRINT_SCALAR (a) ;
+void PRINT_ENTRY(double a) {
+  PRINT_SCALAR(a);
 }
 
-//	void CONJ (Double a, double x)
-//	{
-//		a = x ;
-//	}
-
-double ABS (double a)
-{
-  return a.abs() ;
+double ABS(double a) {
+  return a.abs();
 }
 
-void CLEAR(Float64List A, int i)
-{
-  A [i] = 0.0 ;
+void CLEAR(Float64List A, int i) {
+  A[i] = 0.0;
 }
 
 /* for flop counts */
-final double MULTSUB_FLOPS   = 2.0 ;      /* c -= a*b */
-final double DIV_FLOPS       = 1.0 ;      /* c = a/b */
-final double ABS_FLOPS       = 0.0 ;      /* c = abs(a) */
-final double ASSEMBLE_FLOPS  = 1.0 ;      /* c += a */
-final double DECREMENT_FLOPS = 1.0 ;      /* c -= a */
-final double MULT_FLOPS      = 1.0 ;      /* c = a*b */
-final double SCALE_FLOPS     = 1.0 ;      /* c = a/s */
+const double MULTSUB_FLOPS = 2.0; // c -= a*b
+const double DIV_FLOPS = 1.0; // c = a/b
+const double ABS_FLOPS = 0.0; // c = abs(a)
+const double ASSEMBLE_FLOPS = 1.0; // c += a
+const double DECREMENT_FLOPS = 1.0; // c -= a
+const double MULT_FLOPS = 1.0; // c = a*b
+const double SCALE_FLOPS = 1.0; // c = a/s

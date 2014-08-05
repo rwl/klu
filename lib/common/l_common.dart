@@ -29,22 +29,20 @@ part of edu.ufl.cise.klu.common;
  *
  * 64-bit version.
  */
-class KLU_l_common
-{
+class KLU_l_common {
 
-	double tol, memgrow, initmem_amd, initmem, maxwork;
-    int btf, ordering, scale;
-//    void *(*malloc_memory) (size_t);
-//    void *(*realloc_memory) (void *, size_t);
-//    void (*free_memory) (void *);
-//    void *(*calloc_memory) (size_t, size_t);
-//    UF_long (*user_order) (UF_long, UF_long *, UF_long *, UF_long *,
-//        struct klu_l_common_struct *);
-    Object user_data;
-    int halt_if_singular;
-    int status, nrealloc, structural_rank, numerical_rank, singular_col,
-        noffdiag;
-    double flops, rcond, condest, rgrowth, work;
-    int memusage, mempeak;
+  double tol, memgrow, initmem_amd, initmem, maxwork;
+  int btf, ordering, scale;
+  //void *(*malloc_memory) (size_t);
+  //void *(*realloc_memory) (void *, size_t);
+  //void (*free_memory) (void *);
+  //void *(*calloc_memory) (size_t, size_t);
+  //UF_long (*user_order) (UF_long, UF_long *, UF_long *, UF_long *,
+  //    struct klu_l_common_struct *);
+  Object user_data;
+  int halt_if_singular;
+  int status, nrealloc, structural_rank, numerical_rank, singular_col, noffdiag;
+  double flops, rcond, condest, rgrowth, work;
+  int memusage, mempeak;
 
 }

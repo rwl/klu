@@ -29,9 +29,8 @@ part of edu.ufl.cise.klu.common;
  *
  * 64-bit version.
  */
-class KLU_l_defaults
-{
+class KLU_l_defaults {
 
-	KLU_l_common Common;
+  KLU_l_common Common;
 
 }
