@@ -21,7 +21,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-
 part of edu.ufl.cise.klu.tdouble;
 
 /**
@@ -31,46 +30,29 @@ part of edu.ufl.cise.klu.tdouble;
  * ordering, or the user-provided-function on the blocks.  Does not support
  * using a given ordering (use klu_analyze_given for that case).
  *
- * @param n A is n-by-n
- * @param Ap size n+1, column pointers
- * @param Ai size nz, row indices
- * @param nblocks # of blocks
- * @param Pbtf BTF row permutation
- * @param Qbtf BTF col permutation
- * @param R size n+1, but only Rbtf [0..nblocks] is used
- * @param ordering what ordering to use (0, 1, or 3 for this routine)
- * @param P size n
- * @param Q size n
- * @param Lnz size n, but only Lnz [0..nblocks-1] is used
- * @param Pblk size maxblock
- * @param Cp size maxblock+1
- * @param Ci size MAX (nz+1, Cilen)
- * @param Cilen nz+1, or COLAMD_recommend(nz,n,n) for COLAMD
- * @param Pinv size maxblock
- * @param Symbolic
- * @param Common
- * @return KLU_OK or < 0 if error
+ * A is [n]-by-[n]. Column pointers [Ap] is size `n+1`. Row indices [Ai] is
+ * size `nz`. [nblocks] is the number of blocks. [Pbtf] is the BTF row
+ * permutation. [Qbtf] is the BTF column permutation. R is size `n+1`, but
+ * only `Rbtf[0..nblocks]` is used. [ordering] may be 0, 1, or 3 for this
+ * routine. [P] is size [n]. [Q] is size [n]. [Lnz] is size [n], but only
+ * `Lnz[0..nblocks-1]` is used. [Pblk] is size `maxblock`. [Cp] is size
+ * `maxblock+1`. Ci is size `MAX(nz+1, Cilen)`. [Cilen] is size `nz+1`, or
+ * `COLAMD_recommend(nz,n,n)` for COLAMD. [Pinv] is size `maxblock`. Returns
+ * [KLU_OK] or < 0 if an error occurrs.
  */
-int analyze_worker(int n, Int32List Ap, Int32List Ai, int nblocks, Int32List Pbtf, Int32List Qbtf, Int32List R, int ordering, Int32List P, Int32List Q, Float64List Lnz, Int32List Pblk, Int32List Cp, Int32List Ci, int Cilen, Int32List Pinv, KLU_symbolic Symbolic, KLU_common Common) {
-  List<num> amd_Info = new List<num>(amd.AMD_INFO);
-  double lnz, lnz1, flops, flops1;
-  int k1,
-      k2,
-      nk,
-      k,
-      block,
-      oldcol,
-      pend,
-      newcol,
-      result,
-      pc,
-      p,
-      newrow,
-      maxnz,
-      nzoff,
-      ok,
+int analyze_worker(final int n, final Int32List Ap, final Int32List Ai,
+                   final int nblocks, final Int32List Pbtf,
+                   final Int32List Qbtf, final Int32List R,
+                   final int ordering, final Int32List P, final Int32List Q,
+                   final Float64List Lnz, final Int32List Pblk,
+                   final Int32List Cp, final Int32List Ci, final int Cilen,
+                   final Int32List Pinv, final KLU_symbolic Symbolic,
+                   final KLU_common Common) {
+  final amd_Info = new List<num>(amd.AMD_INFO);
+  double lnz1, flops1;
+  int ok,
       err = KLU_INVALID;
-  Int32List cstats = new Int32List(colamd.COLAMD_STATS);
+  final cstats = new Int32List(colamd.COLAMD_STATS);
 
   /* ---------------------------------------------------------------------- */
   /* initializations */
@@ -78,23 +60,23 @@ int analyze_worker(int n, Int32List Ap, Int32List Ai, int nblocks, Int32List Pbt
 
   /* compute the inverse of Pbtf */
   if (!NDEBUG) {
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       P[k] = EMPTY;
       Q[k] = EMPTY;
       Pinv[k] = EMPTY;
     }
   }
-  for (k = 0; k < n; k++) {
+  for (int k = 0; k < n; k++) {
     ASSERT(Pbtf[k] >= 0 && Pbtf[k] < n);
     Pinv[Pbtf[k]] = k;
   }
   if (!NDEBUG) {
-    for (k = 0; k < n; k++) ASSERT(Pinv[k] != EMPTY);
+    for (int k = 0; k < n; k++) ASSERT(Pinv[k] != EMPTY);
   }
-  nzoff = 0;
-  lnz = 0.0;
-  maxnz = 0;
-  flops = 0.0;
+  int nzoff = 0;
+  double lnz = 0.0;
+  int maxnz = 0;
+  double flops = 0.0;
   /* only computed by AMD */
   Symbolic.symmetry = EMPTY_D;
 
@@ -102,15 +84,15 @@ int analyze_worker(int n, Int32List Ap, Int32List Ai, int nblocks, Int32List Pbt
   /* order each block */
   /* ---------------------------------------------------------------------- */
 
-  for (block = 0; block < nblocks; block++) {
+  for (int block = 0; block < nblocks; block++) {
 
     /* ------------------------------------------------------------------ */
     /* the block is from rows/columns k1 to k2-1 */
     /* ------------------------------------------------------------------ */
 
-    k1 = R[block];
-    k2 = R[block + 1];
-    nk = k2 - k1;
+    final k1 = R[block];
+    final k2 = R[block + 1];
+    final nk = k2 - k1;
     PRINTF("BLOCK $block, k1 $k1 k2-1 ${k2-1} nk $nk\n");
 
     /* ------------------------------------------------------------------ */
@@ -118,14 +100,14 @@ int analyze_worker(int n, Int32List Ap, Int32List Ai, int nblocks, Int32List Pbt
     /* ------------------------------------------------------------------ */
 
     Lnz[block] = EMPTY_D;
-    pc = 0;
-    for (k = k1; k < k2; k++) {
-      newcol = k - k1;
+    int pc = 0;
+    for (int k = k1; k < k2; k++) {
+      final newcol = k - k1;
       Cp[newcol] = pc;
-      oldcol = Qbtf[k];
-      pend = Ap[oldcol + 1];
-      for (p = Ap[oldcol]; p < pend; p++) {
-        newrow = Pinv[Ai[p]];
+      final oldcol = Qbtf[k];
+      final pend = Ap[oldcol + 1];
+      for (int p = Ap[oldcol]; p < pend; p++) {
+        int newrow = Pinv[Ai[p]];
         if (newrow < k1) {
           nzoff++;
         } else {
@@ -150,7 +132,7 @@ int analyze_worker(int n, Int32List Ap, Int32List Ai, int nblocks, Int32List Pbt
       /* use natural ordering for tiny blocks (3-by-3 or less) */
       /* -------------------------------------------------------------- */
 
-      for (k = 0; k < nk; k++) {
+      for (int k = 0; k < nk; k++) {
         Pblk[k] = k;
       }
       lnz1 = nk * (nk + 1) / 2;
@@ -163,14 +145,15 @@ int analyze_worker(int n, Int32List Ap, Int32List Ai, int nblocks, Int32List Pbt
       /* order the block with AMD (C+C') */
       /* -------------------------------------------------------------- */
 
-      result = amd.order(nk, Cp, Ci, Pblk, null, amd_Info);
+      final result = amd.order(nk, Cp, Ci, Pblk, null, amd_Info);
       ok = (result >= amd.AMD_OK) ? 1 : 0;
       if (result == amd.AMD_OUT_OF_MEMORY) {
         err = KLU_OUT_OF_MEMORY;
       }
 
       /* account for memory usage in AMD */
-      Common.mempeak = MAX(Common.mempeak, Common.memusage + amd_Info[amd.AMD_MEMORY].toInt());
+      Common.mempeak = MAX(Common.mempeak, Common.memusage +
+          amd_Info[amd.AMD_MEMORY].toInt());
 
       /* get the ordering statistics from AMD */
       lnz1 = (amd_Info[amd.AMD_LNZ]) + nk;
@@ -195,7 +178,7 @@ int analyze_worker(int n, Int32List Ap, Int32List Ai, int nblocks, Int32List Pbt
       flops1 = EMPTY_D;
 
       /* copy the permutation from Cp to Pblk */
-      for (k = 0; k < nk; k++) {
+      for (int k = 0; k < nk; k++) {
         Pblk[k] = Cp[k];
       }
 
@@ -227,12 +210,12 @@ int analyze_worker(int n, Int32List Ap, Int32List Ai, int nblocks, Int32List Pbt
     /* ------------------------------------------------------------------ */
 
     PRINTF("Pblk, 1-based:\n");
-    for (k = 0; k < nk; k++) {
+    for (int k = 0; k < nk; k++) {
       ASSERT(k + k1 < n);
       ASSERT(Pblk[k] + k1 < n);
       Q[k + k1] = Qbtf[Pblk[k] + k1];
     }
-    for (k = 0; k < nk; k++) {
+    for (int k = 0; k < nk; k++) {
       ASSERT(k + k1 < n);
       ASSERT(Pblk[k] + k1 < n);
       P[k + k1] = Pbtf[Pblk[k] + k1];
@@ -251,39 +234,35 @@ int analyze_worker(int n, Int32List Ap, Int32List Ai, int nblocks, Int32List Pbt
 }
 
 /**
- * Orders the matrix with or with BTF, then orders each block with AMD, COLAMD,
- * or the user ordering function.  Does not handle the natural or given
- * ordering cases.
+ * Orders the matrix with or without BTF, then orders each block with AMD,
+ * COLAMD, or the user ordering function. Does not handle the natural or
+ * given ordering cases.
  *
- * @param n A is n-by-n
- * @param Ap size n+1, column pointers
- * @param Ai size nz, row indices
- * @param Common
- * @return null if error, or a valid KLU_symbolic object if successful
+ * A is [n]-by-[n]. Column pointers [Ap] is size `n+1`. Row indices [Ai] is
+ * size [nz]. Returns `null` if error, or a valid [KLU_symbolic] object if
+ * successful.
  */
-KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Common) {
-  Float64List work = new Float64List(1);
-  KLU_symbolic Symbolic;
-  Float64List Lnz;
-  Int32List structural_rank = new Int32List(1);
-  Int32List Qbtf, Cp, Ci, Pinv, Pblk, Pbtf, P, Q, R;
-  int nblocks, nz, block, maxblock, k1, k2, nk, do_btf, ordering, k, Cilen;
+KLU_symbolic order_and_analyze(final int n, final Int32List Ap,
+                               final Int32List Ai, final KLU_common Common) {
+  final work = new Float64List(1);
+  final structural_rank = new Int32List(1);
 
   /* ---------------------------------------------------------------------- */
   /* allocate the Symbolic object, and check input matrix */
   /* ---------------------------------------------------------------------- */
 
-  Symbolic = _alloc_symbolic(n, Ap, Ai, Common);
+  final Symbolic = _alloc_symbolic(n, Ap, Ai, Common);
   if (Symbolic == null) {
     return (null);
   }
-  P = Symbolic.P;
-  Q = Symbolic.Q;
-  R = Symbolic.R;
-  Lnz = Symbolic.Lnz;
-  nz = Symbolic.nz;
+  final P = Symbolic.P;
+  final Q = Symbolic.Q;
+  final R = Symbolic.R;
+  final Lnz = Symbolic.Lnz;
+  final nz = Symbolic.nz;
 
-  ordering = Common.ordering;
+  final ordering = Common.ordering;
+  int Cilen;
   if (ordering == 1) {
     /* COLAMD */
     Cilen = colamd.COLAMD_recommended(nz, n, n);
@@ -294,7 +273,6 @@ KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Com
     /* invalid ordering */
     Common.status = KLU_INVALID;
     //klu_free_symbolic (Symbolic, Common) ;
-    Symbolic = null;
     return (null);
   }
 
@@ -308,15 +286,12 @@ KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Com
   /* allocate workspace for BTF permutation */
   /* ---------------------------------------------------------------------- */
 
-  Pbtf = malloc_int(n, Common);
-  Qbtf = malloc_int(n, Common);
+  final Pbtf = malloc_int(n, Common);
+  final Qbtf = malloc_int(n, Common);
   if (Common.status < KLU_OK) {
     //KLU_free (Pbtf, n, sizeof (int), Common) ;
-    Pbtf = null;
     //KLU_free (Qbtf, n, sizeof (int), Common) ;
-    Qbtf = null;
     //klu_free_symbolic (Symbolic, Common) ;
-    Symbolic = null;
     return (null);
   }
 
@@ -324,7 +299,7 @@ KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Com
   /* get the common parameters for BTF and ordering method */
   /* ---------------------------------------------------------------------- */
 
-  do_btf = Common.btf;
+  int do_btf = Common.btf;
   do_btf = (do_btf != 0) ? TRUE : FALSE;
   Symbolic.ordering = ordering;
   Symbolic.do_btf = do_btf;
@@ -336,20 +311,19 @@ KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Com
 
   Common.work = 0.0;
 
+  int nblocks, maxblock;
   if (do_btf != 0) {
     //Work = klu_malloc_int (5*n, Common) ;
     if (Common.status < KLU_OK) {
       /* out of memory */
       //klu_free (Pbtf, n, sizeof (int), Common) ;
-      Pbtf = null;
       //klu_free (Qbtf, n, sizeof (int), Common) ;
-      Qbtf = null;
       //klu_free_symbolic (Symbolic, Common) ;
-      Symbolic = null;
       return (null);
     }
 
-    nblocks = btf.order(n, Ap, Ai, Common.maxwork, work, Pbtf, Qbtf, R, structural_rank);
+    final nblocks = btf.order(n, Ap, Ai, Common.maxwork, work, Pbtf, Qbtf, R,
+        structural_rank);
     Symbolic.structural_rank = structural_rank[0];
     Common.structural_rank = Symbolic.structural_rank;
     Common.work += work[0];
@@ -358,17 +332,17 @@ KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Com
 
     /* unflip Qbtf if the matrix does not have full structural rank */
     if (Symbolic.structural_rank < n) {
-      for (k = 0; k < n; k++) {
+      for (int k = 0; k < n; k++) {
         Qbtf[k] = btf.BTF_UNFLIP(Qbtf[k]);
       }
     }
 
     /* find the size of the largest block */
     maxblock = 1;
-    for (block = 0; block < nblocks; block++) {
-      k1 = R[block];
-      k2 = R[block + 1];
-      nk = k2 - k1;
+    for (int block = 0; block < nblocks; block++) {
+      final k1 = R[block];
+      final k2 = R[block + 1];
+      final nk = k2 - k1;
       PRINTF("block $block size $nk\n");
       maxblock = MAX(maxblock, nk);
     }
@@ -378,7 +352,7 @@ KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Com
     maxblock = n;
     R[0] = 0;
     R[1] = n;
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       Pbtf[k] = k;
       Qbtf[k] = k;
     }
@@ -393,10 +367,10 @@ KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Com
   /* allocate more workspace, for analyze_worker */
   /* ---------------------------------------------------------------------- */
 
-  Pblk = malloc_int(maxblock, Common);
-  Cp = malloc_int(maxblock + 1, Common);
-  Ci = malloc_int(MAX(Cilen, nz + 1), Common);
-  Pinv = malloc_int(n, Common);
+  final Pblk = malloc_int(maxblock, Common);
+  final Cp = malloc_int(maxblock + 1, Common);
+  final Ci = malloc_int(MAX(Cilen, nz + 1), Common);
+  final Pinv = malloc_int(n, Common);
 
   /* ---------------------------------------------------------------------- */
   /* order each block of the BTF ordering, and a fill-reducing ordering */
@@ -404,7 +378,8 @@ KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Com
 
   if (Common.status == KLU_OK) {
     PRINTF(("calling analyze_worker\n"));
-    Common.status = analyze_worker(n, Ap, Ai, nblocks, Pbtf, Qbtf, R, ordering, P, Q, Lnz, Pblk, Cp, Ci, Cilen, Pinv, Symbolic, Common);
+    Common.status = analyze_worker(n, Ap, Ai, nblocks, Pbtf, Qbtf, R,
+        ordering, P, Q, Lnz, Pblk, Cp, Ci, Cilen, Pinv, Symbolic, Common);
     PRINTF("analyze_worker done\n");
   }
 
@@ -418,7 +393,6 @@ KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Com
   //klu_free (Pinv, n, sizeof (int), Common) ;
   //klu_free (Pbtf, n, sizeof (int), Common) ;
   //klu_free (Qbtf, n, sizeof (int), Common) ;
-  Pblk = Cp = Ci = Pinv = Pbtf = Qbtf = null;
 
   /* ---------------------------------------------------------------------- */
   /* return the symbolic object */
@@ -426,7 +400,6 @@ KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Com
 
   if (Common.status < KLU_OK) {
     //klu_free_symbolic (Symbolic, Common) ;
-    Symbolic = null;
   }
   return (Symbolic);
 }
@@ -435,13 +408,12 @@ KLU_symbolic order_and_analyze(int n, Int32List Ap, Int32List Ai, KLU_common Com
  * Order the matrix with BTF (or not), then order each block with AMD,
  * COLAMD, a natural ordering, or with a user-provided ordering function.
  *
- * @param n A is n-by-n
- * @param Ap size n+1, column pointers
- * @param Ai size nz, row indices
- * @param Common
- * @return null if error, or a valid KLU_symbolic object if successful
+ * A is [n]-by-[n]. Column pointers [Ap] is size `n+1`. Row indices [Ai] is
+ * size `nz`. Returns `null` if error, or a valid [KLU_symbolic] object if
+ * successful.
  */
-KLU_symbolic analyze(int n, Int32List Ap, Int32List Ai, KLU_common Common) {
+KLU_symbolic analyze(final int n, final Int32List Ap, final Int32List Ai,
+                     final KLU_common Common) {
   /* ---------------------------------------------------------------------- */
   /* get the control parameters for BTF and ordering method */
   /* ---------------------------------------------------------------------- */
@@ -464,4 +436,3 @@ KLU_symbolic analyze(int n, Int32List Ap, Int32List Ai, KLU_common Common) {
     return (order_and_analyze(n, Ap, Ai, Common));
   }
 }
-

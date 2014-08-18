@@ -21,18 +21,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-
 part of edu.ufl.cise.klu.tdouble;
 
 /**
  * Allocate Symbolic object, and check input matrix. Not user callable.
  */
-KLU_symbolic _alloc_symbolic(int n, Int32List Ap, Int32List Ai, KLU_common Common) {
-  KLU_symbolic Symbolic;
-  Int32List P, Q, R;
-  Float64List Lnz;
-  int nz, i, j, p, pend;
-
+KLU_symbolic _alloc_symbolic(final int n, final Int32List Ap,
+                             final Int32List Ai, final KLU_common Common) {
   if (Common == null) {
     return (null);
   }
@@ -50,37 +45,36 @@ KLU_symbolic _alloc_symbolic(int n, Int32List Ap, Int32List Ai, KLU_common Commo
     return (null);
   }
 
-  nz = Ap[n];
+  final nz = Ap[n];
   if (Ap[0] != 0 || nz < 0) {
     /* nz must be >= 0 and Ap [0] must equal zero */
     Common.status = KLU_INVALID;
     return (null);
   }
 
-  for (j = 0; j < n; j++) {
+  for (int j = 0; j < n; j++) {
     if (Ap[j] > Ap[j + 1]) {
       /* column pointers must be non-decreasing */
       Common.status = KLU_INVALID;
       return (null);
     }
   }
-  P = malloc_int(n, Common);
+  final P = malloc_int(n, Common);
   if (Common.status < KLU_OK) {
     /* out of memory */
     Common.status = KLU_OUT_OF_MEMORY;
     return (null);
   }
-  for (i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     P[i] = EMPTY;
   }
-  for (j = 0; j < n; j++) {
-    pend = Ap[j + 1];
-    for (p = Ap[j]; p < pend; p++) {
-      i = Ai[p];
+  for (int j = 0; j < n; j++) {
+    final pend = Ap[j + 1];
+    for (int p = Ap[j]; p < pend; p++) {
+      final i = Ai[p];
       if (i < 0 || i >= n || P[i] == j) {
         /* row index out of range, or duplicate entry */
         //klu_free (P, n, Integer.class, Common) ;
-        P = null;
         Common.status = KLU_INVALID;
         return (null);
       }
@@ -93,20 +87,20 @@ KLU_symbolic _alloc_symbolic(int n, Int32List Ap, Int32List Ai, KLU_common Commo
   /* allocate the Symbolic object */
   /* ---------------------------------------------------------------------- */
 
+  KLU_symbolic Symbolic;
   try {
     //Symbolic = klu_malloc (KLU_symbolic.class, 1, Common) ;
     Symbolic = new KLU_symbolic();
   } on OutOfMemoryError catch (e) {
     /* out of memory */
     //klu_free (P, n, sizeof (int), Common) ;
-    P = null;
     Common.status = KLU_OUT_OF_MEMORY;
     return (null);
   }
 
-  Q = malloc_int(n, Common);
-  R = malloc_int(n + 1, Common);
-  Lnz = malloc_dbl(n, Common);
+  final Q = malloc_int(n, Common);
+  final R = malloc_int(n + 1, Common);
+  final Lnz = malloc_dbl(n, Common);
 
   Symbolic.n = n;
   Symbolic.nz = nz;
@@ -129,52 +123,44 @@ KLU_symbolic _alloc_symbolic(int n, Int32List Ap, Int32List Ai, KLU_common Commo
 /**
  * Analyzes a matrix using given P and Q.
  *
- * Given an input permutation P and Q, create the Symbolic object.  BTF can
+ * Given an input permutation P and Q, create the Symbolic object. BTF can
  * be done to modify the user's P and Q (does not perform the max transversal;
  * just finds the strongly-connected components).
  *
  * Order the matrix with BTF (or not), then use natural or given ordering
- * P and Q on the blocks.  P and Q are interpreted as identity
- * if NULL.
+ * P and Q on the blocks. P and Q are interpreted as identity if `null`.
  *
- * @param n A is n-by-n
- * @param Ap size n+1, column pointers
- * @param Ai size nz, row indices
- * @param Puser size n, user's row permutation (may be null)
- * @param Quser size n, user's column permutation (may be null)
- * @param Common
- * @return
+ * User's row permutation [Puser] is size [n] and may be `null`. User's
+ * column permutation [Quser] is size [n] and may be `null`.
  */
-KLU_symbolic analyze_given(int n, Int32List Ap, Int32List Ai, Int32List Puser, Int32List Quser, KLU_common Common) {
-  KLU_symbolic Symbolic;
-  Float64List Lnz;
-  int nblocks, nz, block, maxblock, nzoff, p, pend, do_btf, k;
-  Int32List P, Q, R;
+KLU_symbolic analyze_given(final int n, final Int32List Ap,
+                           final Int32List Ai, final Int32List Puser,
+                           final Int32List Quser, final KLU_common Common) {
 
   /* ---------------------------------------------------------------------- */
   /* determine if input matrix is valid, and get # of nonzeros */
   /* ---------------------------------------------------------------------- */
 
-  Symbolic = _alloc_symbolic(n, Ap, Ai, Common);
+  final Symbolic = _alloc_symbolic(n, Ap, Ai, Common);
   if (Symbolic == null) {
     return (null);
   }
-  P = Symbolic.P;
-  Q = Symbolic.Q;
-  R = Symbolic.R;
-  Lnz = Symbolic.Lnz;
-  nz = Symbolic.nz;
+  final P = Symbolic.P;
+  final Q = Symbolic.Q;
+  final R = Symbolic.R;
+  final Lnz = Symbolic.Lnz;
+  final nz = Symbolic.nz;
 
   /* ---------------------------------------------------------------------- */
   /* Q = Quser, or identity if Quser is null */
   /* ---------------------------------------------------------------------- */
 
   if (Quser == null) {
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       Q[k] = k;
     }
   } else {
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       Q[k] = Quser[k];
     }
   }
@@ -183,7 +169,7 @@ KLU_symbolic analyze_given(int n, Int32List Ap, Int32List Ai, Int32List Puser, I
   /* get the control parameters for BTF and ordering method */
   /* ---------------------------------------------------------------------- */
 
-  do_btf = Common.btf;
+  int do_btf = Common.btf;
   do_btf = (do_btf != 0) ? TRUE : FALSE;
   Symbolic.ordering = 2;
   Symbolic.do_btf = do_btf;
@@ -192,6 +178,7 @@ KLU_symbolic analyze_given(int n, Int32List Ap, Int32List Ai, Int32List Puser, I
   /* find the block triangular form, if requested */
   /* ---------------------------------------------------------------------- */
 
+  int maxblock, nzoff, nblocks;
   if (do_btf != 0) {
 
     /* ------------------------------------------------------------------ */
@@ -220,7 +207,6 @@ KLU_symbolic analyze_given(int n, Int32List Ap, Int32List Ai, Int32List Puser, I
         Bi = null;
       }
       //klu_free_symbolic (Symbolic, Common) ;
-      Symbolic = null;
       Common.status = KLU_OUT_OF_MEMORY;
       return (null);
     }
@@ -230,10 +216,10 @@ KLU_symbolic analyze_given(int n, Int32List Ap, Int32List Ai, Int32List Puser, I
     /* ------------------------------------------------------------------ */
 
     if (Puser != null) {
-      for (k = 0; k < n; k++) {
+      for (int k = 0; k < n; k++) {
         Pinv[Puser[k]] = k;
       }
-      for (p = 0; p < nz; p++) {
+      for (int p = 0; p < nz; p++) {
         Bi[p] = Pinv[Ai[p]];
       }
     }
@@ -250,10 +236,10 @@ KLU_symbolic analyze_given(int n, Int32List Ap, Int32List Ai, Int32List Puser, I
     /* ------------------------------------------------------------------ */
 
     if (Puser != null) {
-      for (k = 0; k < n; k++) {
+      for (int k = 0; k < n; k++) {
         Work[k] = Puser[P[k]];
       }
-      for (k = 0; k < n; k++) {
+      for (int k = 0; k < n; k++) {
         P[k] = Work[k];
       }
     }
@@ -262,7 +248,7 @@ KLU_symbolic analyze_given(int n, Int32List Ap, Int32List Ai, Int32List Puser, I
     /* Pinv = inverse of P */
     /* ------------------------------------------------------------------ */
 
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       Pinv[P[k]] = k;
     }
 
@@ -275,7 +261,7 @@ KLU_symbolic analyze_given(int n, Int32List Ap, Int32List Ai, Int32List Puser, I
     maxblock = 1;
     /* size of the largest block */
 
-    for (block = 0; block < nblocks; block++) {
+    for (int block = 0; block < nblocks; block++) {
 
       /* -------------------------------------------------------------- */
       /* the block is from rows/columns k1 to k2-1 */
@@ -291,10 +277,10 @@ KLU_symbolic analyze_given(int n, Int32List Ap, Int32List Ai, Int32List Puser, I
       /* scan the kth block, C */
       /* -------------------------------------------------------------- */
 
-      for (k = k1; k < k2; k++) {
+      for (int k = k1; k < k2; k++) {
         oldcol = Q[k];
-        pend = Ap[oldcol + 1];
-        for (p = Ap[oldcol]; p < pend; p++) {
+        final pend = Ap[oldcol + 1];
+        for (int p = Ap[oldcol]; p < pend; p++) {
           if (Pinv[Ai[p]] < k1) {
             nzoff++;
           }
@@ -335,7 +321,7 @@ KLU_symbolic analyze_given(int n, Int32List Ap, Int32List Ai, Int32List Puser, I
     /* P = Puser, or identity if Puser is null */
     /* ------------------------------------------------------------------ */
 
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       P[k] = (Puser == null) ? k : Puser[k];
     }
   }

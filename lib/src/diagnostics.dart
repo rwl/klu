@@ -28,7 +28,7 @@
 part of edu.ufl.cise.klu.tdouble;
 
 /**
- * Compute the reciprocal pivot growth factor.  In MATLAB notation:
+ * Compute the reciprocal pivot growth factor. In MATLAB notation:
  *
  *   rgrowth = min (max (abs ((R \ A (p,q)) - F))) ./ max (abs (U)))
  *
@@ -36,18 +36,12 @@ part of edu.ufl.cise.klu.tdouble;
  *
  * Returns [TRUE] if successful, [FALSE] otherwise.
  */
-int rgrowth(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common) {
-  double temp, max_ai, max_ui, min_block_rgrowth;
-  double aik;
-  Int32List Q, Pinv;
-  Int32List Ulen, Uip;
-  Float64List LU;
-  Float64List Aentry, Ux, Ukk;
-  Float64List Rs;
-  int i, newrow, oldrow, k1, k2, nk, j, oldcol, k, pend;
-  Int32List len = new Int32List(1);
-  Int32List Ui_offset = new Int32List(1);
-  Int32List Ux_offset = new Int32List(1);
+int rgrowth(final Int32List Ap, final Int32List Ai, final Float64List Ax,
+            final KLU_symbolic Symbolic, final KLU_numeric Numeric,
+            final KLU_common Common) {
+  final len = new Int32List(1);
+  final Ui_offset = new Int32List(1);
+  final Ux_offset = new Int32List(1);
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
@@ -74,39 +68,40 @@ int rgrowth(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, K
   /* compute the reciprocal pivot growth */
   /* ---------------------------------------------------------------------- */
 
-  Aentry = Ax;// as Float64List;
-  Pinv = Numeric.Pinv;
-  Rs = Numeric.Rs;
-  Q = Symbolic.Q;
+  final Aentry = Ax;// as Float64List;
+  final Pinv = Numeric.Pinv;
+  final Rs = Numeric.Rs;
+  final Q = Symbolic.Q;
   Common.rgrowth = 1.0;
 
-  for (i = 0; i < Symbolic.nblocks; i++) {
-    k1 = Symbolic.R[i];
-    k2 = Symbolic.R[i + 1];
-    nk = k2 - k1;
+  for (int i = 0; i < Symbolic.nblocks; i++) {
+    final k1 = Symbolic.R[i];
+    final k2 = Symbolic.R[i + 1];
+    final nk = k2 - k1;
     if (nk == 1) {
       continue; // skip singleton blocks
     }
-    LU = Numeric.LUbx[i];
-    Uip = Numeric.Uip;
-    int Uip_offset = k1;
-    Ulen = Numeric.Ulen;
-    int Ulen_offset = k1;
-    Ukk = Numeric.Udiag;
-    int Ukk_offset = k1;
-    min_block_rgrowth = 1.0;
-    for (j = 0; j < nk; j++) {
-      max_ai = 0.0;
-      max_ui = 0.0;
-      oldcol = Q[j + k1];
-      pend = Ap[oldcol + 1];
-      for (k = Ap[oldcol]; k < pend; k++) {
-        oldrow = Ai[k];
-        newrow = Pinv[oldrow];
+    final LU = Numeric.LUbx[i];
+    final Uip = Numeric.Uip;
+    final Uip_offset = k1;
+    final Ulen = Numeric.Ulen;
+    final Ulen_offset = k1;
+    final Ukk = Numeric.Udiag;
+    final Ukk_offset = k1;
+    double min_block_rgrowth = 1.0;
+    for (int j = 0; j < nk; j++) {
+      double max_ai = 0.0;
+      double max_ui = 0.0;
+      final oldcol = Q[j + k1];
+      final pend = Ap[oldcol + 1];
+      for (int k = Ap[oldcol]; k < pend; k++) {
+        final oldrow = Ai[k];
+        final newrow = Pinv[oldrow];
         if (newrow < k1) {
           continue; // skip entry outside the block
         }
         ASSERT(newrow < k2);
+        double aik;
         if (Rs != null) {
           //SCALE_DIV_ASSIGN (aik, Aentry [k], Rs [newrow]) ;
           aik = Aentry[k] / Rs[newrow];
@@ -114,23 +109,24 @@ int rgrowth(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, K
           aik = Aentry[k];
         }
         //ABS (temp, aik) ;
-        temp = ABS(aik);
+        final temp = ABS(aik);
         if (temp > max_ai) {
           max_ai = temp;
         }
       }
 
-      Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, j, len);
-      for (k = 0; k < len[0]; k++) {
+      final Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset,
+          Ui_offset, Ux_offset, j, len);
+      for (int k = 0; k < len[0]; k++) {
         //ABS (temp, Ux [k]) ;
-        temp = ABS(Ux[Ux_offset[0] + k]);
+        final temp = ABS(Ux[Ux_offset[0] + k]);
         if (temp > max_ui) {
           max_ui = temp;
         }
       }
       /* consider the diagonal element */
       //ABS (temp, Ukk [j]) ;
-      temp = ABS(Ukk[Ukk_offset + j]);
+      final temp = ABS(Ukk[Ukk_offset + j]);
       if (temp > max_ui) {
         max_ui = temp;
       }
@@ -139,9 +135,9 @@ int rgrowth(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, K
       if (SCALAR_IS_ZERO(max_ui)) {
         continue;
       }
-      temp = max_ai / max_ui;
-      if (temp < min_block_rgrowth) {
-        min_block_rgrowth = temp;
+      final temp2 = max_ai / max_ui;
+      if (temp2 < min_block_rgrowth) {
+        min_block_rgrowth = temp2;
       }
     }
 
@@ -153,19 +149,17 @@ int rgrowth(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, K
 }
 
 /**
- * Estimate the condition number.  Uses Higham and Tisseur's algorithm
+ * Estimate the condition number. Uses Higham and Tisseur's algorithm
  * (A block algorithm for matrix 1-norm estimation, with applications to
  * 1-norm pseudospectra, SIAM J. Matrix Anal. Appl., 21(4):1185-1201, 2000.
  *
- * Takes about O(|A|+5*(|L|+|U|)) time
+ * Takes about `O(|A|+5*(|L|+|U|))` time.
  *
  * Returns [TRUE] if successful, [FALSE] otherwise.
  */
-int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common) {
-  double xj, Xmax, csum, anorm, ainv_norm, est_old, est_new, abs_value;
-  Float64List Udiag, Aentry, X, S;
-  int i, j, jmax, jnew, pend, n;
-  int unchanged;
+int condest(final Int32List Ap, final Float64List Ax,
+            final KLU_symbolic Symbolic, final KLU_numeric Numeric,
+            final KLU_common Common) {
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
@@ -178,7 +172,7 @@ int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Num
     Common.status = KLU_INVALID;
     return (FALSE);
   }
-  abs_value = 0.0;
+  double abs_value = 0.0;
   if (Numeric == null) {
     /* treat this as a singular matrix */
     Common.condest = 1 / abs_value;
@@ -191,14 +185,14 @@ int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Num
   /* get inputs */
   /* ---------------------------------------------------------------------- */
 
-  n = Symbolic.n;
-  Udiag = Numeric.Udiag;
+  final n = Symbolic.n;
+  final Udiag = Numeric.Udiag;
 
   /* ---------------------------------------------------------------------- */
   /* check if diagonal of U has a zero on it */
   /* ---------------------------------------------------------------------- */
 
-  for (i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     //ABS (abs_value, Udiag [i]) ;
     abs_value = ABS(Udiag[i]);
     if (SCALAR_IS_ZERO(abs_value)) {
@@ -212,12 +206,12 @@ int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Num
   /* compute 1-norm (maximum column sum) of the matrix */
   /* ---------------------------------------------------------------------- */
 
-  anorm = 0.0;
-  Aentry = Ax;// as Float64List ;
-  for (i = 0; i < n; i++) {
-    pend = Ap[i + 1];
-    csum = 0.0;
-    for (j = Ap[i]; j < pend; j++) {
+  double anorm = 0.0;
+  final Aentry = Ax;// as Float64List ;
+  for (int i = 0; i < n; i++) {
+    final pend = Ap[i + 1];
+    double csum = 0.0;
+    for (int j = Ap[i]; j < pend; j++) {
       //ABS (abs_value, Aentry [j]) ;
       abs_value = ABS(Aentry[j]);
       csum += abs_value;
@@ -232,27 +226,27 @@ int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Num
   /* ---------------------------------------------------------------------- */
 
   /* get workspace (size 2*n double's) */
-  X = Numeric.Xwork;
+  final X = Numeric.Xwork;
   /* size n space used in KLU_solve, tsolve */
   //X += n ;                       /* X is size n */
   int X_offset = n;
   //S = X + n ;                    /* S is size n */
-  S = X;
+  final S = X;
   int S_offset = 2 * n;
 
-  for (i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     CLEAR(S, S_offset + i);
     CLEAR(X, X_offset + i);
     //REAL (X [i]) = 1.0 / ((double) n) ;
     X[X_offset + i] = 1.0 / n;
   }
-  jmax = 0;
+  int jmax = 0;
 
-  ainv_norm = 0.0;
-  for (i = 0; i < 5; i++) {
+  double ainv_norm = 0.0;
+  for (int i = 0; i < 5; i++) {
     if (i > 0) {
       /* X [jmax] is the largest entry in X */
-      for (j = 0; j < n; j++) {
+      for (int j = 0; j < n; j++) {
         CLEAR(X, X_offset + j);
       }
       //REAL (X [jmax]) = 1 ;
@@ -260,19 +254,19 @@ int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Num
     }
 
     solve(Symbolic, Numeric, n, 1, X/* as Float64List*/, X_offset, Common);
-    est_old = ainv_norm;
+    final est_old = ainv_norm;
     ainv_norm = 0.0;
 
-    for (j = 0; j < n; j++) {
+    for (int j = 0; j < n; j++) {
       /* ainv_norm += ABS (X [j]) ;*/
       //ABS (abs_value, X [j]) ;
       abs_value = ABS(X[X_offset + j]);
       ainv_norm += abs_value;
     }
 
-    unchanged = TRUE;
+    int unchanged = TRUE;
 
-    for (j = 0; j < n; j++) {
+    for (int j = 0; j < n; j++) {
       double s = (X[X_offset + j] >= 0) ? 1.0 : -1.0;
       if (s != S[S_offset + j]) // s != REAL (S [j])
       {
@@ -285,7 +279,7 @@ int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Num
       break;
     }
 
-    for (j = 0; j < n; j++) {
+    for (int j = 0; j < n; j++) {
       X[j] = S[S_offset + j];
     }
 
@@ -293,11 +287,11 @@ int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Num
     tsolve(Symbolic, Numeric, n, 1, X, X_offset, Common);
 
     /* jnew = the position of the largest entry in X */
-    jnew = 0;
-    Xmax = 0.0;
-    for (j = 0; j < n; j++) {
+    int jnew = 0;
+    double Xmax = 0.0;
+    for (int j = 0; j < n; j++) {
       //ABS (xj, X [j]) ;
-      xj = ABS(X[X_offset + j]);
+      final xj = ABS(X[X_offset + j]);
       if (xj > Xmax) {
         Xmax = xj;
         jnew = j;
@@ -315,7 +309,7 @@ int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Num
   /* compute another estimate of norm(inv(A),1), and take the largest one */
   /* ---------------------------------------------------------------------- */
 
-  for (j = 0; j < n; j++) {
+  for (int j = 0; j < n; j++) {
     CLEAR(X, X_offset + j);
     if (j % 2 != 0) {
       //REAL (X [j]) = 1 + ((double) j) / ((double) (n-1)) ;
@@ -328,8 +322,8 @@ int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Num
 
   solve(Symbolic, Numeric, n, 1, X/* as Float64List*/, X_offset, Common);
 
-  est_new = 0.0;
-  for (j = 0; j < n; j++) {
+  double est_new = 0.0;
+  for (int j = 0; j < n; j++) {
     /* est_new += ABS (X [j]) ;*/
     //ABS (abs_value, X [j]) ;
     abs_value = ABS(X[X_offset + j]);
@@ -351,13 +345,8 @@ int condest(Int32List Ap, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Num
  *
  * Returns [TRUE] if successful, [FALSE] otherwise.
  */
-int flops(KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common) {
-  double flops = 0.0;
-  Int32List R, Uip, Llen, Ulen;
-  /*Int32List*/Float64List Ui;
-  List<Float64List> LUbx;
-  Float64List LU;
-  int k, ulen, p, nk, block, nblocks, k1;
+int flops(final KLU_symbolic Symbolic, final KLU_numeric Numeric,
+          final KLU_common Common) {
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
@@ -377,36 +366,37 @@ int flops(KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common) {
   /* get the contents of the Symbolic object */
   /* ---------------------------------------------------------------------- */
 
-  R = Symbolic.R;
-  nblocks = Symbolic.nblocks;
+  final R = Symbolic.R;
+  final nblocks = Symbolic.nblocks;
 
   /* ---------------------------------------------------------------------- */
   /* get the contents of the Numeric object */
   /* ---------------------------------------------------------------------- */
 
-  LUbx = Numeric.LUbx;// as List<Float64List> ;
+  final LUbx = Numeric.LUbx;// as List<Float64List> ;
 
   /* ---------------------------------------------------------------------- */
   /* compute the flop count */
   /* ---------------------------------------------------------------------- */
 
-  for (block = 0; block < nblocks; block++) {
-    k1 = R[block];
-    nk = R[block + 1] - k1;
+  double flops = 0.0;
+  for (int block = 0; block < nblocks; block++) {
+    final k1 = R[block];
+    final nk = R[block + 1] - k1;
     if (nk > 1) {
-      Llen = Numeric.Llen;
-      int Llen_offset = k1;
-      Uip = Numeric.Uip;
-      int Uip_offset = k1;
-      Ulen = Numeric.Ulen;
-      int Ulen_offset = k1;
-      LU = LUbx[block];
-      Int32List Ui_offset = new Int32List(1);
-      for (k = 0; k < nk; k++) {
+      final Llen = Numeric.Llen;
+      final Llen_offset = k1;
+      final Uip = Numeric.Uip;
+      final Uip_offset = k1;
+      final Ulen = Numeric.Ulen;
+      final Ulen_offset = k1;
+      final LU = LUbx[block];
+      final Ui_offset = new Int32List(1);
+      for (int k = 0; k < nk; k++) {
         /* compute kth column of U, and update kth column of A */
-        Ui = GET_I_POINTER(LU, Uip, Uip_offset, Ui_offset, k);
-        ulen = Ulen[Ulen_offset + k];
-        for (p = 0; p < ulen; p++) {
+        final Ui = GET_I_POINTER(LU, Uip, Uip_offset, Ui_offset, k);
+        final ulen = Ulen[Ulen_offset + k];
+        for (int p = 0; p < ulen; p++) {
           flops += 2 * Llen[Llen_offset + Ui[Ui_offset[0] + p].toInt().toInt()];
         }
         /* gather and divide by pivot to get kth column of L */
@@ -425,12 +415,8 @@ int flops(KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common) {
  *
  * Result is in `Common.rcond`. Returns [TRUE] if successful, [FALSE] otherwise.
  */
-int rcond(KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common) {
-  double ukk,
-      umin = 0.0,
-      umax = 0.0;
-  Float64List Udiag;
-  int j, n;
+int rcond(final KLU_symbolic Symbolic, final KLU_numeric Numeric,
+          final KLU_common Common) {
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
@@ -454,12 +440,14 @@ int rcond(KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common) {
   /* compute rcond */
   /* ---------------------------------------------------------------------- */
 
-  n = Symbolic.n;
-  Udiag = Numeric.Udiag;
-  for (j = 0; j < n; j++) {
+  final n = Symbolic.n;
+  final Udiag = Numeric.Udiag;
+  double umin = 0.0;
+  double umax = 0.0;
+  for (int j = 0; j < n; j++) {
     /* get the magnitude of the pivot */
     //ABS (ukk, Udiag [j]) ;
-    ukk = ABS(Udiag[j]);
+    final ukk = ABS(Udiag[j]);
     if (SCALAR_IS_NAN(ukk) || SCALAR_IS_ZERO(ukk)) {
       /* if NaN, or zero, the rcond is zero */
       Common.rcond = 0.0;

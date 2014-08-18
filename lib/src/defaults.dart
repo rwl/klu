@@ -27,34 +27,34 @@ part of edu.ufl.cise.klu.tdouble;
 /**
  * Sets default parameters for KLU.
  */
-int defaults(KLU_common Common) {
-  if (Common == null) {
+int defaults(final KLU_common common) {
+  if (common == null) {
     return (FALSE);
   }
 
   /* parameters */
   /** pivot tolerance for diagonal */
-  Common.tol = 0.001;
+  common.tol = 0.001;
   /** realloc size ratio increase for LU factors */
-  Common.memgrow = 1.2;
+  common.memgrow = 1.2;
   /** init. mem with AMD:  c*nnz(L) + n */
-  Common.initmem_amd = 1.2;
+  common.initmem_amd = 1.2;
   /** init. mem otherwise: c*nnz(A) + n */
-  Common.initmem = 10.0;
+  common.initmem = 10.0;
   /** use BTF pre-ordering, or not */
-  Common.btf = TRUE;
+  common.btf = TRUE;
   /** no limit to work done by btf_order */
-  Common.maxwork = 0.0;
+  common.maxwork = 0.0;
   /** 0: AMD, 1: COLAMD, 2: user-provided P and Q,
    * 3: user-provided function */
-  Common.ordering = 0;
+  common.ordering = 0;
   /** scale: -1: none, and do not check for errors
   * in the input matrix in KLU_refactor.
   * 0: none, but check for errors,
   * 1: sum, 2: max */
-  Common.scale = 2;
+  common.scale = 2;
   /** quick halt if matrix is singular */
-  Common.halt_if_singular = TRUE;
+  common.halt_if_singular = TRUE;
 
   /* memory management routines */
   //Common.malloc_memory  = malloc ;
@@ -63,24 +63,24 @@ int defaults(KLU_common Common) {
   //Common.realloc_memory = realloc ;
 
   /* user ordering function and optional argument */
-  Common.user_order = null;
-  Common.user_data = null;
+  common.user_order = null;
+  common.user_data = null;
 
   /* statistics */
-  Common.status = KLU_OK;
-  Common.nrealloc = 0;
-  Common.structural_rank = EMPTY;
-  Common.numerical_rank = EMPTY;
-  Common.noffdiag = EMPTY;
-  Common.flops = EMPTY_D;
-  Common.rcond = EMPTY_D;
-  Common.condest = EMPTY_D;
-  Common.rgrowth = EMPTY_D;
-  Common.work = 0.0;
+  common.status = KLU_OK;
+  common.nrealloc = 0;
+  common.structural_rank = EMPTY;
+  common.numerical_rank = EMPTY;
+  common.noffdiag = EMPTY;
+  common.flops = EMPTY_D;
+  common.rcond = EMPTY_D;
+  common.condest = EMPTY_D;
+  common.rgrowth = EMPTY_D;
+  common.work = 0.0;
   /* work done by btf_order */
 
-  Common.memusage = 0;
-  Common.mempeak = 0;
+  common.memusage = 0;
+  common.mempeak = 0;
 
   return (TRUE);
 }
