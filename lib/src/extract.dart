@@ -26,40 +26,28 @@ part of edu.ufl.cise.klu.tdouble;
 
 /**
  * Extract KLU factorization into conventional compressed-column matrices.
- * If any output array is null, that part of the LU factorization is not
+ * If any output array is `null`, that part of the LU factorization is not
  * extracted (this is not an error condition).
  *
- * nnz(L) = Numeric.lnz, nnz(U) = Numeric.unz, and nnz(F) = Numeric.Offp [n]
+ * `nnz(L) = Numeric.lnz, nnz(U) = Numeric.unz, and nnz(F) = Numeric.Offp[n]`
  *
- * @param Numeric
- * @param Symbolic
- * @param Lp size n+1
- * @param Li size nnz(L)
- * @param Lx size nnz(L)
- * @param Up size n+1
- * @param Ui size nnz(U)
- * @param Ux size nnz(U)
- * @param Fp size n+1
- * @param Fi size nnz(F)
- * @param Fx size nnz(F)
- * @param P row permutation, size n
- * @param Q column permutation, size n
- * @param Rs scale factors, size n
- * @param R block boundaries, size nblocks+1
- * @param Common
- * @return
+ * [Lp] is size `n+1`. [Li] is size `nnz(L)`. Lx is size `nnz(L)`. Up is
+ * size `n+1`. [Ui] is size `nnz(U)`. [Ux] is size `nnz(U)`. Fp is size `n+1`.
+ * [Fi] is size `nnz(F)`. [Fx] is size `nnz(F)`. Row permutation [P] is size
+ * `n`. Column permutation [Q] is size `n`. Scale factors [Rs] is size `n`.
+ * Block boundaries [R] is size `nblocks+1`.
  */
-int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List Li, Float64List Lx, Int32List Up, Int32List Ui, Float64List Ux, Int32List Fp, Int32List Fi, Float64List Fx, Int32List P, Int32List Q, Float64List Rs, Int32List R, KLU_common Common) {
-  Int32List Lip, Llen, Uip, Ulen;
-  /*Int32List*/Float64List Li2, Ui2;
-  Float64List LU;
-  Float64List Lx2, Ux2, Ukk;
-  int i, k, block, nblocks, n, nz, k1, k2, nk, kk, p;
-  Int32List len = new Int32List(1);
-  Int32List Li2_offset = new Int32List(1);
-  Int32List Lx2_offset = new Int32List(1);
-  Int32List Ui2_offset = new Int32List(1);
-  Int32List Ux2_offset = new Int32List(1);
+int extract(final KLU_numeric Numeric, final KLU_symbolic Symbolic,
+            final Int32List Lp, final Int32List Li, final Float64List Lx,
+            final Int32List Up, final Int32List Ui, final Float64List Ux,
+            final Int32List Fp, final Int32List Fi, final Float64List Fx,
+            final Int32List P, final Int32List Q, final Float64List Rs,
+            final Int32List R, final KLU_common Common) {
+  final len = new Int32List(1);
+  final Li2_offset = new Int32List(1);
+  final Lx2_offset = new Int32List(1);
+  final Ui2_offset = new Int32List(1);
+  final Ux2_offset = new Int32List(1);
 
   if (Common == null) {
     return (FALSE);
@@ -71,8 +59,8 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List 
   }
 
   Common.status = KLU_OK;
-  n = Symbolic.n;
-  nblocks = Symbolic.nblocks;
+  final n = Symbolic.n;
+  final nblocks = Symbolic.nblocks;
 
   /* ---------------------------------------------------------------------- */
   /* extract scale factors */
@@ -80,12 +68,12 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List 
 
   if (Rs != null) {
     if (Numeric.Rs != null) {
-      for (i = 0; i < n; i++) {
+      for (int i = 0; i < n; i++) {
         Rs[i] = Numeric.Rs[i];
       }
     } else {
       /* no scaling */
-      for (i = 0; i < n; i++) {
+      for (int i = 0; i < n; i++) {
         Rs[i] = 1.0;
       }
     }
@@ -96,7 +84,7 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List 
   /* ---------------------------------------------------------------------- */
 
   if (R != null) {
-    for (block = 0; block <= nblocks; block++) {
+    for (int block = 0; block <= nblocks; block++) {
       R[block] = Symbolic.R[block];
     }
   }
@@ -106,7 +94,7 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List 
   /* ---------------------------------------------------------------------- */
 
   if (P != null) {
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       P[k] = Numeric.Pnum[k];
     }
   }
@@ -116,7 +104,7 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List 
   /* ---------------------------------------------------------------------- */
 
   if (Q != null) {
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       Q[k] = Symbolic.Q[k];
     }
   }
@@ -125,12 +113,13 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List 
   /* extract each block of L */
   /* ---------------------------------------------------------------------- */
 
+  int nz;
   if (Lp != null && Li != null && Lx != null) {
     nz = 0;
-    for (block = 0; block < nblocks; block++) {
-      k1 = Symbolic.R[block];
-      k2 = Symbolic.R[block + 1];
-      nk = k2 - k1;
+    for (int block = 0; block < nblocks; block++) {
+      final k1 = Symbolic.R[block];
+      final k2 = Symbolic.R[block + 1];
+      final nk = k2 - k1;
       if (nk == 1) {
         /* singleton block */
         Lp[k1] = nz;
@@ -139,19 +128,21 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List 
         nz++;
       } else {
         /* non-singleton block */
-        LU = Numeric.LUbx[block];
-        Lip = Numeric.Lip;
-        int Lip_offset = k1;
-        Llen = Numeric.Llen;
+        final LU = Numeric.LUbx[block];
+        final Lip = Numeric.Lip;
+        final Lip_offset = k1;
+        final Llen = Numeric.Llen;
         int Llen_offset = k1;
-        for (kk = 0; kk < nk; kk++) {
+        for (int kk = 0; kk < nk; kk++) {
           Lp[k1 + kk] = nz;
           /* add the unit diagonal entry */
           Li[nz] = k1 + kk;
           Lx[nz] = 1.0;
           nz++;
-          Li2 = Lx2 = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li2_offset, Lx2_offset, kk, len);
-          for (p = 0; p < len[0]; p++) {
+          final Li2 = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset,
+              Li2_offset, Lx2_offset, kk, len);
+          final Lx2 = Li2;
+          for (int p = 0; p < len[0]; p++) {
             Li[nz] = k1 + Li2[Li2_offset[0] + p].toInt();
             Lx[nz] = Lx2[Lx2_offset[0] + p]; //REAL (Lx2 [p]) ;
             nz++;
@@ -169,12 +160,12 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List 
 
   if (Up != null && Ui != null && Ux != null) {
     nz = 0;
-    for (block = 0; block < nblocks; block++) {
-      k1 = Symbolic.R[block];
-      k2 = Symbolic.R[block + 1];
-      nk = k2 - k1;
-      Ukk = Numeric.Udiag;
-      int Ukk_offset = k1;
+    for (int block = 0; block < nblocks; block++) {
+      final k1 = Symbolic.R[block];
+      final k2 = Symbolic.R[block + 1];
+      final nk = k2 - k1;
+      final Ukk = Numeric.Udiag;
+      final Ukk_offset = k1;
       if (nk == 1) {
         /* singleton block */
         Up[k1] = nz;
@@ -183,15 +174,17 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List 
         nz++;
       } else {
         /* non-singleton block */
-        LU = Numeric.LUbx[block];
-        Uip = Numeric.Uip;
-        int Uip_offset = k1;
-        Ulen = Numeric.Ulen;
-        int Ulen_offset = k1;
-        for (kk = 0; kk < nk; kk++) {
+        final LU = Numeric.LUbx[block];
+        final Uip = Numeric.Uip;
+        final Uip_offset = k1;
+        final Ulen = Numeric.Ulen;
+        final Ulen_offset = k1;
+        for (int kk = 0; kk < nk; kk++) {
           Up[k1 + kk] = nz;
-          Ui2 = Ux2 = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui2_offset, Ux2_offset, kk, len);
-          for (p = 0; p < len[0]; p++) {
+          final Ui2 = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset,
+              Ui2_offset, Ux2_offset, kk, len);
+          final Ux2 = Ui2;
+          for (int p = 0; p < len[0]; p++) {
             Ui[nz] = k1 + Ui2[Ui2_offset[0] + p].toInt();
             Ux[nz] = Ux2[Ux2_offset[0] + p]; //REAL (Ux2 [p]) ;
             nz++;
@@ -212,14 +205,14 @@ int extract(KLU_numeric Numeric, KLU_symbolic Symbolic, Int32List Lp, Int32List 
   /* ---------------------------------------------------------------------- */
 
   if (Fp != null && Fi != null && Fx != null) {
-    for (k = 0; k <= n; k++) {
+    for (int k = 0; k <= n; k++) {
       Fp[k] = Numeric.Offp[k];
     }
     nz = Fp[n];
-    for (k = 0; k < nz; k++) {
+    for (int k = 0; k < nz; k++) {
       Fi[k] = Numeric.Offi[k];
     }
-    for (k = 0; k < nz; k++) {
+    for (int k = 0; k < nz; k++) {
       Fx[k] = Numeric.Offx[k];
       //Fx [k] = REAL (((Float64List) Numeric.Offx) [k]) ;
     }

@@ -1,5 +1,5 @@
 name: klu
-version: 0.2.0
+version: 0.2.1
 author: Richard Lincoln <r.w.lincoln@gmail.com>
 description: A sparse LU factorization algorithm suited to circuit simulation.
 homepage: http://www.cise.ufl.edu/research/sparse/klu/

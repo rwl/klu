@@ -21,7 +21,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-
 part of edu.ufl.cise.klu.tdouble;
 
 /**
@@ -40,8 +39,8 @@ void ASSERT_INT(int a) {
 }
 
 /**
- * @return true if an integer (stored in double x) would overflow (or if
- * x is NaN)
+ * Returns `true` if an integer (stored in double x) would overflow (or if
+ * x is NaN).
  */
 bool INT_OVERFLOW(double x) {
   return ((!(x * (1.0 + 1e-8) <= INT_MAX)) || SCALAR_IS_NAN(x));

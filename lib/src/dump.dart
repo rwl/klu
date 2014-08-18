@@ -28,44 +28,44 @@
 part of edu.ufl.cise.klu.tdouble;
 
 /**
- * Check if a column-form matrix is valid or not.  The matrix A is
- * n-by-n.  The row indices of entries in column j are in
- * `Ai[Ap [j] ... Ap [j+1]-1]`.  Required conditions are:
+ * Check if a column-form matrix is valid or not. The matrix A is
+ * [n]-by-[n].  The row indices of entries in column j are in
+ * `Ai[Ap [j] ... Ap [j+1]-1]`. Required conditions are:
  *
- *      n >= 0
- *      nz = Ap [n_col] >= 0        number of entries in the matrix
- *      Ap [0] == 0
- *      Ap [j] <= Ap [j+1] for all j in the range 0 to n_col.
- *      row indices in Ai [Ap [j] ... Ap [j+1]-1]
- *          must be in the range 0 to n_row-1,
- *          and no duplicate entries can exist (duplicates not checked here).
+ * 1. `n >= 0`
+ * 2. `nz = Ap[n_col] >= 0` number of entries in the matrix
+ * 3. `Ap[0] == 0`
+ * 4. `Ap[j] <= Ap[j+1]` for all j in the range 0 to n_col.
+ * 5. row indices in `Ai[Ap [j] ... Ap [j+1]-1]` must be in the
+ *    range 0 to n_row-1, and no duplicate entries can exist
+ *    (duplicates not checked here).
  *
  * Not user-callable.  Only used when debugging.
  */
-int _valid(int n, Int32List Ap, Int32List Ai, Float64List Ax) {
-  int nz, j, p1, p2, i, p;
+int _valid(final int n, final Int32List Ap, final Int32List Ai,
+           final Float64List Ax) {
   PRINTF("\ncolumn oriented matrix, n = $n\n");
   if (n <= 0) {
     PRINTF("n must be >= 0: $n\n");
     return (FALSE);
   }
-  nz = Ap[n];
+  final nz = Ap[n];
   if (Ap[0] != 0 || nz < 0) {
     /* column pointers must start at Ap [0] = 0, and Ap [n] must be >= 0 */
     PRINTF("column 0 pointer bad or nz < 0\n");
     return (FALSE);
   }
-  for (j = 0; j < n; j++) {
-    p1 = Ap[j];
-    p2 = Ap[j + 1];
+  for (int j = 0; j < n; j++) {
+    final p1 = Ap[j];
+    final p2 = Ap[j + 1];
     PRINTF("\nColumn: $j p1: $p1 p2: $p2\n");
     if (p1 > p2) {
       /* column pointers must be ascending */
       PRINTF("column $j pointer bad\n");
       return (FALSE);
     }
-    for (p = p1; p < p2; p++) {
-      i = Ai[p];
+    for (int p = p1; p < p2; p++) {
+      final i = Ai[p];
       PRINTF("row: $i");
       if (i < 0 || i >= n) {
         /* row index out of range */
@@ -85,15 +85,14 @@ int _valid(int n, Int32List Ap, Int32List Ai, Float64List Ax) {
  * This function does the same validity tests as KLU_valid but for the
  * LU factor storage format. The flag flag_test_start_ptr is used to
  * test if Xip [0] = 0. This is not applicable for U. So when calling this
- * function for U, the flag should be set to false.  Only used when debugging.
+ * function for U, the flag should be set to false. Only used when debugging.
  */
-_valid_LU(int n, int flag_test_start_ptr, Int32List Xip, int Xip_offset, Int32List Xlen, int Xlen_offset, Float64List LU) {
-  /*Int32List*/Float64List Xi;
-  Float64List Xx;
-  int j, p1, p2, i, p;
-  Int32List len = new Int32List(1);
-  Int32List Xi_offset = new Int32List(1);
-  Int32List Xx_offset = new Int32List(1);
+_valid_LU(final int n, final int flag_test_start_ptr, final Int32List Xip,
+          final int Xip_offset, final Int32List Xlen, final int Xlen_offset,
+          final Float64List LU) {
+  final len = new Int32List(1);
+  final Xi_offset = new Int32List(1);
+  final Xx_offset = new Int32List(1);
 
   PRINTF("\ncolumn oriented matrix, n = $n\n");
   if (n <= 0) {
@@ -106,18 +105,19 @@ _valid_LU(int n, int flag_test_start_ptr, Int32List Xip, int Xip_offset, Int32Li
     return (FALSE);
   }
 
-  for (j = 0; j < n; j++) {
-    p1 = Xip[Xip_offset + j];
-    p2 = Xip[Xip_offset + j + 1];
+  for (int j = 0; j < n; j++) {
+    final p1 = Xip[Xip_offset + j];
+    final p2 = Xip[Xip_offset + j + 1];
     PRINTF("\nColumn: $j p1: $p1 p2: $p2\n");
     if (p1 > p2) {
       /* column pointers must be ascending */
       PRINTF("column $j pointer bad\n");
       return (FALSE);
     }
-    Xi = Xx = GET_POINTER(LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len);
-    for (p = 0; p < len[0]; p++) {
-      i = Xi[Xi_offset[0] + p].toInt();
+    final Xi = GET_POINTER(LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len);
+    final Xx = Xi;
+    for (int p = 0; p < len[0]; p++) {
+      final i = Xi[Xi_offset[0] + p].toInt();
       PRINTF("row: $i");
       if (i < 0 || i >= n) {
         /* row index out of range */

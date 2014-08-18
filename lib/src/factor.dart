@@ -21,30 +21,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-
-/**
- * Factor the matrix, after ordering and analyzing it with KLU_analyze
- * or KLU_analyze_given.
- */
 part of edu.ufl.cise.klu.tdouble;
 
-/**
- *
- * @param Ap size n+1, column pointers
- * @param Ai size nz, row indices
- * @param Ax
- * @param Symbolic
- * @param Numeric
- * @param Common
- */
-void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common) {
-  double lsize;
-  Float64List Lnz, Rs;
-  Int32List P, Q, R, Pnum, Offp, Offi, Pblock, Pinv, Iwork, Lip, Uip, Llen, Ulen;
-  Float64List Offx, X, Udiag;
-  double s;
-  List<Float64List> LUbx;
-  int k1, k2, nk, k, block, oldcol, pend, oldrow, n, lnz, unz, p, newrow, nblocks, poff, nzoff, scale, max_lnz_block, max_unz_block;
+void factor2(final Int32List Ap, final Int32List Ai, final Float64List Ax,
+             final KLU_symbolic Symbolic, final KLU_numeric Numeric,
+             final KLU_common Common) {
   Int32List lnz_block = new Int32List(1);
   Int32List unz_block = new Int32List(1);
 
@@ -53,55 +34,55 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
   /* ---------------------------------------------------------------------- */
 
   /* get the contents of the Symbolic object */
-  n = Symbolic.n;
-  P = Symbolic.P;
-  Q = Symbolic.Q;
-  R = Symbolic.R;
-  Lnz = Symbolic.Lnz;
-  nblocks = Symbolic.nblocks;
-  nzoff = Symbolic.nzoff;
+  final n = Symbolic.n;
+  final P = Symbolic.P;
+  final Q = Symbolic.Q;
+  final R = Symbolic.R;
+  final Lnz = Symbolic.Lnz;
+  final nblocks = Symbolic.nblocks;
+  final nzoff = Symbolic.nzoff;
 
-  Pnum = Numeric.Pnum;
-  Offp = Numeric.Offp;
-  Offi = Numeric.Offi;
-  Offx = Numeric.Offx;
+  final Pnum = Numeric.Pnum;
+  final Offp = Numeric.Offp;
+  final Offi = Numeric.Offi;
+  final Offx = Numeric.Offx;
 
-  Lip = Numeric.Lip;
-  Uip = Numeric.Uip;
-  Llen = Numeric.Llen;
-  Ulen = Numeric.Ulen;
-  LUbx = Numeric.LUbx;
-  Udiag = Numeric.Udiag;
+  final Lip = Numeric.Lip;
+  final Uip = Numeric.Uip;
+  final Llen = Numeric.Llen;
+  final Ulen = Numeric.Ulen;
+  final LUbx = Numeric.LUbx;
+  final Udiag = Numeric.Udiag;
 
-  Rs = Numeric.Rs;
-  Pinv = Numeric.Pinv;
-  X = Numeric.Xwork; // X is of size n
-  Iwork = Numeric.Iwork; // 5*maxblock for KLU_factor
+  final Rs = Numeric.Rs;
+  final Pinv = Numeric.Pinv;
+  final X = Numeric.Xwork; // X is of size n
+  final Iwork = Numeric.Iwork; // 5*maxblock for KLU_factor
   //Pblock = Iwork + 5*((int) Symbolic.maxblock) ;
-  Pblock = new Int32List(Symbolic.maxblock);// 1*maxblock for Pblock
+  final Pblock = new Int32List(Symbolic.maxblock);// 1*maxblock for Pblock
   Common.nrealloc = 0;
-  scale = Common.scale;
-  max_lnz_block = 1;
-  max_unz_block = 1;
+  final scale = Common.scale;
+  int max_lnz_block = 1;
+  int max_unz_block = 1;
 
   /* compute the inverse of P from symbolic analysis. Will be updated to
    * become the inverse of the numerical factorization when the factorization
    * is done, for use in KLU_refactor */
   if (!NDEBUG) {
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       Pinv[k] = EMPTY;
     }
   }
-  for (k = 0; k < n; k++) {
+  for (int k = 0; k < n; k++) {
     ASSERT(P[k] >= 0 && P[k] < n);
     Pinv[P[k]] = k;
   }
   if (!NDEBUG) {
-    for (k = 0; k < n; k++) ASSERT(Pinv[k] != EMPTY);
+    for (int k = 0; k < n; k++) ASSERT(Pinv[k] != EMPTY);
   }
 
-  lnz = 0;
-  unz = 0;
+  int lnz = 0;
+  int unz = 0;
   Common.noffdiag = 0;
   Offp[0] = 0;
 
@@ -126,7 +107,7 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
 
   if (!NDEBUG) {
     if (scale > 0) {
-      for (k = 0; k < n; k++) PRINTF("Rs [$k] ${Rs [k]}\n");
+      for (int k = 0; k < n; k++) PRINTF("Rs [$k] ${Rs [k]}\n");
     }
   }
 
@@ -134,15 +115,15 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
   /* factor each block using klu */
   /* ---------------------------------------------------------------------- */
 
-  for (block = 0; block < nblocks; block++) {
+  for (int block = 0; block < nblocks; block++) {
 
     /* ------------------------------------------------------------------ */
     /* the block is from rows/columns k1 to k2-1 */
     /* ------------------------------------------------------------------ */
 
-    k1 = R[block];
-    k2 = R[block + 1];
-    nk = k2 - k1;
+    final k1 = R[block];
+    final k2 = R[block + 1];
+    final nk = k2 - k1;
     PRINTF("FACTOR BLOCK $block, k1 $k1 k2-1 ${k2-1} nk $nk\n");
 
     if (nk == 1) {
@@ -151,17 +132,17 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
       /* singleton case */
       /* -------------------------------------------------------------- */
 
-      poff = Offp[k1];
-      oldcol = Q[k1];
-      pend = Ap[oldcol + 1];
+      int poff = Offp[k1];
+      final oldcol = Q[k1];
+      final pend = Ap[oldcol + 1];
       //CLEAR (s) ;
-      s = 0.0;
+      double s = 0.0;
 
       if (scale <= 0) {
         /* no scaling */
-        for (p = Ap[oldcol]; p < pend; p++) {
-          oldrow = Ai[p];
-          newrow = Pinv[oldrow];
+        for (int p = Ap[oldcol]; p < pend; p++) {
+          final oldrow = Ai[p];
+          final newrow = Pinv[oldrow];
           if (newrow < k1) {
             Offi[poff] = oldrow;
             Offx[poff] = Ax[p];
@@ -179,9 +160,9 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
          * used below.  When the factorization is done, the scale
          * factors are permuted, so that Rs [newrow] will be used in
          * klu_solve, klu_tsolve, and klu_rgrowth */
-        for (p = Ap[oldcol]; p < pend; p++) {
-          oldrow = Ai[p];
-          newrow = Pinv[oldrow];
+        for (int p = Ap[oldcol]; p < pend; p++) {
+          final oldrow = Ai[p];
+          final newrow = Pinv[oldrow];
           if (newrow < k1) {
             Offi[poff] = oldrow;
             //SCALE_DIV_ASSIGN (Offx [poff], Ax [p], Rs [oldrow]) ;
@@ -220,6 +201,7 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
       /* construct and factorize the kth block */
       /* -------------------------------------------------------------- */
 
+      double lsize;
       if (Lnz[block] < 0) {
         /* COLAMD was used - no estimate of fill-in */
         /* use 10 times the nnz in A, plus n */
@@ -260,7 +242,7 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
       /* -------------------------------------------------------------- */
 
       PRINTF("Pnum, 1-based:\n");
-      for (k = 0; k < nk; k++) {
+      for (int k = 0; k < nk; k++) {
         ASSERT(k + k1 < n);
         ASSERT(Pblock[k] + k1 < n);
         Pnum[k + k1] = P[Pblock[k] + k1];
@@ -281,25 +263,25 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
 
   /* compute the inverse of Pnum */
   if (!NDEBUG) {
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       Pinv[k] = EMPTY;
     }
   }
-  for (k = 0; k < n; k++) {
+  for (int k = 0; k < n; k++) {
     ASSERT(Pnum[k] >= 0 && Pnum[k] < n);
     Pinv[Pnum[k]] = k;
   }
   if (!NDEBUG) {
-    for (k = 0; k < n; k++) ASSERT(Pinv[k] != EMPTY);
+    for (int k = 0; k < n; k++) ASSERT(Pinv[k] != EMPTY);
   }
 
   /* permute scale factors Rs according to pivotal row order */
   if (scale > 0) {
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       //REAL (X [k]) = Rs [Pnum [k]] ;
       X[k] = Rs[Pnum[k]];
     }
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       Rs[k] = X[k]; //REAL (X [k]) ;
     }
   }
@@ -308,7 +290,7 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
   if (!NDEBUG) ASSERT_INT(_valid(n, Offp, Offi, Offx));
 
   /* apply the pivot row permutations to the off-diagonal entries */
-  for (p = 0; p < nzoff; p++) {
+  for (int p = 0; p < nzoff; p++) {
     ASSERT(Offi[p] >= 0 && Offi[p] < n);
     Offi[p] = Pinv[Offi[p]];
   }
@@ -319,11 +301,11 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
   if (!NDEBUG) {
     PRINTF("\n ############# KLU_BTF_FACTOR done, nblocks $nblocks\n");
     double ss;
-    Udiag = Numeric.Udiag;
-    for (block = 0; block < nblocks && Common.status == KLU_OK; block++) {
-      k1 = R[block];
-      k2 = R[block + 1];
-      nk = k2 - k1;
+    final Udiag = Numeric.Udiag;
+    for (int block = 0; block < nblocks && Common.status == KLU_OK; block++) {
+      final k1 = R[block];
+      final k2 = R[block + 1];
+      final nk = k2 - k1;
       PRINTF("\n======================KLU_factor output: k1 $k1 k2 $k2 nk $nk\n");
       if (nk == 1) {
         PRINTF("singleton  ");
@@ -331,18 +313,17 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
         ss = Udiag[k1];
         PRINT_ENTRY(ss);
       } else {
-        Float64List LU;
-        Lip = Numeric.Lip;
-        int Lip_offset = k1;
-        Llen = Numeric.Llen;
-        int Llen_offset = k1;
-        LU = Numeric.LUbx[block];// as Float64List ;
+        final Lip = Numeric.Lip;
+        final Lip_offset = k1;
+        final Llen = Numeric.Llen;
+        final Llen_offset = k1;
+        final LU = Numeric.LUbx[block];// as Float64List ;
         PRINTF("\n---- L block $block\n");
         if (!NDEBUG) ASSERT(_valid_LU(nk, TRUE, Lip, Lip_offset, Llen, Llen_offset, LU));
-        Uip = Numeric.Uip;
-        int Uip_offset = k1;
-        Ulen = Numeric.Ulen;
-        int Ulen_offset = k1;
+        final Uip = Numeric.Uip;
+        final Uip_offset = k1;
+        final Ulen = Numeric.Ulen;
+        final Ulen_offset = k1;
         PRINTF("\n---- U block $block\n");
         if (!NDEBUG) ASSERT(_valid_LU(nk, FALSE, Uip, Uip_offset, Ulen, Ulen_offset, LU));
       }
@@ -351,20 +332,14 @@ void factor2(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
 }
 
 /**
+ * Factor the matrix, after ordering and analyzing it with KLU_analyze
+ * or KLU_analyze_given.
  *
- * @param Ap size n+1, column pointers
- * @param Ai size nz, row indices
- * @param Ax
- * @param Symbolic
- * @param Common
- * @return null if error, or a valid KLU_numeric object if successful
+ * Returns `null` on error or a valid [KLU_numeric] object if successful.
  */
-KLU_numeric factor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, KLU_common Common) {
-  int n, nzoff, nblocks, maxblock, k;
-  final ok = new Int32List.fromList([TRUE]);
-  KLU_numeric Numeric;
-  int n1, nzoff1, s, b6, n3;
-
+KLU_numeric factor(final Int32List Ap, final Int32List Ai,
+                   final Float64List Ax, final KLU_symbolic Symbolic,
+                   final KLU_common Common) {
   if (Common == null) {
     return (null);
   }
@@ -382,10 +357,10 @@ KLU_numeric factor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symb
     return (null);
   }
 
-  n = Symbolic.n;
-  nzoff = Symbolic.nzoff;
-  nblocks = Symbolic.nblocks;
-  maxblock = Symbolic.maxblock;
+  final n = Symbolic.n;
+  final nzoff = Symbolic.nzoff;
+  final nblocks = Symbolic.nblocks;
+  final maxblock = Symbolic.maxblock;
   PRINTF("KLU_factor:  n $n nzoff $nzoff nblocks $nblocks maxblock $maxblock\n");
 
   /* ---------------------------------------------------------------------- */
@@ -403,10 +378,11 @@ KLU_numeric factor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symb
   /* ---------------------------------------------------------------------- */
 
   /* this will not cause int overflow (already checked by KLU_symbolic) */
-  n1 = n + 1;
-  nzoff1 = nzoff + 1;
+  final n1 = n + 1;
+  final nzoff1 = nzoff + 1;
 
   //Numeric = klu_malloc (sizeof (KLU_numeric), 1, Common) ;
+  KLU_numeric Numeric;
   try {
     Numeric = new KLU_numeric();
   } on OutOfMemoryError catch (e) {
@@ -431,7 +407,7 @@ KLU_numeric factor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symb
   //Numeric.LUbx = klu_malloc (nblocks, sizeof (Float64List), Common) ;
   Numeric.LUbx = new List<Float64List>(nblocks);
   if (Numeric.LUbx != null) {
-    for (k = 0; k < nblocks; k++) {
+    for (int k = 0; k < nblocks; k++) {
       Numeric.LUbx[k] = null;
     }
   }
@@ -455,11 +431,12 @@ KLU_numeric factor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symb
    *    n*sizeof(double) + max (6*maxblock*sizeof(Int), 3*n*sizeof(double))
    */
   //s = klu_mult_size_t (n, sizeof (double), ok) ;
-  s = n;
+  final s = n;
   //n3 = klu_mult_size_t (n, 3 * sizeof (double), ok) ;
-  n3 = 3 * n;
+  final n3 = 3 * n;
   //b6 = klu_mult_size_t (maxblock, 6 * sizeof (Int), ok) ;
-  b6 = 6 * maxblock;
+  final b6 = 6 * maxblock;
+  final ok = new Int32List.fromList([TRUE]);
   Numeric.worksize = add_size_t(s, MAX(n3, b6), ok);
   try {
     if (ok[0] == 0) throw new OutOfMemoryError();
