@@ -21,38 +21,27 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
+part of edu.ufl.cise.klu.tdouble;
 
 /**
- * Scale a matrix and check to see if it is valid.  Can be called by the user.
- * This is called by KLU_factor and KLU_refactor.  Returns true if the input
- * matrix is valid, false otherwise.  If the W input argument is non-null,
+ * Scale a matrix and check to see if it is valid. Can be called by the user.
+ * This is called by KLU_factor and KLU_refactor. Returns `true` if the input
+ * matrix is valid, `false` otherwise. If the [W] input argument is non-null,
  * then the input matrix is checked for duplicate entries.
  *
- * scaling methods:
+ * [scale] methods:
  *  * `<0`: no scaling, do not compute Rs, and do not check input matrix.
  *  * `0`: no scaling
  *  * `1`: the scale factor for row i is sum (abs (A (i,:)))
  *  * `2`: or more: the scale factor for row i is max(abs (A (i,:)))
  */
-part of edu.ufl.cise.klu.tdouble;
-
-/**
- *
- * @param scale 0: none, 1: sum, 2: max
- * @param n
- * @param Ap size n+1, column pointers
- * @param Ai size nz, row indices
- * @param Ax outputs, not defined on input
- * @param Rs size n, can be null if scale <= 0
- * @param W size n, can be null
- * @param Common
- * @return true if successful, false otherwise
- */
-int klu_scale(int scale, int n, Int32List Ap, Int32List Ai, Float64List Ax, Float64List Rs, Int32List W, KLU_common Common) {
-  double a;
-  Float64List Az;
-  int row, col, p, pend;
-  bool check_duplicates;
+int klu_scale(final int scale, final int n, final Int32List Ap,
+              final Int32List Ai, final Float64List Ax, final Float64List Rs,
+              final Int32List W, final KLU_common Common) {
+//  double a;
+//  Float64List Az;
+//  int row, col, p, pend;
+//  bool check_duplicates;
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
@@ -69,7 +58,7 @@ int klu_scale(int scale, int n, Int32List Ap, Int32List Ai, Float64List Ax, Floa
     return (TRUE);
   }
 
-  Az = new Float64List.fromList(Ax);
+  final Az = new Float64List.fromList(Ax);
 
   if (n <= 0 || Ap == null || Ai == null || Az == null || (scale > 0 && Rs == null)) {
     /* Ap, Ai, Ax and Rs must be present, and n must be > 0 */
@@ -81,7 +70,7 @@ int klu_scale(int scale, int n, Int32List Ap, Int32List Ai, Float64List Ax, Floa
     Common.status = KLU_INVALID;
     return (FALSE);
   }
-  for (col = 0; col < n; col++) {
+  for (int col = 0; col < n; col++) {
     if (Ap[col] > Ap[col + 1]) {
       /* column pointers must be non-decreasing */
       Common.status = KLU_INVALID;
@@ -95,23 +84,23 @@ int klu_scale(int scale, int n, Int32List Ap, Int32List Ai, Float64List Ax, Floa
 
   if (scale > 0) {
     /* initialize row sum or row max */
-    for (row = 0; row < n; row++) {
+    for (int row = 0; row < n; row++) {
       Rs[row] = 0.0;
     }
   }
 
   /* check for duplicates only if W is present */
-  check_duplicates = (W != null);
+  final check_duplicates = (W != null);
   if (check_duplicates) {
-    for (row = 0; row < n; row++) {
+    for (int row = 0; row < n; row++) {
       W[row] = EMPTY;
     }
   }
 
-  for (col = 0; col < n; col++) {
-    pend = Ap[col + 1];
-    for (p = Ap[col]; p < pend; p++) {
-      row = Ai[p];
+  for (int col = 0; col < n; col++) {
+    final pend = Ap[col + 1];
+    for (int p = Ap[col]; p < pend; p++) {
+      final row = Ai[p];
       if (row < 0 || row >= n) {
         /* row index out of range, or duplicate entry */
         Common.status = KLU_INVALID;
@@ -127,7 +116,7 @@ int klu_scale(int scale, int n, Int32List Ap, Int32List Ai, Float64List Ax, Floa
         W[row] = col;
       }
       //ABS (a, Az [p]) ;
-      a = ABS(Az[p]);
+      final a = ABS(Az[p]);
       if (scale == 1) {
         /* accumulate the abs. row sum */
         Rs[row] += a;
@@ -140,7 +129,7 @@ int klu_scale(int scale, int n, Int32List Ap, Int32List Ai, Float64List Ax, Floa
 
   if (scale > 0) {
     /* do not scale empty rows */
-    for (row = 0; row < n; row++) {
+    for (int row = 0; row < n; row++) {
       /* matrix is singular */
       PRINTF("Rs [$row] = ${Rs [row]}\n");
 

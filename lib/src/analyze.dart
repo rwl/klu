@@ -322,7 +322,7 @@ KLU_symbolic order_and_analyze(final int n, final Int32List Ap,
       return (null);
     }
 
-    final nblocks = btf.order(n, Ap, Ai, Common.maxwork, work, Pbtf, Qbtf, R,
+    nblocks = btf.order(n, Ap, Ai, Common.maxwork, work, Pbtf, Qbtf, R,
         structural_rank);
     Symbolic.structural_rank = structural_rank[0];
     Common.structural_rank = Symbolic.structural_rank;

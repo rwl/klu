@@ -38,26 +38,20 @@ double MAX(double a, double b) {
 }
 
 /**
- *
- * @param n A is n-by-n
- * @param Ap size n+1, column pointers
- * @param Ai size nz = Ap [n], row indices
- * @param Ax size nz, numerical values
- * @param isreal nonzero if A is real, 0 otherwise
- * @param B size n, right-hand-side
- * @param X size n, solution to Ax=b
- * @param R size n, residual r = b-A*x
- * @param lunz size 1, nnz(L+U+F)
- * @param rnorm size 1, norm(b-A*x,1) / norm(A,1)
- * @param Common default parameters and statistics
- * @return 1 if successful, 0 otherwise
+ * `A` is [n]-by-[n]. [Ap] size `n+1`, column pointers. [Ai] size
+ * `nz = Ap[n]`, row indices. [Ax] size nz, numerical values. [isreal] is
+ * nonzero if A is real, 0 otherwise. [B] size n, right-hand-side. [X] size
+ * n, solution to `Ax=b`. [R] size n, residual `r = b-A*x`. [lunz] size 1,
+ * `nnz(L+U+F)`. [rnorm] size 1, `norm(b-A*x,1) / norm(A,1)`. [Common] default
+ * parameters and statistics. Returns 1 if successful, 0 otherwise.
  */
-int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Float64List B, Float64List X, Float64List R, Int32List lunz, Float64List rnorm, klu.KLU_common Common) {
-  double anorm = 0.0,
-      asum;
+int backslash(final int n, final Int32List Ap, final Int32List Ai,
+              final Float64List Ax, final bool isreal, final Float64List B,
+              final Float64List X, final Float64List R, final Int32List lunz,
+              final Float64List rnorm, final klu.KLU_common Common) {
+  double anorm = 0.0;
   klu.KLU_symbolic Symbolic;
   klu.KLU_numeric Numeric;
-  int i, j, p;
 
   if (Ap == null || Ai == null || Ax == null || B == null || X == null || B == null) return (0);
 
@@ -94,7 +88,7 @@ int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Fl
     /* solve Ax=b */
     /* ------------------------------------------------------------------ */
 
-    for (i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
       X[i] = B[i];
     }
     klu.solve(Symbolic, Numeric, n, 1, X, 0, Common);
@@ -103,12 +97,12 @@ int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Fl
     /* compute residual, rnorm = norm(b-Ax,1) / norm(A,1) */
     /* ------------------------------------------------------------------ */
 
-    for (i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
       R[i] = B[i];
     }
-    for (j = 0; j < n; j++) {
-      asum = 0.0;
-      for (p = Ap[j]; p < Ap[j + 1]; p++) {
+    for (int j = 0; j < n; j++) {
+      double asum = 0.0;
+      for (int p = Ap[j]; p < Ap[j + 1]; p++) {
         /* R(i) -= A(i,j) * X(j) */
         R[Ai[p]] -= Ax[p] * X[j];
         asum += Ax[p].abs();
@@ -116,7 +110,7 @@ int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Fl
       anorm = MAX(anorm, asum);
     }
     rnorm[0] = 0.0;
-    for (i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
       rnorm[0] = MAX(rnorm[0], R[i].abs());
     }
 
@@ -209,8 +203,9 @@ int backslash(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Fl
 /**
  * Given a sparse matrix A, set up a right-hand-side and solve X = A\b.
  */
-void demo(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Int32List lunz, Float64List rnorm, klu.KLU_common Common) {
-  int i;
+void demo(final int n, final Int32List Ap, final Int32List Ai,
+          final Float64List Ax, final bool isreal, final Int32List lunz,
+          final Float64List rnorm, final klu.KLU_common Common) {
   Float64List B, X, R;
 
   stdout.write("KLU: ${klu.KLU_DATE}, version: ${klu.KLU_MAIN_VERSION}.${klu.KLU_SUB_VERSION}.${klu.KLU_SUBSUB_VERSION}\n");
@@ -231,7 +226,7 @@ void demo(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Int32L
     X = new Float64List(n);
     R = new Float64List(n);
     if (B != null) {
-      for (i = 0; i < n; i++) {
+      for (int i = 0; i < n; i++) {
         B[i] = 1 + (i + 1) / n;
       }
     }
@@ -241,7 +236,7 @@ void demo(int n, Int32List Ap, Int32List Ai, Float64List Ax, bool isreal, Int32L
     X = new Float64List(2 * n);
     R = new Float64List(2 * n);
     if (B != null) {
-      for (i = 0; i < n; i++) {
+      for (int i = 0; i < n; i++) {
         REAL(B, i, 1 + (i + 1) / n);
         IMAG(B, i, (n - i) / n);
       }

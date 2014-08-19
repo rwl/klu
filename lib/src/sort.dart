@@ -27,58 +27,61 @@ part of edu.ufl.cise.klu.tdouble;
 /**
  * Sort L or U using a double-transpose.
  */
-void _sort(int n, Int32List Xip, int Xip_offset, Int32List Xlen, int Xlen_offset, Float64List LU, Int32List Tp, Int32List Tj, Float64List Tx, Int32List W) {
-  /*Int32List*/Float64List Xi;
-  Float64List Xx;
-  int p, i, j, nz, tp, xlen, pend;
-  Int32List len = new Int32List(1);
-  Int32List Xi_offset = new Int32List(1);
-  Int32List Xx_offset = new Int32List(1);
+void _sort(final int n, final Int32List Xip, final int Xip_offset,
+           final Int32List Xlen, final int Xlen_offset, final Float64List LU,
+           final Int32List Tp, final Int32List Tj, final Float64List Tx,
+           final Int32List W) {
+  final len = new Int32List(1);
+  final Xi_offset = new Int32List(1);
+  final Xx_offset = new Int32List(1);
 
   ASSERT(_valid_LU(n, FALSE, Xip, Xip_offset, Xlen, Xlen_offset, LU));
 
   /* count the number of entries in each row of L or U */
-  for (i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     W[i] = 0;
   }
-  for (j = 0; j < n; j++) {
-    Xi = Xx = GET_POINTER(LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len);
-    for (p = 0; p < len[0]; p++) {
+  for (int j = 0; j < n; j++) {
+    final Xi = GET_POINTER(LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len);
+    final Xx = Xi;
+    for (int p = 0; p < len[0]; p++) {
       W[Xi[Xi_offset[0] + p].toInt()]++;
     }
   }
 
   /* construct the row pointers for T */
-  nz = 0;
-  for (i = 0; i < n; i++) {
+  int nz = 0;
+  for (int i = 0; i < n; i++) {
     Tp[i] = nz;
     nz += W[i];
   }
   Tp[n] = nz;
-  for (i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     W[i] = Tp[i];
   }
 
   /* transpose the matrix into Tp, Ti, Tx */
-  for (j = 0; j < n; j++) {
-    Xi = Xx = GET_POINTER(LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len);
-    for (p = 0; p < len[0]; p++) {
-      tp = W[Xi[Xi_offset[0] + p].toInt()]++;
+  for (int j = 0; j < n; j++) {
+    final Xi = GET_POINTER(LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len);
+    final Xx = Xi;
+    for (int p = 0; p < len[0]; p++) {
+      final tp = W[Xi[Xi_offset[0] + p].toInt()]++;
       Tj[tp] = j;
       Tx[tp] = Xx[Xx_offset[0] + p];
     }
   }
 
   /* transpose the matrix back into Xip, Xlen, Xi, Xx */
-  for (j = 0; j < n; j++) {
+  for (int j = 0; j < n; j++) {
     W[j] = 0;
   }
-  for (i = 0; i < n; i++) {
-    pend = Tp[i + 1];
-    for (p = Tp[i]; p < pend; p++) {
-      j = Tj[p];
-      Xi = Xx = GET_POINTER(LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len);
-      xlen = W[j]++;
+  for (int i = 0; i < n; i++) {
+    final pend = Tp[i + 1];
+    for (int p = Tp[i]; p < pend; p++) {
+      final j = Tj[p];
+      final Xi = GET_POINTER(LU, Xip, Xip_offset, Xlen, Xlen_offset, Xi_offset, Xx_offset, j, len);
+      final Xx = Xi;
+      final xlen = W[j]++;
       Xi[Xi_offset[0] + xlen] = i.toDouble();
       Xx[Xx_offset[0] + xlen] = Tx[p];
     }
@@ -88,47 +91,42 @@ void _sort(int n, Int32List Xip, int Xip_offset, Int32List Xlen, int Xlen_offset
 }
 
 /**
- * Sorts the columns of L and U so that the row indices appear in strictly
+ * Sorts the columns of `L` and `U` so that the row indices appear in strictly
  * increasing order.
  */
-int sort(KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common) {
-  Int32List R, W, Tp, Ti, Lip, Uip, Llen, Ulen;
-  Float64List Tx;
-  List<Float64List> LUbx;
-  int nk, nz, block, nblocks, maxblock, k1;
-  int m1;
-
+int sort(final KLU_symbolic Symbolic, final KLU_numeric Numeric,
+         final KLU_common Common) {
   if (Common == null) {
     return (FALSE);
   }
   Common.status = KLU_OK;
 
-  R = Symbolic.R;
-  nblocks = Symbolic.nblocks;
-  maxblock = Symbolic.maxblock;
+  final R = Symbolic.R;
+  final nblocks = Symbolic.nblocks;
+  final maxblock = Symbolic.maxblock;
 
-  Lip = Numeric.Lip;
-  Llen = Numeric.Llen;
-  Uip = Numeric.Uip;
-  Ulen = Numeric.Ulen;
-  LUbx = new List<Float64List>.from(Numeric.LUbx);
+  final Lip = Numeric.Lip;
+  final Llen = Numeric.Llen;
+  final Uip = Numeric.Uip;
+  final Ulen = Numeric.Ulen;
+  final LUbx = new List<Float64List>.from(Numeric.LUbx);
 
-  m1 = (maxblock.toInt()) + 1;
+  final m1 = (maxblock.toInt()) + 1;
 
   /* allocate workspace */
-  nz = MAX(Numeric.max_lnz_block, Numeric.max_unz_block);
-  W = malloc_int(maxblock, Common);
-  Tp = malloc_int(m1, Common);
-  Ti = malloc_int(nz, Common);
-  Tx = malloc_dbl(nz, Common);
+  final nz = MAX(Numeric.max_lnz_block, Numeric.max_unz_block);
+  final W = malloc_int(maxblock, Common);
+  final Tp = malloc_int(m1, Common);
+  final Ti = malloc_int(nz, Common);
+  final Tx = malloc_dbl(nz, Common);
 
   PRINTF("\n======================= Start sort:\n");
 
   if (Common.status == KLU_OK) {
     /* sort each block of L and U */
-    for (block = 0; block < nblocks; block++) {
-      k1 = R[block];
-      nk = R[block + 1] - k1;
+    for (int block = 0; block < nblocks; block++) {
+      final k1 = R[block];
+      final nk = R[block + 1] - k1;
       if (nk > 1) {
         PRINTF("\n-------------------block: $block nk $nk\n");
         _sort(nk, Lip, k1, Llen, k1, LUbx[block], Tp, Ti, Tx, W);
@@ -141,13 +139,9 @@ int sort(KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common) {
 
   /* free workspace */
   //KLU_free (W, maxblock, sizeof (Int), Common) ;
-  W = null;
   //KLU_free (Tp, m1, sizeof (Int), Common) ;
-  Tp = null;
   //KLU_free (Ti, nz, sizeof (Int), Common) ;
-  Ti = null;
   //KLU_free (Tx, nz, sizeof (double), Common) ;
-  Tx = null;
 
   return (Common.status == KLU_OK ? 1 : 0);
 }

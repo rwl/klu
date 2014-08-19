@@ -28,39 +28,34 @@
 part of edu.ufl.cise.klu.tdouble;
 
 /**
- * Safely compute a+b, and check for int overflow.
+ * Safely compute `a+b`, and check for int overflow.
  */
-int add_size_t(int a, int b, Int32List ok) {
+int add_size_t(final int a, final int b, final Int32List ok) {
   ok[0] = (ok[0] != 0) && ((a + b) >= MAX(a, b)) ? 1 : 0;
   return ((ok[0] != 0) ? (a + b) : (-1));
 }
 
-int mult_size_t(int a, int k, Int32List ok) {
-  int i,
-      s = 0;
-  for (i = 0; i < k; i++) {
+int mult_size_t(final int a, final int k, final Int32List ok) {
+  int s = 0;
+  for (int i = 0; i < k; i++) {
     s = add_size_t(s, a, ok);
   }
   return ((ok[0] != 0) ? s : (-1));
 }
 
 /**
- * Allocates space of size MAX(1,n).
+ * Allocates space of size `MAX(1,n)`.
  *
- * This routine and KLU_realloc do not set Common.status to KLU_OK on success,
- * so that a sequence of KLU_malloc's or KLU_realloc's can be used.  If any of
- * them fails, the Common.status will hold the most recent error status.
+ * This routine and [KLU_realloc] do not set Common.status to [KLU_OK] on
+ * success, so that a sequence of KLU_malloc's or KLU_realloc's can be used.
+ * If any of them fails, the Common.status will hold the most recent error
+ * status.
  *
- * Usage, for a pointer to Int:
+ * Usage, for a pointer to [int]:
  *
  *      p = KLU_malloc (n, sizeof (Int), Common)
- *
- * @param n number of items
- * @param size size of each item
- * @param Common
- * @return
  */
-Int32List malloc_int(int n, KLU_common Common) {
+Int32List malloc_int(final int n, final KLU_common Common) {
   //Runtime runtime;
   Int32List p = null;
 
@@ -82,7 +77,7 @@ Int32List malloc_int(int n, KLU_common Common) {
   return (p);
 }
 
-Float64List malloc_dbl(int n, KLU_common Common) {
+Float64List malloc_dbl(final int n, final KLU_common Common) {
   //Runtime runtime;
   Float64List p = null;
 
@@ -105,30 +100,25 @@ Float64List malloc_dbl(int n, KLU_common Common) {
 }
 
 /**
- * Given an array p allocated by KLU_malloc, it changes the size of the
- * block pointed to by p to be MAX(1,nnew) in size.  It may return an
- * array different than p.  This should be used as:
+ * Given an array [p] allocated by KLU_malloc, it changes the size of the
+ * block pointed to by [p] to be `MAX(1,nnew)` in size. It may return an
+ * array different than [p].  This should be used as:
  *
  *      p = KLU_realloc (nnew, nold, p, Common) ;
  *
- * If p is null, this is the same as p = KLU_malloc (...).
- * A size of nnew=0 is treated as nnew=1.
+ * If [p] is `null`, this is the same as p = KLU_malloc (...).
+ * A size of `nnew=0` is treated as `nnew=1`.
  *
- * If the realloc fails, p is returned unchanged and Common.status is set
- * to KLU_OUT_OF_MEMORY.  If successful, Common.status is not modified,
- * and p is returned (possibly changed) and pointing to a large block of memory.
+ * If the realloc fails, [p] is returned unchanged and Common.status is set
+ * to [KLU_OUT_OF_MEMORY]. If successful, Common.status is not modified,
+ * and [p] is returned (possibly changed) and pointing to a large block of
+ * memory.
  *
- * @param nnew requested # of items in reallocated block
- * @param nold old # of items
- * @param p block of memory to realloc
- * @param Common
- * @return pointer to reallocated block
+ * [nnew] is the requested # of items in reallocated block. [nold] is the
+ * old # of items. [p] is the block of memory to realloc.
  */
-Float64List realloc_dbl(int nnew, int nold, Float64List p, KLU_common Common) {
-  Float64List pnew;
-  int snew;
-  int sold;
-
+Float64List realloc_dbl(final int nnew, final int nold, Float64List p,
+                        final KLU_common Common) {
   if (Common == null) {
     p = null;
   } else if (p == null) {
@@ -140,10 +130,10 @@ Float64List realloc_dbl(int nnew, int nold, Float64List p, KLU_common Common) {
   } else {
     /* The object exists, and is changing to some other nonzero size. */
     /* call realloc, or its equivalent */
-    snew = MAX(1, nnew);
-    sold = MAX(1, nold);
+    final snew = MAX(1, nnew);
+    final sold = MAX(1, nold);
     try {
-      pnew = new Float64List(snew);
+      final pnew = new Float64List(snew);
       //System.arraycopy(p, 0, pnew, 0, MIN (snew, sold)) ;
       for (int i = 0; i < MIN(snew, sold); i++) pnew[i] = p[i];
       //Runtime runtime = Runtime.getRuntime();

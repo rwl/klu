@@ -37,39 +37,34 @@ bool NPRINT = true;
 
 const int INT_MAX = 0x7fffffff;
 
-Float64List GET_I_POINTER(Float64List LU, Int32List Xip, int Xip_offset, Int32List Xi_offset, int k) {
+Float64List GET_I_POINTER(final Float64List LU, final Int32List Xip,
+                          final int Xip_offset, final Int32List Xi_offset,
+                          final int k) {
   Xi_offset[0] = Xip[Xip_offset + k];
   return LU;
 }
 
-Float64List GET_POINTER(Float64List LU, Int32List Xip, int Xip_offset, Int32List Xlen, int Xlen_offset, Int32List Xi_offset, Int32List Xx_offset, int k, Int32List xlen) {
-  int xp = Xip[Xip_offset + k];
+Float64List GET_POINTER(final Float64List LU, final Int32List Xip,
+                        final int Xip_offset, final Int32List Xlen,
+                        final int Xlen_offset, Int32List Xi_offset,
+                        Int32List Xx_offset, int k, Int32List xlen) {
+  final xp = Xip[Xip_offset + k];
   xlen[0] = Xlen[Xlen_offset + k];
   Xi_offset[0] = xp;
   Xx_offset[0] = xp + xlen[0];
   return LU;
 }
 
-bool SCALAR_IS_NAN(double x) {
-  return x != x;
-}
+bool SCALAR_IS_NAN(final double x) => x != x;
 
-bool SCALAR_IS_ZERO(double x) {
-  return x == 0.0;
-}
+bool SCALAR_IS_ZERO(final double x) => x == 0.0;
 
-bool SCALAR_IS_NONZERO(double x) {
-  return x != 0.0;
-}
+bool SCALAR_IS_NONZERO(final double x) => x != 0.0;
 
-bool SCALAR_IS_LTZERO(double x) {
-  return x < 0.0;
-}
+bool SCALAR_IS_LTZERO(final double x) => x < 0.0;
 
 /* scalar absolute value macro. If x is NaN, the result is NaN */
-double SCALAR_ABS(double x) {
-  return SCALAR_IS_LTZERO(x) ? -x : x;
-}
+double SCALAR_ABS(double x) => SCALAR_IS_LTZERO(x) ? -x : x;
 
 void PRINTF(String format) {
   if (!NPRINT) {
@@ -97,30 +92,22 @@ void PRINT_SCALAR(double a) {
  * Returns [TRUE] if a complex number is in split form, [FALSE] if in packed
  * form.
  */
-int SPLIT(double s) {
-  return 1;
-}
+int SPLIT(double s) => 1;
 
 /**
  * @return True if a is NaN
  */
-bool IS_NAN(double a) {
-  return SCALAR_IS_NAN(a);
-}
+bool IS_NAN(double a) => SCALAR_IS_NAN(a);
 
 /**
  * @return True if a == 0
  */
-bool IS_ZERO(double a) {
-  return SCALAR_IS_ZERO(a);
-}
+bool IS_ZERO(double a) => SCALAR_IS_ZERO(a);
 
 /**
  * @return True if a != 0
  */
-bool IS_NONZERO(double a) {
-  return SCALAR_IS_NONZERO(a);
-}
+bool IS_NONZERO(double a) => SCALAR_IS_NONZERO(a);
 
 /**
  * c /= s
@@ -142,9 +129,7 @@ void PRINT_ENTRY(double a) {
   PRINT_SCALAR(a);
 }
 
-double ABS(double a) {
-  return a.abs();
-}
+double ABS(double a) => a.abs();
 
 void CLEAR(Float64List A, int i) {
   A[i] = 0.0;

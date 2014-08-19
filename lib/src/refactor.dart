@@ -31,30 +31,17 @@
 part of edu.ufl.cise.klu.tdouble;
 
 /**
- *
- * @param Ap size n+1, column pointers
- * @param Ai size nz, row indices
- * @param Ax
- * @param Symbolic
- * @param Numeric
- * @param Common
- * @return true if successful, false otherwise
+ * Returns `true` if successful, `false` otherwise.
  */
-int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, KLU_numeric Numeric, KLU_common Common) {
-  double ukk, ujk, s;
-  Float64List Offx, Lx, Ux, X, Az, Udiag;
-  Float64List Rs;
-  Int32List Q, R, Pnum, Offp, Offi, Pinv, Lip, Uip, Llen, Ulen;
-  /*Int32List*/Float64List Ui, Li;
-  List<Float64List> LUbx;
-  Float64List LU;
-  int k1, k2, nk, k, block, oldcol, pend, oldrow, n, p, newrow, scale, nblocks, poff, i, j, up, maxblock, nzoff;
-  Int32List ulen = new Int32List(1);
-  Int32List Ui_offset = new Int32List(1);
-  Int32List Ux_offset = new Int32List(1);
-  Int32List llen = new Int32List(1);
-  Int32List Li_offset = new Int32List(1);
-  Int32List Lx_offset = new Int32List(1);
+int refactor(final Int32List Ap, final Int32List Ai, final Float64List Ax,
+             final KLU_symbolic Symbolic, final KLU_numeric Numeric,
+             final KLU_common Common) {
+  final ulen = new Int32List(1);
+  final Ui_offset = new Int32List(1);
+  final Ux_offset = new Int32List(1);
+  final llen = new Int32List(1);
+  final Li_offset = new Int32List(1);
+  final Lx_offset = new Int32List(1);
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
@@ -74,30 +61,30 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
   Common.numerical_rank = EMPTY;
   Common.singular_col = EMPTY;
 
-  Az = new Float64List.fromList(Ax);
+  final Az = new Float64List.fromList(Ax);
 
   /* ---------------------------------------------------------------------- */
   /* get the contents of the Symbolic object */
   /* ---------------------------------------------------------------------- */
 
-  n = Symbolic.n;
-  Q = Symbolic.Q;
-  R = Symbolic.R;
-  nblocks = Symbolic.nblocks;
-  maxblock = Symbolic.maxblock;
+  final n = Symbolic.n;
+  final Q = Symbolic.Q;
+  final R = Symbolic.R;
+  final nblocks = Symbolic.nblocks;
+  final maxblock = Symbolic.maxblock;
 
   /* ---------------------------------------------------------------------- */
   /* get the contents of the Numeric object */
   /* ---------------------------------------------------------------------- */
 
-  Pnum = Numeric.Pnum;
-  Offp = Numeric.Offp;
-  Offi = Numeric.Offi;
-  Offx = Numeric.Offx;
+  final Pnum = Numeric.Pnum;
+  final Offp = Numeric.Offp;
+  final Offi = Numeric.Offi;
+  final Offx = Numeric.Offx;
 
-  LUbx = Numeric.LUbx;
+  final LUbx = Numeric.LUbx;
 
-  scale = Common.scale;
+  final scale = Common.scale;
   if (scale > 0) {
     /* factorization was not scaled, but refactorization is scaled */
     if (Numeric.Rs == null) {
@@ -113,13 +100,13 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
     //Numeric.Rs = KLU_free (Numeric.Rs, n, sizeof (double), Common) ;
     Numeric.Rs = null;
   }
-  Rs = Numeric.Rs;
+  final Rs = Numeric.Rs;
 
-  Pinv = Numeric.Pinv;
-  X = Numeric.Xwork;
+  final Pinv = Numeric.Pinv;
+  final X = Numeric.Xwork;
   Common.nrealloc = 0;
-  Udiag = Numeric.Udiag;
-  nzoff = Symbolic.nzoff;
+  final Udiag = Numeric.Udiag;
+  final nzoff = Symbolic.nzoff;
 
   /* ---------------------------------------------------------------------- */
   /* check the input matrix compute the row scale factors, Rs */
@@ -137,12 +124,12 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
   /* clear workspace X */
   /* ---------------------------------------------------------------------- */
 
-  for (k = 0; k < maxblock; k++) {
+  for (int k = 0; k < maxblock; k++) {
     /* X [k] = 0 ; */
     CLEAR(X, k);
   }
 
-  poff = 0;
+  int poff = 0;
 
   /* ---------------------------------------------------------------------- */
   /* factor each block */
@@ -154,15 +141,15 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
     /* no scaling */
     /* ------------------------------------------------------------------ */
 
-    for (block = 0; block < nblocks; block++) {
+    for (int block = 0; block < nblocks; block++) {
 
       /* -------------------------------------------------------------- */
       /* the block is from rows/columns k1 to k2-1 */
       /* -------------------------------------------------------------- */
 
-      k1 = R[block];
-      k2 = R[block + 1];
-      nk = k2 - k1;
+      final k1 = R[block];
+      final k2 = R[block + 1];
+      final nk = k2 - k1;
 
       if (nk == 1) {
 
@@ -170,11 +157,11 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
         /* singleton case */
         /* ---------------------------------------------------------- */
 
-        oldcol = Q[k1];
-        pend = Ap[oldcol + 1];
-        s = 0.0; //CLEAR (s) ;
-        for (p = Ap[oldcol]; p < pend; p++) {
-          newrow = Pinv[Ai[p]] - k1;
+        final oldcol = Q[k1];
+        final pend = Ap[oldcol + 1];
+        double s = 0.0; //CLEAR (s) ;
+        for (int p = Ap[oldcol]; p < pend; p++) {
+          final newrow = Pinv[Ai[p]] - k1;
           if (newrow < 0 && poff < nzoff) {
             /* entry in off-diagonal block */
             Offx[poff] = Az[p];
@@ -192,26 +179,26 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
         /* construct and factor the kth block */
         /* ---------------------------------------------------------- */
 
-        Lip = Numeric.Lip;
-        int Lip_offset = k1;
-        Llen = Numeric.Llen;
-        int Llen_offset = k1;
-        Uip = Numeric.Uip;
-        int Uip_offset = k1;
-        Ulen = Numeric.Ulen;
-        int Ulen_offset = k1;
-        LU = LUbx[block];
+        final Lip = Numeric.Lip;
+        final Lip_offset = k1;
+        final Llen = Numeric.Llen;
+        final Llen_offset = k1;
+        final Uip = Numeric.Uip;
+        final Uip_offset = k1;
+        final Ulen = Numeric.Ulen;
+        final Ulen_offset = k1;
+        final LU = LUbx[block];
 
-        for (k = 0; k < nk; k++) {
+        for (int k = 0; k < nk; k++) {
 
           /* ------------------------------------------------------ */
           /* scatter kth column of the block into workspace X */
           /* ------------------------------------------------------ */
 
-          oldcol = Q[k + k1];
-          pend = Ap[oldcol + 1];
-          for (p = Ap[oldcol]; p < pend; p++) {
-            newrow = Pinv[Ai[p]] - k1;
+          final oldcol = Q[k + k1];
+          final pend = Ap[oldcol + 1];
+          for (int p = Ap[oldcol]; p < pend; p++) {
+            final newrow = Pinv[Ai[p]] - k1;
             if (newrow < 0 && poff < nzoff) {
               /* entry in off-diagonal block */
               Offx[poff] = Az[p];
@@ -226,21 +213,23 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
           /* compute kth column of U, and update kth column of A */
           /* ------------------------------------------------------ */
 
-          Ui = Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, ulen);
-          for (up = 0; up < ulen[0]; up++) {
-            j = Ui[Ui_offset[0] + up].toInt();
-            ujk = X[j];
+          final Ui = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, ulen);
+          final Ux = Ui;
+          for (int up = 0; up < ulen[0]; up++) {
+            final j = Ui[Ui_offset[0] + up].toInt();
+            final ujk = X[j];
             /* X [j] = 0 ; */
             CLEAR(X, j);
             Ux[Ux_offset[0] + up] = ujk;
-            Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, j, llen);
-            for (p = 0; p < llen[0]; p++) {
+            final Li = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, j, llen);
+            final Lx = Li;
+            for (int p = 0; p < llen[0]; p++) {
               //MULT_SUB (X [Li [p]], Lx [p], ujk) ;
               X[Li[Li_offset[0] + p].toInt()] -= Lx[Lx_offset[0] + p] * ujk;
             }
           }
           /* get the diagonal entry of U */
-          ukk = X[k];
+          final ukk = X[k];
           /* X [k] = 0 ; */
           CLEAR(X, k);
           /* singular case */
@@ -258,9 +247,10 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
           }
           Udiag[k + k1] = ukk;
           /* gather and divide by pivot to get kth column of L */
-          Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, llen);
-          for (p = 0; p < llen[0]; p++) {
-            i = Li[Li_offset[0] + p].toInt();
+          final Li = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, llen);
+          final Lx = Li;
+          for (int p = 0; p < llen[0]; p++) {
+            final i = Li[Li_offset[0] + p].toInt();
             //DIV (Lx [p], X [i], ukk) ;
             Lx[Lx_offset[0] + p] = X[i] / ukk;
             CLEAR(X, i);
@@ -276,15 +266,15 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
     /* scaling */
     /* ------------------------------------------------------------------ */
 
-    for (block = 0; block < nblocks; block++) {
+    for (int block = 0; block < nblocks; block++) {
 
       /* -------------------------------------------------------------- */
       /* the block is from rows/columns k1 to k2-1 */
       /* -------------------------------------------------------------- */
 
-      k1 = R[block];
-      k2 = R[block + 1];
-      nk = k2 - k1;
+      final k1 = R[block];
+      final k2 = R[block + 1];
+      final nk = k2 - k1;
 
       if (nk == 1) {
 
@@ -292,12 +282,12 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
         /* singleton case */
         /* ---------------------------------------------------------- */
 
-        oldcol = Q[k1];
-        pend = Ap[oldcol + 1];
-        s = 0.0; //CLEAR (s) ;
-        for (p = Ap[oldcol]; p < pend; p++) {
-          oldrow = Ai[p];
-          newrow = Pinv[oldrow] - k1;
+        final oldcol = Q[k1];
+        final pend = Ap[oldcol + 1];
+        double s = 0.0; //CLEAR (s) ;
+        for (int p = Ap[oldcol]; p < pend; p++) {
+          final oldrow = Ai[p];
+          final newrow = Pinv[oldrow] - k1;
           if (newrow < 0 && poff < nzoff) {
             /* entry in off-diagonal block */
             Offx[poff] = Az[p] / Rs[oldrow];
@@ -317,27 +307,27 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
         /* construct and factor the kth block */
         /* ---------------------------------------------------------- */
 
-        Lip = Numeric.Lip;
-        int Lip_offset = k1;
-        Llen = Numeric.Llen;
-        int Llen_offset = k1;
-        Uip = Numeric.Uip;
-        int Uip_offset = k1;
-        Ulen = Numeric.Ulen;
-        int Ulen_offset = k1;
-        LU = LUbx[block];
+        final Lip = Numeric.Lip;
+        final Lip_offset = k1;
+        final Llen = Numeric.Llen;
+        final Llen_offset = k1;
+        final Uip = Numeric.Uip;
+        final Uip_offset = k1;
+        final Ulen = Numeric.Ulen;
+        final Ulen_offset = k1;
+        final LU = LUbx[block];
 
-        for (k = 0; k < nk; k++) {
+        for (int k = 0; k < nk; k++) {
 
           /* ------------------------------------------------------ */
           /* scatter kth column of the block into workspace X */
           /* ------------------------------------------------------ */
 
-          oldcol = Q[k + k1];
-          pend = Ap[oldcol + 1];
-          for (p = Ap[oldcol]; p < pend; p++) {
-            oldrow = Ai[p];
-            newrow = Pinv[oldrow] - k1;
+          final oldcol = Q[k + k1];
+          final pend = Ap[oldcol + 1];
+          for (int p = Ap[oldcol]; p < pend; p++) {
+            final oldrow = Ai[p];
+            final newrow = Pinv[oldrow] - k1;
             if (newrow < 0 && poff < nzoff) {
               /* entry in off-diagonal part */
               //SCALE_DIV_ASSIGN (Offx [poff], Az [p], Rs [oldrow]);
@@ -354,21 +344,23 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
           /* compute kth column of U, and update kth column of A */
           /* ------------------------------------------------------ */
 
-          Ui = Ux = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, ulen);
-          for (up = 0; up < ulen[0]; up++) {
-            j = Ui[Ui_offset[0] + up].toInt();
-            ujk = X[j];
+          final Ui = GET_POINTER(LU, Uip, Uip_offset, Ulen, Ulen_offset, Ui_offset, Ux_offset, k, ulen);
+          final Ux = Ui;
+          for (int up = 0; up < ulen[0]; up++) {
+            final j = Ui[Ui_offset[0] + up].toInt();
+            final ujk = X[j];
             /* X [j] = 0 ; */
             CLEAR(X, j);
             Ux[Ux_offset[0] + up] = ujk;
-            Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, j, llen);
-            for (p = 0; p < llen[0]; p++) {
+            final Li = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, j, llen);
+            final Lx = Li;
+            for (int p = 0; p < llen[0]; p++) {
               //MULT_SUB (X [Li [p]], Lx [p], ujk) ;
               X[Li[Li_offset[0] + p].toInt()] -= Lx[Lx_offset[0] + p] * ujk;
             }
           }
           /* get the diagonal entry of U */
-          ukk = X[k];
+          final ukk = X[k];
           /* X [k] = 0 ; */
           CLEAR(X, k);
           /* singular case */
@@ -386,9 +378,10 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
           }
           Udiag[k + k1] = ukk;
           /* gather and divide by pivot to get kth column of L */
-          Li = Lx = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, llen);
-          for (p = 0; p < llen[0]; p++) {
-            i = Li[Li_offset[0] + p].toInt();
+          final Li = GET_POINTER(LU, Lip, Lip_offset, Llen, Llen_offset, Li_offset, Lx_offset, k, llen);
+          final Lx = Li;
+          for (int p = 0; p < llen[0]; p++) {
+            final i = Li[Li_offset[0] + p].toInt();
             //DIV (Lx [p], X [i], ukk) ;
             Lx[Lx_offset[0] + p] = X[i] / ukk;
             CLEAR(X, i);
@@ -403,11 +396,11 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
   /* ---------------------------------------------------------------------- */
 
   if (scale > 0) {
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       X[k] = Rs[Pnum[k]];
       //REAL (X [k]) = Rs [Pnum [k]] ;
     }
-    for (k = 0; k < n; k++) {
+    for (int k = 0; k < n; k++) {
       Rs[k] = X[k];
       //Rs [k] = REAL (X [k]) ;
     }
@@ -420,26 +413,26 @@ int refactor(Int32List Ap, Int32List Ai, Float64List Ax, KLU_symbolic Symbolic, 
     if (!NDEBUG) ASSERT_INT(_valid(n, Offp, Offi, Offx));
     if (Common.status == KLU_OK) {
       PRINTF("\n ########### KLU_BTF_REFACTOR done, nblocks $nblocks\n");
-      for (block = 0; block < nblocks; block++) {
-        k1 = R[block];
-        k2 = R[block + 1];
-        nk = k2 - k1;
+      for (int block = 0; block < nblocks; block++) {
+        final k1 = R[block];
+        final k2 = R[block + 1];
+        final nk = k2 - k1;
         PRINTF("\n================KLU_refactor output: k1 $k1 k2 $k2 nk $nk\n");
         if (nk == 1) {
           PRINTF("singleton  ");
           PRINT_ENTRY(Udiag[k1]);
         } else {
-          Lip = Numeric.Lip;
-          int Lip_offset = k1;
-          Llen = Numeric.Llen;
-          int Llen_offset = k1;
-          LU = Numeric.LUbx[block];// as Float64List ;
+          final Lip = Numeric.Lip;
+          final Lip_offset = k1;
+          final Llen = Numeric.Llen;
+          final Llen_offset = k1;
+          final LU = Numeric.LUbx[block];// as Float64List ;
           PRINTF("\n---- L block $block\n");
           if (!NDEBUG) ASSERT(_valid_LU(nk, TRUE, Lip, Lip_offset, Llen, Llen_offset, LU));
-          Uip = Numeric.Uip;
-          int Uip_offset = k1;
-          Ulen = Numeric.Ulen;
-          int Ulen_offset = k1;
+          final Uip = Numeric.Uip;
+          final Uip_offset = k1;
+          final Ulen = Numeric.Ulen;
+          final Ulen_offset = k1;
           PRINTF("\n---- U block $block\n");
           if (!NDEBUG) ASSERT(_valid_LU(nk, FALSE, Uip, Uip_offset, Ulen, Ulen_offset, LU));
         }

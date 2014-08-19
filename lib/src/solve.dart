@@ -25,29 +25,21 @@
 part of edu.ufl.cise.klu.tdouble;
 
 /**
- * Solve Ax=b using the symbolic and numeric objects from KLU_analyze
- * (or KLU_analyze_given) and KLU_factor.  Note that no iterative refinement is
- * performed.  Uses Numeric.Xwork as workspace (undefined on input and output),
- * of size 4n double's (note that columns 2 to 4 of Xwork overlap with
- * Numeric.Iwork).
+ * Solve `Ax=b` using the symbolic and numeric objects from [analyze]
+ * (or [analyze_given]) and [factor]. Note that no iterative refinement is
+ * performed. Uses [Numeric.Xwork] as workspace (undefined on input and
+ * output), of size `4n` double's (note that columns 2 to 4 of Xwork overlap
+ * with [Numeric.Iwork]).
  *
- * @param Symbolic
- * @param Numeric
- * @param d leading dimension of B
- * @param nrhs number of right-hand-sides
- * @param B right-hand-side on input, overwritten with solution to Ax=b on
- * output. Size n*nrhs, in column-oriented form, with leading dimension d.
- * @param Common
- * @return
+ * [d] is the leading dimension of [B]. [nrhs] s the number of
+ * right-hand-sides. [B] is the right-hand-side on input, overwritten with
+ * solution to `Ax=b` on output. Size `n*nrhs`, in column-oriented form, with
+ * leading dimension d.
  */
-int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64List B, int B_offset, KLU_common Common) {
-  double offik, s;
-  Float64List x = new Float64List(4);
-  double rs;
-  Float64List Offx, X, Bz, Udiag, Rs;
-  Int32List Q, R, Pnum, Offp, Offi, Lip, Uip, Llen, Ulen;
-  List<Float64List> LUbx;
-  int k1, k2, nk, k, block, pend, n, p, nblocks, chunk, nr, i;
+int solve(final KLU_symbolic Symbolic, final KLU_numeric Numeric, final int d,
+          final int nrhs, final Float64List B, int B_offset,
+          final KLU_common Common) {
+  final x = new Float64List(4);
 
   /* ---------------------------------------------------------------------- */
   /* check inputs */
@@ -66,31 +58,31 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
   /* get the contents of the Symbolic object */
   /* ---------------------------------------------------------------------- */
 
-  Bz = B;
-  n = Symbolic.n;
-  nblocks = Symbolic.nblocks;
-  Q = Symbolic.Q;
-  R = Symbolic.R;
+  final Bz = B;
+  final n = Symbolic.n;
+  final nblocks = Symbolic.nblocks;
+  final Q = Symbolic.Q;
+  final R = Symbolic.R;
 
   /* ---------------------------------------------------------------------- */
   /* get the contents of the Numeric object */
   /* ---------------------------------------------------------------------- */
 
   ASSERT(nblocks == Numeric.nblocks);
-  Pnum = Numeric.Pnum;
-  Offp = Numeric.Offp;
-  Offi = Numeric.Offi;
-  Offx = Numeric.Offx;
+  final Pnum = Numeric.Pnum;
+  final Offp = Numeric.Offp;
+  final Offi = Numeric.Offi;
+  final Offx = Numeric.Offx;
 
-  Lip = Numeric.Lip;
-  Llen = Numeric.Llen;
-  Uip = Numeric.Uip;
-  Ulen = Numeric.Ulen;
-  LUbx = Numeric.LUbx;
-  Udiag = Numeric.Udiag;
+  final Lip = Numeric.Lip;
+  final Llen = Numeric.Llen;
+  final Uip = Numeric.Uip;
+  final Ulen = Numeric.Ulen;
+  final LUbx = Numeric.LUbx;
+  final Udiag = Numeric.Udiag;
 
-  Rs = Numeric.Rs;
-  X = Numeric.Xwork;
+  final Rs = Numeric.Rs;
+  final X = Numeric.Xwork;
 
   if (!NDEBUG) ASSERT_INT(_valid(n, Offp, Offi, Offx));
 
@@ -98,13 +90,13 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
   /* solve in chunks of 4 columns at a time */
   /* ---------------------------------------------------------------------- */
 
-  for (chunk = 0; chunk < nrhs; chunk += 4) {
+  for (int chunk = 0; chunk < nrhs; chunk += 4) {
 
     /* ------------------------------------------------------------------ */
     /* get the size of the current chunk */
     /* ------------------------------------------------------------------ */
 
-    nr = MIN(nrhs - chunk, 4);
+    final nr = MIN(nrhs - chunk, 4);
 
     /* ------------------------------------------------------------------ */
     /* scale and permute the right hand side, X = P*(R\B) */
@@ -117,15 +109,15 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
         case 1:
 
-          for (k = 0; k < n; k++) {
+          for (int k = 0; k < n; k++) {
             X[k] = Bz[B_offset + Pnum[k]];
           }
           break;
 
         case 2:
 
-          for (k = 0; k < n; k++) {
-            i = Pnum[k];
+          for (int k = 0; k < n; k++) {
+            final i = Pnum[k];
             X[2 * k] = Bz[B_offset + i];
             X[2 * k + 1] = Bz[B_offset + i + d];
           }
@@ -133,8 +125,8 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
         case 3:
 
-          for (k = 0; k < n; k++) {
-            i = Pnum[k];
+          for (int k = 0; k < n; k++) {
+            final i = Pnum[k];
             X[3 * k] = Bz[B_offset + i];
             X[3 * k + 1] = Bz[B_offset + i + d];
             X[3 * k + 2] = Bz[B_offset + i + d * 2];
@@ -143,8 +135,8 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
         case 4:
 
-          for (k = 0; k < n; k++) {
-            i = Pnum[k];
+          for (int k = 0; k < n; k++) {
+            final i = Pnum[k];
             X[4 * k] = Bz[B_offset + i];
             X[4 * k + 1] = Bz[B_offset + i + d];
             X[4 * k + 2] = Bz[B_offset + i + d * 2];
@@ -159,7 +151,7 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
         case 1:
 
-          for (k = 0; k < n; k++) {
+          for (int k = 0; k < n; k++) {
             //SCALE_DIV_ASSIGN (X [k], Bz  [Pnum [k]], Rs [k]) ;
             X[k] = Bz[B_offset + Pnum[k]] / Rs[k];
           }
@@ -167,9 +159,9 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
         case 2:
 
-          for (k = 0; k < n; k++) {
-            i = Pnum[k];
-            rs = Rs[k];
+          for (int k = 0; k < n; k++) {
+            final i = Pnum[k];
+            final rs = Rs[k];
             //SCALE_DIV_ASSIGN (X [2*k], Bz [i], rs) ;
             X[2 * k] = Bz[B_offset + i] / rs;
             //SCALE_DIV_ASSIGN (X [2*k + 1], Bz [i + d], rs) ;
@@ -179,9 +171,9 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
         case 3:
 
-          for (k = 0; k < n; k++) {
-            i = Pnum[k];
-            rs = Rs[k];
+          for (int k = 0; k < n; k++) {
+            final i = Pnum[k];
+            final rs = Rs[k];
             //SCALE_DIV_ASSIGN (X [3*k], Bz [i], rs) ;
             X[3 * k] = Bz[B_offset + i] / rs;
             //SCALE_DIV_ASSIGN (X [3*k + 1], Bz [i + d], rs) ;
@@ -193,9 +185,9 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
         case 4:
 
-          for (k = 0; k < n; k++) {
-            i = Pnum[k];
-            rs = Rs[k];
+          for (int k = 0; k < n; k++) {
+            final i = Pnum[k];
+            final rs = Rs[k];
             //SCALE_DIV_ASSIGN (X [4*k], Bz [i], rs) ;
             X[4 * k] = Bz[B_offset + i] / rs;
             //SCALE_DIV_ASSIGN (X [4*k + 1], Bz [i + d], rs) ;
@@ -213,20 +205,20 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
     /* solve X = (L*U + Off)\X */
     /* ------------------------------------------------------------------ */
 
-    for (block = nblocks - 1; block >= 0; block--) {
+    for (int block = nblocks - 1; block >= 0; block--) {
 
       /* -------------------------------------------------------------- */
       /* the block of size nk is from rows/columns k1 to k2-1 */
       /* -------------------------------------------------------------- */
 
-      k1 = R[block];
-      k2 = R[block + 1];
-      nk = k2 - k1;
+      final k1 = R[block];
+      final k2 = R[block + 1];
+      final nk = k2 - k1;
       PRINTF("solve $block, k1 $k1 k2-1 ${k2-1} nk $nk\n");
 
       /* solve the block system */
       if (nk == 1) {
-        s = Udiag[k1];
+        final s = Udiag[k1];
         switch (nr) {
 
           case 1:
@@ -276,10 +268,10 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
           case 1:
 
-            for (k = k1; k < k2; k++) {
-              pend = Offp[k + 1];
+            for (int k = k1; k < k2; k++) {
+              final pend = Offp[k + 1];
               x[0] = X[k];
-              for (p = Offp[k]; p < pend; p++) {
+              for (int p = Offp[k]; p < pend; p++) {
                 //MULT_SUB (X [Offi [p]], Offx [p], x [0]) ;
                 X[Offi[p]] -= Offx[p] * x[0];
               }
@@ -288,13 +280,13 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
           case 2:
 
-            for (k = k1; k < k2; k++) {
-              pend = Offp[k + 1];
+            for (int k = k1; k < k2; k++) {
+              final pend = Offp[k + 1];
               x[0] = X[2 * k];
               x[1] = X[2 * k + 1];
-              for (p = Offp[k]; p < pend; p++) {
-                i = Offi[p];
-                offik = Offx[p];
+              for (int p = Offp[k]; p < pend; p++) {
+                final i = Offi[p];
+                final offik = Offx[p];
                 //MULT_SUB (X [2*i], offik, x [0]) ;
                 X[2 * i] -= offik * x[0];
                 //MULT_SUB (X [2*i + 1], offik, x [1]) ;
@@ -305,14 +297,14 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
           case 3:
 
-            for (k = k1; k < k2; k++) {
-              pend = Offp[k + 1];
+            for (int k = k1; k < k2; k++) {
+              final pend = Offp[k + 1];
               x[0] = X[3 * k];
               x[1] = X[3 * k + 1];
               x[2] = X[3 * k + 2];
-              for (p = Offp[k]; p < pend; p++) {
-                i = Offi[p];
-                offik = Offx[p];
+              for (int p = Offp[k]; p < pend; p++) {
+                final i = Offi[p];
+                final offik = Offx[p];
                 //MULT_SUB (X [3*i], offik, x [0]) ;
                 X[3 * i] -= offik * x[0];
                 //MULT_SUB (X [3*i + 1], offik, x [1]) ;
@@ -325,15 +317,15 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
           case 4:
 
-            for (k = k1; k < k2; k++) {
-              pend = Offp[k + 1];
+            for (int k = k1; k < k2; k++) {
+              final pend = Offp[k + 1];
               x[0] = X[4 * k];
               x[1] = X[4 * k + 1];
               x[2] = X[4 * k + 2];
               x[3] = X[4 * k + 3];
-              for (p = Offp[k]; p < pend; p++) {
-                i = Offi[p];
-                offik = Offx[p];
+              for (int p = Offp[k]; p < pend; p++) {
+                final i = Offi[p];
+                final offik = Offx[p];
                 //MULT_SUB (X [4*i], offik, x [0]) ;
                 X[4 * i] -= offik * x[0];
                 //MULT_SUB (X [4*i + 1], offik, x [1]) ;
@@ -357,15 +349,15 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
       case 1:
 
-        for (k = 0; k < n; k++) {
+        for (int k = 0; k < n; k++) {
           Bz[B_offset + Q[k]] = X[k];
         }
         break;
 
       case 2:
 
-        for (k = 0; k < n; k++) {
-          i = Q[k];
+        for (int k = 0; k < n; k++) {
+          final i = Q[k];
           Bz[B_offset + i] = X[2 * k];
           Bz[B_offset + i + d] = X[2 * k + 1];
         }
@@ -373,8 +365,8 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
       case 3:
 
-        for (k = 0; k < n; k++) {
-          i = Q[k];
+        for (int k = 0; k < n; k++) {
+          final i = Q[k];
           Bz[B_offset + i] = X[3 * k];
           Bz[B_offset + i + d] = X[3 * k + 1];
           Bz[B_offset + i + d * 2] = X[3 * k + 2];
@@ -383,8 +375,8 @@ int solve(KLU_symbolic Symbolic, KLU_numeric Numeric, int d, int nrhs, Float64Li
 
       case 4:
 
-        for (k = 0; k < n; k++) {
-          i = Q[k];
+        for (int k = 0; k < n; k++) {
+          final i = Q[k];
           Bz[B_offset + i] = X[4 * k];
           Bz[B_offset + i + d] = X[4 * k + 1];
           Bz[B_offset + i + d * 2] = X[4 * k + 2];
